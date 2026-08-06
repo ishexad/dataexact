@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report Builder — Excel to Word</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4F6F8;
+    --card: #FFFFFF;
+    --ink: #16324F;
+    --ink-soft: #4A5C6B;
+    --rule: #D8DEE3;
+    --accent: #2E7D6B;
+    --accent-soft: #E4F0EC;
+    --accent-ink: #1C5647;
+    --danger: #B0554D;
+    --chip: #EEF1F3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+  .app { width: 100%; max-width: 880px; }
+  header { margin-bottom: 36px; }
+  header .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+    font-size: 34px;
+    margin: 0 0 8px 0;
+    line-height: 1.15;
+  }
+  header p { color: var(--ink-soft); font-size: 15px; margin: 0; max-width: 52ch; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .card h2 .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+  .card .hint { color: var(--ink-soft); font-size: 13.5px; margin: 4px 0 18px 0; }
+  .card.disabled { opacity: 0.45; pointer-events: none; }
+
+  /* Upload zone */
+  .dropzone {
+    border: 1.5px dashed var(--rule);
+    border-radius: 4px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: var(--accent-soft); }
+  .dropzone input { display: none; }
+  .dropzone .filename { font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; color: var(--accent-ink); margin-top: 6px; }
+  .dropzone .cta { font-size: 14px; color: var(--ink-soft); }
+  .dropzone .cta strong { color: var(--ink); }
+
+  /* Sheet pills */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 7px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 20px;
+    cursor: pointer;
+    background: var(--card);
+    color: var(--ink-soft);
+  }
+  .pill.selected { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* Column arranging */
+  .arrange-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 620px) { .arrange-grid { grid-template-columns: 1fr; } }
+  .col-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; }
+
+  .chip-pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
+  .chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    background: var(--chip);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 7px 10px;
+    cursor: grab;
+    user-select: none;
+  }
+  .chip:active { cursor: grabbing; }
+  .chip.heading-pick { border-color: var(--accent); color: var(--accent-ink); }
+
+  .structure-list { list-style: none; margin: 0; padding: 0; min-height: 60px; border: 1px dashed var(--rule); border-radius: 4px; padding: 10px; }
+  .structure-list.drag-over { border-color: var(--accent); background: var(--accent-soft); }
+  .structure-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 9px 10px;
+    margin-bottom: 6px;
+    cursor: grab;
+  }
+  .structure-item:last-child { margin-bottom: 0; }
+  .structure-item .idx {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent-ink);
+    width: 18px;
+  }
+  .structure-item .name { font-family: 'IBM Plex Mono', monospace; font-size: 13px; flex: 1; }
+  .structure-item .remove { color: var(--danger); cursor: pointer; font-size: 15px; line-height: 1; }
+  .empty-note { color: var(--ink-soft); font-size: 13px; padding: 8px 2px; }
+
+  .heading-select {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--card);
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  input[type=text].title-input {
+    font-family: 'Source Serif 4', serif;
+    font-size: 16px;
+    padding: 9px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+
+  button.generate {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    font-size: 14.5px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 22px;
+    cursor: pointer;
+  }
+  button.generate:disabled { background: #A9B4BB; cursor: not-allowed; }
+  button.generate:hover:not(:disabled) { background: var(--accent-ink); }
+
+  .status { font-size: 13.5px; margin-top: 12px; }
+  .status.error { color: var(--danger); }
+  .status.ok { color: var(--accent-ink); }
+
+  footer { text-align: center; color: var(--ink-soft); font-size: 12px; margin-top: 28px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="eyebrow">Report Builder</div>
+    <h1>Turn a spreadsheet into a formatted report</h1>
+    <p>Upload an Excel file, choose which column heads each entry, arrange the rest, and download a Word document — one section per row.</p>
+  </header>
+
+  <!-- Step 1: Upload -->
+  <div class="card" id="step-upload">
+    <h2><span class="num">1</span> Upload your file</h2>
+    <div class="hint">.xlsx or .xlsm, up to 10 MB.</div>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" accept=".xlsx,.xlsm">
+      <div class="cta"><strong>Click to choose a file</strong> or drag it here</div>
+      <div class="filename" id="filename"></div>
+    </div>
+  </div>
+
+  <!-- Step 2: Sheet -->
+  <div class="card disabled" id="step-sheet">
+    <h2><span class="num">2</span> Choose a sheet</h2>
+    <div class="hint">Each report is built from one sheet at a time.</div>
+    <div class="pill-row" id="sheetPills"></div>
+  </div>
+
+  <!-- Step 3: Arrange -->
+  <div class="card disabled" id="step-arrange">
+    <h2><span class="num">3</span> Arrange the report structure</h2>
+    <div class="hint">Pick the heading column, then drag the rest into the order they should appear for every row.</div>
+
+    <select class="heading-select" id="headingSelect">
+      <option value="">— choose heading column —</option>
+    </select>
+
+    <div class="arrange-grid">
+      <div>
+        <div class="col-label">Available columns</div>
+        <div class="chip-pool" id="chipPool"></div>
+      </div>
+      <div>
+        <div class="col-label">Report order (drag to reorder)</div>
+        <ul class="structure-list" id="structureList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Generate -->
+  <div class="card disabled" id="step-generate">
+    <h2><span class="num">4</span> Generate</h2>
+    <input type="text" class="title-input" id="titleInput" placeholder="Report title (optional)">
+    <div class="hint" style="margin-top:0;">e.g. "Team Profiles Report"</div>
+    <button class="generate" id="generateBtn" disabled>Generate Word document</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <footer>Files are processed for this session only and not stored beyond generating your report.</footer>
+</div>
+
+<script>
+// Same-origin API (FastAPI serves this file too). Override if hosting separately.
+const API_BASE = "";
+
+let fileId = null;
+let allColumns = [];
+let selectedSheet = null;
+let headingColumn = null;
+let structureOrder = []; // ordered list of column names (excludes heading)
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const filenameEl = document.getElementById('filename');
+const stepSheet = document.getElementById('step-sheet');
+const sheetPills = document.getElementById('sheetPills');
+const stepArrange = document.getElementById('step-arrange');
+const headingSelect = document.getElementById('headingSelect');
+const chipPool = document.getElementById('chipPool');
+const structureList = document.getElementById('structureList');
+const stepGenerate = document.getElementById('step-generate');
+const generateBtn = document.getElementById('generateBtn');
+const statusEl = document.getElementById('status');
+const titleInput = document.getElementById('titleInput');
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) handleFile(fileInput.files[0]);
+});
+
+async function handleFile(file) {
+  filenameEl.textContent = file.name;
+  setStatus('Uploading…', '');
+  const form = new FormData();
+  form.append('file', file);
+  try {
+    const res = await fetch(`${API_BASE}/upload`, { method: 'POST', body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Upload failed');
+    fileId = data.file_id;
+    renderSheets(data.sheets);
+    setStatus('', '');
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+function renderSheets(sheets) {
+  stepSheet.classList.remove('disabled');
+  sheetPills.innerHTML = '';
+  sheets.forEach(sheet => {
+    const pill = document.createElement('div');
+    pill.className = 'pill';
+    pill.textContent = sheet;
+    pill.onclick = () => selectSheet(sheet, pill);
+    sheetPills.appendChild(pill);
+  });
+  // auto-select if only one sheet
+  if (sheets.length === 1) {
+    selectSheet(sheets[0], sheetPills.firstChild);
+  }
+}
+
+async function selectSheet(sheet, pillEl) {
+  selectedSheet = sheet;
+  [...sheetPills.children].forEach(p => p.classList.remove('selected'));
+  pillEl.classList.add('selected');
+
+  try {
+    const res = await fetch(`${API_BASE}/columns?file_id=${fileId}&sheet=${encodeURIComponent(sheet)}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Could not read columns');
+    allColumns = data.columns;
+    headingColumn = null;
+    structureOrder = [];
+    renderArrangeStep();
+  } catch (err) {
+    setStatus(err.message, 'error');
+  }
+}
+
+function renderArrangeStep() {
+  stepArrange.classList.remove('disabled');
+  headingSelect.innerHTML = '<option value="">— choose heading column —</option>';
+  allColumns.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    headingSelect.appendChild(opt);
+  });
+  headingSelect.onchange = () => {
+    headingColumn = headingSelect.value || null;
+    structureOrder = structureOrder.filter(c => c !== headingColumn);
+    renderChipsAndStructure();
+    updateGenerateState();
+  };
+  renderChipsAndStructure();
+}
+
+function renderChipsAndStructure() {
+  // Pool = columns not yet in structureOrder and not the heading column
+  chipPool.innerHTML = '';
+  allColumns
+    .filter(c => c !== headingColumn && !structureOrder.includes(c))
+    .forEach(col => chipPool.appendChild(makeChip(col)));
+
+  structureList.innerHTML = '';
+  if (structureOrder.length === 0) {
+    const note = document.createElement('div');
+    note.className = 'empty-note';
+    note.textContent = 'Drag columns here to build the order.';
+    structureList.appendChild(note);
+  }
+  structureOrder.forEach((col, i) => structureList.appendChild(makeStructureItem(col, i)));
+
+  addDropTargetBehavior();
+}
+
+function makeChip(col) {
+  const chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = col;
+  chip.draggable = true;
+  chip.dataset.col = col;
+  chip.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', col);
+  });
+  return chip;
+}
+
+function makeStructureItem(col, index) {
+  const li = document.createElement('li');
+  li.className = 'structure-item';
+  li.draggable = true;
+  li.dataset.col = col;
+  li.innerHTML = `<span class="idx">${index + 1}.</span><span class="name">${col}</span><span class="remove" title="Remove">×</span>`;
+  li.querySelector('.remove').onclick = () => {
+    structureOrder = structureOrder.filter(c => c !== col);
+    renderChipsAndStructure();
+    updateGenerateState();
+  };
+  li.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', col));
+  return li;
+}
+
+function addDropTargetBehavior() {
+  structureList.ondragover = e => { e.preventDefault(); structureList.classList.add('drag-over'); };
+  structureList.ondragleave = () => structureList.classList.remove('drag-over');
+  structureList.ondrop = e => {
+    e.preventDefault();
+    structureList.classList.remove('drag-over');
+    const col = e.dataTransfer.getData('text/plain');
+    if (!col || col === headingColumn) return;
+    structureOrder = structureOrder.filter(c => c !== col); // remove if reordering within list
+    structureOrder.push(col);
+    renderChipsAndStructure();
+    updateGenerateState();
+  };
+}
+
+function updateGenerateState() {
+  const ready = headingColumn && structureOrder.length > 0;
+  stepGenerate.classList.toggle('disabled', !ready);
+  generateBtn.disabled = !ready;
+}
+
+generateBtn.addEventListener('click', async () => {
+  setStatus('Generating…', '');
+  generateBtn.disabled = true;
+  const form = new FormData();
+  form.append('file_id', fileId);
+  form.append('sheet', selectedSheet);
+  form.append('heading_column', headingColumn);
+  form.append('column_order', [headingColumn, ...structureOrder].join(','));
+  if (titleInput.value.trim()) form.append('title', titleInput.value.trim());
+
+  try {
+    const res = await fetch(`${API_BASE}/generate`, { method: 'POST', body: form });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.detail || 'Generation failed');
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'report.docx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setStatus('Report downloaded.', 'ok');
+  } catch (err) {
+    setStatus(err.message, 'error');
+  } finally {
+    generateBtn.disabled = false;
+  }
+});
+
+function setStatus(msg, cls) {
+  statusEl.textContent = msg;
+  statusEl.className = 'status' + (cls ? ' ' + cls : '');
+}
+</script>
+</body>
+</html>

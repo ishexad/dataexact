@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataExact — Precision Data Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #F7F5EE;
+    --panel:     #FFFFFF;
+    --panel-2:   #EFEDE3;
+    --line:      #DDD9CB;
+    --amber:     #C97A19;
+    --amber-dim: #F0D4A8;
+    --cyan:      #1F8F94;
+    --red:       #D14B3D;
+    --text:      #22261F;
+    --muted:     #767469;
+    --font-display: 'Orbitron', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-mono);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  }
+
+  a{color:inherit; text-decoration:none;}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 28px;}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky; top:0; z-index:100;
+    background:rgba(247,245,238,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height:76px;
+  }
+  .logo{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:1.15rem;
+    letter-spacing:0.06em;
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo .bracket{color:var(--amber);}
+  .logo .blip{
+    width:8px; height:8px; background:var(--cyan);
+    display:inline-block; border-radius:1px;
+    animation:blip 1.6s steps(2,jump-none) infinite;
+  }
+  @keyframes blip{50%{opacity:0.15;}}
+
+  .navlinks{display:flex; align-items:center; gap:4px;}
+
+  .navitem{position:relative;}
+  .navitem > button{
+    font-family:var(--font-mono);
+    background:none; border:none; color:var(--text);
+    font-size:0.85rem; letter-spacing:0.08em; text-transform:uppercase;
+    padding:10px 16px; cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    border:1px solid transparent;
+    transition:border-color .15s, color .15s;
+  }
+  .navitem > button:hover, .navitem > button:focus-visible{
+    color:var(--amber);
+    border-color:var(--line);
+    outline:none;
+  }
+  .navitem .caret{font-size:0.65rem; transition:transform .18s;}
+  .navitem.open .caret{transform:rotate(180deg);}
+
+  .dropdown{
+    position:absolute; top:calc(100% + 8px); left:0;
+    min-width:260px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    box-shadow:0 12px 32px rgba(34,38,31,0.14);
+    opacity:0; visibility:hidden; transform:translateY(-6px);
+    transition:opacity .15s, transform .15s, visibility .15s;
+    padding:6px;
+  }
+  .navitem.open .dropdown{opacity:1; visibility:visible; transform:translateY(0);}
+
+  .dropdown a{
+    display:flex; flex-direction:column; gap:2px;
+    padding:12px 14px;
+    border-left:2px solid transparent;
+    transition:border-color .15s, background .15s;
+  }
+  .dropdown a:hover{border-left-color:var(--amber); background:var(--panel-2);}
+  .dropdown a .d-title{font-family:var(--font-display); font-size:0.82rem; letter-spacing:0.04em; color:var(--text);}
+  .dropdown a .d-sub{font-size:0.72rem; color:var(--muted);}
+
+  .navcontact{
+    font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase;
+    padding:9px 18px;
+    border:1px solid var(--amber);
+    color:var(--amber);
+    transition:background .15s, color .15s;
+  }
+  .navcontact:hover{background:var(--amber); color:#FFFFFF;}
+
+  .navtoggle{display:none; background:none; border:1px solid var(--line); color:var(--text); padding:8px 10px; font-family:var(--font-mono); cursor:pointer;}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:110px 0 90px;
+    border-bottom:1px solid var(--line);
+    overflow:hidden;
+  }
+  .hero-grid-canvas{
+    position:absolute; inset:0; z-index:0;
+    opacity:0.9;
+  }
+  .hero .wrap{position:relative; z-index:1;}
+  .hero-tag{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:0.75rem; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--cyan);
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.65);
+    padding:6px 12px;
+    margin-bottom:28px;
+  }
+  .hero-tag::before{content:''; width:6px; height:6px; background:var(--cyan); border-radius:50%; animation:blip 1.4s infinite;}
+
+  .hero h1{
+    font-family:var(--font-display);
+    font-weight:900;
+    font-size:clamp(2.4rem, 6vw, 4.6rem);
+    line-height:1.02;
+    letter-spacing:0.01em;
+    max-width:11ch;
+    text-transform:uppercase;
+    background:rgba(255,255,255,0.5);
+  }
+  .hero h1 .accent{color:var(--amber);}
+
+  .hero p.lede{
+    margin-top:26px;
+    max-width:520px;
+    color:var(--muted);
+    font-size:1.02rem;
+    background:rgba(255,255,255,0.5);
+  }
+
+  .hero-cta{margin-top:38px; display:flex; gap:16px; flex-wrap:wrap;}
+  .btn{
+    font-family:var(--font-mono);
+    font-size:0.85rem; letter-spacing:0.08em; text-transform:uppercase;
+    padding:14px 26px;
+    cursor:pointer;
+    border:1px solid var(--line);
+    transition:border-color .15s, background .15s, color .15s, transform .1s;
+    display:inline-flex; align-items:center; gap:10px;
+  }
+  .btn-primary{background:var(--amber); color:#FFFFFF; border-color:var(--amber); font-weight:700;}
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{background:rgba(255,255,255,0.6); color:var(--text);}
+  .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan);}
+
+  .stat-strip{
+    margin-top:70px;
+    display:grid; grid-template-columns:repeat(4,1fr);
+    border:1px solid var(--line);
+    background:rgba(255,255,255,0.6);
+  }
+  .stat{padding:20px 22px; border-right:1px solid var(--line);}
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:var(--font-display); font-size:1.6rem; font-weight:800; color:var(--amber);}
+  .stat .label{font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:4px;}
+
+  /* ---------- SECTION SHARED ---------- */
+  section{padding:100px 0;}
+  .section-head{margin-bottom:56px; max-width:640px;}
+  .eyebrow{
+    font-size:0.75rem; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--cyan); margin-bottom:14px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:24px; height:1px; background:var(--cyan);}
+  .section-head h2{
+    font-family:var(--font-display); font-weight:800;
+    font-size:clamp(1.7rem, 3.4vw, 2.5rem);
+    text-transform:uppercase; letter-spacing:0.01em;
+  }
+  .section-head p{color:var(--muted); margin-top:16px; font-size:0.98rem;}
+
+  #products{border-bottom:1px solid var(--line); background:var(--panel);}
+  #services{border-bottom:1px solid var(--line);}
+
+  .card-grid{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line);}
+  .card{
+    background:var(--bg);
+    padding:38px 34px;
+    position:relative;
+    transition:background .18s;
+  }
+  #products .card{background:var(--panel);}
+  .card:hover{background:var(--panel-2);}
+  .card .idx{
+    font-family:var(--font-display); font-size:0.75rem; color:var(--muted);
+    letter-spacing:0.1em;
+  }
+  .card h3{
+    font-family:var(--font-display); font-weight:700; font-size:1.25rem;
+    text-transform:uppercase; margin:16px 0 14px;
+    letter-spacing:0.02em;
+  }
+  .card p{color:var(--muted); font-size:0.92rem; margin-bottom:22px;}
+  .card .tags{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;}
+  .tag{
+    font-size:0.68rem; letter-spacing:0.06em; text-transform:uppercase;
+    border:1px solid var(--line); color:var(--cyan);
+    padding:4px 9px;
+  }
+  .card .cta{
+    font-size:0.8rem; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--amber); display:inline-flex; align-items:center; gap:8px;
+    border-bottom:1px solid transparent;
+  }
+  .card .cta:hover{border-bottom-color:var(--amber);}
+
+  /* mini visual per card */
+  .mini-viz{
+    height:64px; margin-bottom:22px;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    position:relative; overflow:hidden;
+  }
+  .mini-viz .bar{position:absolute; bottom:0; width:6px; background:var(--cyan); opacity:0.85;}
+  .mini-viz .flag{position:absolute; bottom:0; width:6px; background:var(--red);}
+  .mini-viz .scan{
+    position:absolute; top:0; bottom:0; width:1px; background:var(--amber);
+    box-shadow:0 0 8px var(--amber);
+    animation:scan 3.2s linear infinite;
+  }
+  @keyframes scan{0%{left:0;}100%{left:100%;}}
+
+  /* ---------- CONTACT ---------- */
+  #contact{background:var(--panel);}
+  .contact-wrap{display:grid; grid-template-columns:1fr 1.2fr; gap:60px;}
+  .contact-info h2{
+    font-family:var(--font-display); font-weight:800; text-transform:uppercase;
+    font-size:clamp(1.7rem,3.4vw,2.3rem); margin-bottom:18px;
+  }
+  .contact-info p{color:var(--muted); margin-bottom:28px; max-width:38ch;}
+  .contact-line{display:flex; gap:12px; font-size:0.88rem; margin-bottom:12px; color:var(--text);}
+  .contact-line .k{color:var(--muted); min-width:90px; text-transform:uppercase; font-size:0.72rem; letter-spacing:0.08em; padding-top:2px;}
+
+  .terminal{
+    border:1px solid var(--line);
+    background:var(--bg);
+  }
+  .terminal-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 14px; border-bottom:1px solid var(--line);
+    font-size:0.7rem; letter-spacing:0.1em; color:var(--muted); text-transform:uppercase;
+  }
+  .terminal-bar .dot{width:8px; height:8px; border-radius:50%;}
+  .dot.r{background:var(--red);} .dot.a{background:var(--amber);} .dot.c{background:var(--cyan);}
+  .terminal-body{padding:30px;}
+
+  .field{margin-bottom:22px;}
+  .field label{
+    display:block; font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--cyan); margin-bottom:8px;
+  }
+  .field label::before{content:'> ';}
+  .field input, .field select, .field textarea{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:0.92rem;
+    padding:12px 14px;
+    transition:border-color .15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:none; border-color:var(--amber);
+  }
+  .field textarea{resize:vertical; min-height:110px;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+
+  .submit-row{display:flex; align-items:center; gap:18px; margin-top:6px; flex-wrap:wrap;}
+  .form-msg{font-size:0.8rem; color:var(--cyan);}
+
+  /* ---------- FOOTER ---------- */
+  footer{padding:44px 0; border-top:1px solid var(--line);}
+  .foot-wrap{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:18px;}
+  .foot-wrap .logo{font-size:1rem;}
+  .foot-links{display:flex; gap:24px; font-size:0.8rem; color:var(--muted); flex-wrap:wrap;}
+  .foot-links a:hover{color:var(--amber);}
+  .foot-copy{font-size:0.72rem; color:var(--muted); margin-top:18px;}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:860px){
+    .navlinks{
+      position:fixed; top:76px; left:0; right:0;
+      background:var(--bg); border-bottom:1px solid var(--line);
+      flex-direction:column; align-items:stretch;
+      padding:10px; gap:2px;
+      transform:translateY(-8px); opacity:0; visibility:hidden;
+      transition:opacity .18s, transform .18s, visibility .18s;
+    }
+    .navlinks.open{transform:translateY(0); opacity:1; visibility:visible;}
+    .navitem, .navitem > button{width:100%; justify-content:space-between;}
+    .dropdown{position:static; opacity:1; visibility:visible; transform:none; display:none; border:none; border-top:1px solid var(--line);}
+    .navitem.open .dropdown{display:block;}
+    .navtoggle{display:block;}
+    .navcontact{width:100%; text-align:center;}
+    .stat-strip{grid-template-columns:1fr 1fr;}
+    .stat:nth-child(2){border-right:none;}
+    .stat:nth-child(3){border-top:1px solid var(--line);}
+    .stat:nth-child(4){border-top:1px solid var(--line);}
+    .card-grid{grid-template-columns:1fr;}
+    .contact-wrap{grid-template-columns:1fr;}
+    .field-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo"><span class="bracket">[</span>DATAEXACT<span class="bracket">]</span><span class="blip"></span></div>
+
+    <button class="navtoggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">MENU</button>
+
+    <div class="navlinks" id="navLinks">
+      <div class="navitem" id="productsNav">
+        <button aria-haspopup="true" aria-expanded="false">Products <span class="caret">▾</span></button>
+        <div class="dropdown">
+          <a href="/app">
+            <span class="d-title">Excel to Word</span>
+            <span class="d-sub">Turn spreadsheets into formatted documents</span>
+          </a>
+          <a href="#products-anomaly">
+            <span class="d-title">Anomaly Detection</span>
+            <span class="d-sub">Flag outliers in Excel automatically</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="navitem" id="servicesNav">
+        <button aria-haspopup="true" aria-expanded="false">Services <span class="caret">▾</span></button>
+        <div class="dropdown">
+          <a href="#services-audit">
+            <span class="d-title">Data Audit</span>
+            <span class="d-sub">A full review of your data's integrity</span>
+          </a>
+          <a href="#services-dashboard">
+            <span class="d-title">Dashboarding</span>
+            <span class="d-sub">Live dashboards built around your metrics</span>
+          </a>
+        </div>
+      </div>
+
+      <a class="navcontact" href="#contact">Contact</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <canvas class="hero-grid-canvas" id="heroCanvas"></canvas>
+  <div class="wrap">
+    <div class="hero-tag">System status: scanning for anomalies</div>
+    <h1>Your data,<br><span class="accent">exactly.</span></h1>
+    <p class="lede">DataExact builds tools and runs services that turn messy spreadsheets into clean documents, verified numbers, and dashboards you can trust — no guesswork, no manual cross-checking.</p>
+    <div class="hero-cta">
+      <a href="#products" class="btn btn-primary">View products →</a>
+      <a href="#services-audit" class="btn btn-ghost">Book a data audit</a>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat"><div class="num">2</div><div class="label">Products shipped</div></div>
+      <div class="stat"><div class="num">2</div><div class="label">Services offered</div></div>
+      <div class="stat"><div class="num">100%</div><div class="label">Rows checked, every run</div></div>
+      <div class="stat"><div class="num">0</div><div class="label">Manual cross-checks needed</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="products">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Products</div>
+      <h2>Tools that do the tedious part</h2>
+      <p>Two focused tools, built to solve the two spreadsheet problems that eat the most time: reformatting for a document, and finding what doesn't belong.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card" id="products-excel">
+        <div class="idx">PRODUCT / 01</div>
+        <div class="mini-viz" aria-hidden="true">
+          <div class="scan"></div>
+        </div>
+        <h3>Excel to Word</h3>
+        <p>Convert spreadsheets into clean, formatted Word documents in one pass — tables, headers, and summaries carried over correctly, ready to send.</p>
+        <div class="tags"><span class="tag">.xlsx → .docx</span><span class="tag">Auto-formatting</span><span class="tag">Batch export</span></div>
+        <a class="cta" href="/app">Try it now →</a>
+      </div>
+
+      <div class="card" id="products-anomaly">
+        <div class="idx">PRODUCT / 02</div>
+        <div class="mini-viz" id="anomalyViz" aria-hidden="true"></div>
+        <h3>Detect Anomalies in Excel</h3>
+        <p>Scans every row and column for values that break the pattern — typos, outliers, duplicate entries — and flags them before they reach a report.</p>
+        <div class="tags"><span class="tag">Outlier detection</span><span class="tag">Duplicate checks</span><span class="tag">Flag &amp; report</span></div>
+        <a class="cta" href="#contact">Request a demo →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Services</div>
+      <h2>When you need a team on it</h2>
+      <p>For deeper problems than a tool can solve alone — a full audit of your data, or a dashboard built around the metrics that actually matter to you.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card" id="services-audit">
+        <div class="idx">SERVICE / 01</div>
+        <div class="mini-viz" aria-hidden="true"><div class="scan"></div></div>
+        <h3>Data Audit</h3>
+        <p>We go through your datasets end to end — checking accuracy, consistency, and structure — and hand back a clear report of what's wrong and how to fix it.</p>
+        <div class="tags"><span class="tag">Accuracy review</span><span class="tag">Structure check</span><span class="tag">Findings report</span></div>
+        <a class="cta" href="#contact">Book an audit →</a>
+      </div>
+
+      <div class="card" id="services-dashboard">
+        <div class="idx">SERVICE / 02</div>
+        <div class="mini-viz" aria-hidden="true"><div class="scan"></div></div>
+        <h3>Dashboarding</h3>
+        <p>We build a live dashboard around your data, so the numbers that matter are always visible — no more digging through spreadsheets for an answer.</p>
+        <div class="tags"><span class="tag">Live metrics</span><span class="tag">Custom views</span><span class="tag">Built around your data</span></div>
+        <a class="cta" href="#contact">Start a project →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="contact-wrap">
+      <div class="contact-info">
+        <div class="eyebrow">Contact</div>
+        <h2>Tell us what you're working with</h2>
+        <p>Whether it's a product question or a service you want scoped, send it over — a real person on the DataExact team will reply.</p>
+        <div class="contact-line"><span class="k">Email</span><span>hello@dataexact.io</span></div>
+        <div class="contact-line"><span class="k">Response</span><span>Within 1 business day</span></div>
+        <div class="contact-line"><span class="k">Hours</span><span>Mon–Fri, 09:00–18:00</span></div>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="dot r"></span><span class="dot a"></span><span class="dot c"></span>
+          <span>contact_form.exe</span>
+        </div>
+        <div class="terminal-body">
+          <form id="contactForm">
+            <div class="field-row">
+              <div class="field">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required autocomplete="name">
+              </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="interest">I'm interested in</label>
+              <select id="interest" name="interest">
+                <option>Excel to Word</option>
+                <option>Detect Anomalies in Excel</option>
+                <option>Data Audit</option>
+                <option>Dashboarding</option>
+                <option>Something else</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" required placeholder="Tell us about your data and what you need..."></textarea>
+            </div>
+
+            <div class="submit-row">
+              <button type="submit" class="btn btn-primary">Send message →</button>
+              <span class="form-msg" id="formMsg"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-wrap">
+    <div class="logo"><span class="bracket">[</span>DATAEXACT<span class="bracket">]</span></div>
+    <div class="foot-links">
+      <a href="#products">Products</a>
+      <a href="#services">Services</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+  <div class="wrap foot-copy">© 2026 DataExact. All rows accounted for.</div>
+</footer>
+
+<script>
+  // Mobile nav toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => {
+    const isOpen = navLinks.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', isOpen);
+  });
+
+  // Dropdown menus (click to toggle, close on outside click)
+  document.querySelectorAll('.navitem').forEach(item => {
+    const btn = item.querySelector('button');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = !item.classList.contains('open');
+      document.querySelectorAll('.navitem').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('button').setAttribute('aria-expanded', 'false');
+      });
+      if (willOpen) {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.navitem').forEach(i => {
+      i.classList.remove('open');
+      i.querySelector('button').setAttribute('aria-expanded', 'false');
+    });
+  });
+  document.querySelectorAll('.dropdown a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.querySelectorAll('.navitem').forEach(i => i.classList.remove('open'));
+      navLinks.classList.remove('open');
+    });
+  });
+
+  // Contact form (front-end only, no backend)
+  const form = document.getElementById('contactForm');
+  const formMsg = document.getElementById('formMsg');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    formMsg.textContent = '> message received — we\'ll reply within 1 business day.';
+    form.reset();
+  });
+
+  // Hero background grid scanner (signature element)
+  const canvas = document.getElementById('heroCanvas');
+  const ctx = canvas.getContext('2d');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let w, h, cols, rows, cellSize = 34;
+  let cells = [];
+  let scanX = 0;
+
+  function resize() {
+    const hero = canvas.parentElement;
+    w = canvas.width = hero.offsetWidth;
+    h = canvas.height = hero.offsetHeight;
+    cols = Math.ceil(w / cellSize);
+    rows = Math.ceil(h / cellSize);
+    cells = [];
+    for (let x = 0; x < cols; x++) {
+      cells.push([]);
+      for (let y = 0; y < rows; y++) {
+        cells[x].push({ lit: false, anomaly: false, life: 0 });
+      }
+    }
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function step() {
+    // occasionally light up cells near the scan line
+    const colAtScan = Math.floor(scanX / cellSize);
+    for (let dy = 0; dy < rows; dy++) {
+      if (cells[colAtScan] && cells[colAtScan][dy] && Math.random() < 0.02) {
+        cells[colAtScan][dy].lit = true;
+        cells[colAtScan][dy].anomaly = Math.random() < 0.12;
+        cells[colAtScan][dy].life = 40;
+      }
+    }
+
+    ctx.clearRect(0, 0, w, h);
+
+    for (let x = 0; x < cols; x++) {
+      for (let y = 0; y < rows; y++) {
+        const c = cells[x][y];
+        if (c.life > 0) {
+          const alpha = Math.min(1, c.life / 40) * 0.55;
+          ctx.fillStyle = c.anomaly
+            ? `rgba(209, 75, 61, ${alpha})`
+            : `rgba(31, 143, 148, ${alpha * 0.6})`;
+          ctx.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
+          c.life -= 1;
+          if (c.life <= 0) c.lit = false;
+        }
+      }
+    }
+
+    // scan line
+    const grad = ctx.createLinearGradient(scanX - 60, 0, scanX, 0);
+    grad.addColorStop(0, 'rgba(201,122,25,0)');
+    grad.addColorStop(1, 'rgba(201,122,25,0.35)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(scanX - 60, 0, 60, h);
+    ctx.fillStyle = 'rgba(201,122,25,0.7)';
+    ctx.fillRect(scanX, 0, 1.5, h);
+
+    scanX += 2.2;
+    if (scanX > w + 60) scanX = -60;
+
+    if (!prefersReduced) requestAnimationFrame(step);
+  }
+  if (!prefersReduced) requestAnimationFrame(step);
+  else {
+    // static single frame for reduced motion
+    ctx.fillStyle = 'rgba(31,143,148,0.08)';
+    for (let x = 0; x < cols; x += 3) {
+      for (let y = 0; y < rows; y += 4) {
+        ctx.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
+      }
+    }
+  }
+
+  // Small anomaly-viz bars for the product card
+  const anomalyViz = document.getElementById('anomalyViz');
+  if (anomalyViz) {
+    const barCount = 22;
+    const flagIndex = Math.floor(barCount * 0.7);
+    for (let i = 0; i < barCount; i++) {
+      const bar = document.createElement('div');
+      const isFlag = i === flagIndex;
+      bar.className = isFlag ? 'flag' : 'bar';
+      const height = isFlag ? 52 : 8 + Math.random() * 24;
+      bar.style.left = (i * (100 / barCount)) + '%';
+      bar.style.height = height + 'px';
+      anomalyViz.appendChild(bar);
+    }
+  }
+</script>
+
+</body>
+</html>
