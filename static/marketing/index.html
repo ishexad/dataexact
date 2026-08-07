@@ -180,16 +180,7 @@
   .btn-ghost{background:rgba(255,255,255,0.6); color:var(--text);}
   .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan);}
 
-  .stat-strip{
-    margin-top:70px;
-    display:grid; grid-template-columns:repeat(4,1fr);
-    border:1px solid var(--line);
-    background:rgba(255,255,255,0.6);
-  }
-  .stat{padding:20px 22px; border-right:1px solid var(--line);}
-  .stat:last-child{border-right:none;}
-  .stat .num{font-family:var(--font-display); font-size:1.6rem; font-weight:800; color:var(--amber);}
-  .stat .label{font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:4px;}
+  .hero-cta{margin-bottom:40px;}
 
   /* ---------- SECTION SHARED ---------- */
   section{padding:100px 0;}
@@ -240,6 +231,13 @@
     border-bottom:1px solid transparent;
   }
   .card .cta:hover{border-bottom-color:var(--amber);}
+  .card .cta.soon{color:var(--muted); cursor:default;}
+  .card .cta.soon:hover{border-bottom-color:transparent;}
+  .soon-badge{
+    font-family:var(--font-display); font-size:0.62rem; letter-spacing:0.08em;
+    color:var(--muted); border:1px solid var(--line); padding:2px 8px;
+    display:inline-block; margin-bottom:10px;
+  }
 
   /* mini visual per card */
   .mini-viz{
@@ -330,10 +328,6 @@
     .navitem.open .dropdown{display:block;}
     .navtoggle{display:block;}
     .navcontact{width:100%; text-align:center;}
-    .stat-strip{grid-template-columns:1fr 1fr;}
-    .stat:nth-child(2){border-right:none;}
-    .stat:nth-child(3){border-top:1px solid var(--line);}
-    .stat:nth-child(4){border-top:1px solid var(--line);}
     .card-grid{grid-template-columns:1fr;}
     .contact-wrap{grid-template-columns:1fr;}
     .field-row{grid-template-columns:1fr;}
@@ -360,6 +354,14 @@
             <span class="d-title">Anomaly Detection</span>
             <span class="d-sub">Flag outliers in Excel automatically</span>
           </a>
+          <a href="/compare">
+            <span class="d-title">Compare Excel Files</span>
+            <span class="d-sub">Highlight differences between two versions</span>
+          </a>
+          <a href="#products-format">
+            <span class="d-title">Format Report <span style="color:var(--muted); font-size:0.65rem;">— Coming soon</span></span>
+            <span class="d-sub">Apply consistent formatting to a report in one click</span>
+          </a>
         </div>
       </div>
 
@@ -378,9 +380,52 @@
       </div>
 
       <a class="navcontact" href="#contact">Contact</a>
+
+      <div class="navitem" id="authArea">
+        <!-- Filled in by JS below: either "Sign in" buttons or "Signed in as X · Logout" -->
+      </div>
     </div>
   </nav>
 </header>
+
+<style>
+  #authArea{display:flex; align-items:center; gap:10px;}
+  .auth-btn{
+    font-family:var(--font-mono); font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--text); border:1px solid var(--line); background:var(--panel);
+    padding:7px 12px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  }
+  .auth-btn:hover{border-color:var(--cyan); color:var(--cyan);}
+  .auth-status{font-size:0.72rem; letter-spacing:0.04em; color:var(--muted); display:flex; align-items:center; gap:10px;}
+  .auth-status .name{color:var(--text);}
+  .auth-status a{color:var(--amber); text-decoration:none;}
+  .auth-status a:hover{border-bottom:1px solid var(--amber);}
+  @media (max-width:860px){ #authArea{margin-top:14px;} }
+</style>
+
+<script>
+(async function(){
+  const authArea = document.getElementById('authArea');
+  try {
+    const res = await fetch('/me');
+    const data = await res.json();
+    if (data.user) {
+      const name = data.user.name || data.user.email || 'there';
+      authArea.innerHTML = `
+        <div class="auth-status">
+          <span>Signed in as <span class="name">${name}</span></span>
+          <a href="/auth/logout">Logout</a>
+        </div>`;
+    } else {
+      authArea.innerHTML = `
+        <a class="auth-btn" href="/auth/google/login">Sign in with Google</a>
+        <a class="auth-btn" href="/auth/facebook/login">Sign in with Facebook</a>`;
+    }
+  } catch (e) {
+    // Auth backend not reachable — fail quietly, nav still works without it.
+  }
+})();
+</script>
 
 <section class="hero">
   <canvas class="hero-grid-canvas" id="heroCanvas"></canvas>
@@ -392,13 +437,6 @@
       <a href="#products" class="btn btn-primary">View products →</a>
       <a href="#services-audit" class="btn btn-ghost">Book a data audit</a>
     </div>
-
-    <div class="stat-strip">
-      <div class="stat"><div class="num">2</div><div class="label">Products shipped</div></div>
-      <div class="stat"><div class="num">2</div><div class="label">Services offered</div></div>
-      <div class="stat"><div class="num">100%</div><div class="label">Rows checked, every run</div></div>
-      <div class="stat"><div class="num">0</div><div class="label">Manual cross-checks needed</div></div>
-    </div>
   </div>
 </section>
 
@@ -407,7 +445,7 @@
     <div class="section-head">
       <div class="eyebrow">Products</div>
       <h2>Tools that do the tedious part</h2>
-      <p>Two focused tools, built to solve the two spreadsheet problems that eat the most time: reformatting for a document, and finding what doesn't belong.</p>
+      <p>Four focused tools, built to solve the spreadsheet problems that eat the most time: reformatting for a document, tracking what changed, catching what doesn't belong, and getting the layout right. Two are live now, two are on the way.</p>
     </div>
 
     <div class="card-grid">
@@ -424,11 +462,33 @@
 
       <div class="card" id="products-anomaly">
         <div class="idx">PRODUCT / 02</div>
+        <div class="soon-badge">COMING SOON</div>
         <div class="mini-viz" id="anomalyViz" aria-hidden="true"></div>
         <h3>Detect Anomalies in Excel</h3>
         <p>Scans every row and column for values that break the pattern — typos, outliers, duplicate entries — and flags them before they reach a report.</p>
         <div class="tags"><span class="tag">Outlier detection</span><span class="tag">Duplicate checks</span><span class="tag">Flag &amp; report</span></div>
-        <a class="cta" href="#contact">Request a demo →</a>
+        <span class="cta soon">Coming soon</span>
+      </div>
+
+      <div class="card" id="products-compare">
+        <div class="idx">PRODUCT / 03</div>
+        <div class="mini-viz" aria-hidden="true">
+          <div class="scan"></div>
+        </div>
+        <h3>Compare Excel Files</h3>
+        <p>Upload two versions of a spreadsheet and get every changed, added, and removed value highlighted in a single downloadable report — rows matched by key, not position.</p>
+        <div class="tags"><span class="tag">Cell-level diff</span><span class="tag">Key-based matching</span><span class="tag">Highlighted export</span></div>
+        <a class="cta" href="/compare">Try it now →</a>
+      </div>
+
+      <div class="card" id="products-format">
+        <div class="idx">PRODUCT / 04</div>
+        <div class="soon-badge">COMING SOON</div>
+        <div class="mini-viz" aria-hidden="true"></div>
+        <h3>Format Report</h3>
+        <p>Apply a consistent, polished layout to raw spreadsheet data — headers, borders, fonts, and structure — in one click, ready to share.</p>
+        <div class="tags"><span class="tag">Auto-styling</span><span class="tag">Consistent layout</span><span class="tag">One-click formatting</span></div>
+        <span class="cta soon">Coming soon</span>
       </div>
     </div>
   </div>
@@ -471,7 +531,7 @@
         <div class="eyebrow">Contact</div>
         <h2>Tell us what you're working with</h2>
         <p>Whether it's a product question or a service you want scoped, send it over — a real person on the DataExact team will reply.</p>
-        <div class="contact-line"><span class="k">Email</span><span>hello@dataexact.io</span></div>
+        <div class="contact-line"><span class="k">Email</span><span>hello@dataexact.co.uk</span></div>
         <div class="contact-line"><span class="k">Response</span><span>Within 1 business day</span></div>
         <div class="contact-line"><span class="k">Hours</span><span>Mon–Fri, 09:00–18:00</span></div>
       </div>
@@ -543,14 +603,19 @@
   });
 
   // Dropdown menus (click to toggle, close on outside click)
+  // Note: not every .navitem has a <button> inside it (e.g. #authArea is a
+  // plain container for login state), so these all guard with `?.` —
+  // without it, one missing button throws and silently kills the whole
+  // click handler before the menu ever opens.
   document.querySelectorAll('.navitem').forEach(item => {
     const btn = item.querySelector('button');
+    if (!btn) return;
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const willOpen = !item.classList.contains('open');
       document.querySelectorAll('.navitem').forEach(i => {
         i.classList.remove('open');
-        i.querySelector('button').setAttribute('aria-expanded', 'false');
+        i.querySelector('button')?.setAttribute('aria-expanded', 'false');
       });
       if (willOpen) {
         item.classList.add('open');
@@ -561,7 +626,7 @@
   document.addEventListener('click', () => {
     document.querySelectorAll('.navitem').forEach(i => {
       i.classList.remove('open');
-      i.querySelector('button').setAttribute('aria-expanded', 'false');
+      i.querySelector('button')?.setAttribute('aria-expanded', 'false');
     });
   });
   document.querySelectorAll('.dropdown a').forEach(a => {

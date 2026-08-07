@@ -19,8 +19,11 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 
 from converter import get_sheets, get_columns, build_report
+import auth
+import compare
 
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
@@ -47,6 +50,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Needed for login: signs the session cookie that remembers who's logged in.
+# SESSION_SECRET_KEY must be set as a real secret in production (Render env vars).
+# Falls back to a dev-only key so this still runs locally without setup.
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ.get("SESSION_SECRET_KEY", "dev-only-insecure-key-change-me"),
+)
+
+app.include_router(auth.router)
+app.include_router(compare.router)
 
 
 def _sweep_old_files():
@@ -162,6 +176,13 @@ async def app_no_slash():
 # The tool's own UI lives at /app. Mounted before the marketing site so its
 # prefix is matched first.
 app.mount("/app", StaticFiles(directory="static/app", html=True), name="tool")
+
+# Same pattern for the Compare Excel Files tool.
+@app.get("/compare")
+async def compare_no_slash():
+    return RedirectResponse(url="/compare/")
+
+app.mount("/compare", StaticFiles(directory="static/compare", html=True), name="compare-tool")
 
 # DataExact marketing site at the root — its "Excel to Word" product card
 # links to /app. Mounted last (root "/" would otherwise shadow everything).

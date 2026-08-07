@@ -4,3 +4,6 @@ python-docx
 openpyxl
 pandas
 python-multipart
+authlib
+itsdangerous
+httpx

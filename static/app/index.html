@@ -3,222 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Report Builder — Excel to Word</title>
+<title>Excel to Word — DataExact</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --paper: #F4F6F8;
-    --card: #FFFFFF;
-    --ink: #16324F;
-    --ink-soft: #4A5C6B;
-    --rule: #D8DEE3;
-    --accent: #2E7D6B;
-    --accent-soft: #E4F0EC;
-    --accent-ink: #1C5647;
-    --danger: #B0554D;
-    --chip: #EEF1F3;
+  :root{
+    --bg:        #F7F5EE;
+    --panel:     #FFFFFF;
+    --panel-2:   #EFEDE3;
+    --line:      #DDD9CB;
+    --amber:     #C97A19;
+    --amber-dim: #F0D4A8;
+    --cyan:      #1F8F94;
+    --red:       #D14B3D;
+    --text:      #22261F;
+    --muted:     #767469;
+    --font-display: 'Orbitron', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
   }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'IBM Plex Sans', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    padding: 48px 20px;
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-mono);
+    line-height:1.6;
+    min-height:100vh;
+    padding:56px 20px;
   }
-  .app { width: 100%; max-width: 880px; }
-  header { margin-bottom: 36px; }
-  header .eyebrow {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent-ink);
-    margin-bottom: 8px;
-  }
-  h1 {
-    font-family: 'Source Serif 4', serif;
-    font-weight: 600;
-    font-size: 34px;
-    margin: 0 0 8px 0;
-    line-height: 1.15;
-  }
-  header p { color: var(--ink-soft); font-size: 15px; margin: 0; max-width: 52ch; }
+  .wrap{max-width:920px; margin:0 auto;}
 
-  .card {
-    background: var(--card);
-    border: 1px solid var(--rule);
-    border-radius: 4px;
-    padding: 28px;
-    margin-bottom: 20px;
+  a.back{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--muted); text-decoration:none; margin-bottom:32px;
   }
-  .card h2 {
-    font-family: 'Source Serif 4', serif;
-    font-size: 19px;
-    font-weight: 600;
-    margin: 0 0 4px 0;
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-  }
-  .card h2 .num {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    color: var(--accent-ink);
-    background: var(--accent-soft);
-    padding: 2px 7px;
-    border-radius: 3px;
-  }
-  .card .hint { color: var(--ink-soft); font-size: 13.5px; margin: 4px 0 18px 0; }
-  .card.disabled { opacity: 0.45; pointer-events: none; }
+  a.back:hover{color:var(--cyan);}
 
-  /* Upload zone */
-  .dropzone {
-    border: 1.5px dashed var(--rule);
-    border-radius: 4px;
-    padding: 32px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+  .eyebrow{
+    font-size:0.75rem; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--cyan); margin-bottom:14px; display:flex; align-items:center; gap:10px;
   }
-  .dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: var(--accent-soft); }
-  .dropzone input { display: none; }
-  .dropzone .filename { font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; color: var(--accent-ink); margin-top: 6px; }
-  .dropzone .cta { font-size: 14px; color: var(--ink-soft); }
-  .dropzone .cta strong { color: var(--ink); }
+  .eyebrow::before{content:''; width:24px; height:1px; background:var(--cyan);}
 
-  /* Sheet pills */
-  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
-  .pill {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    padding: 7px 14px;
-    border: 1px solid var(--rule);
-    border-radius: 20px;
-    cursor: pointer;
-    background: var(--card);
-    color: var(--ink-soft);
+  h1{
+    font-family:var(--font-display); font-weight:800;
+    font-size:clamp(1.7rem, 3.4vw, 2.5rem);
+    text-transform:uppercase; letter-spacing:0.01em;
+    margin-bottom:14px;
   }
-  .pill.selected { background: var(--ink); color: #fff; border-color: var(--ink); }
+  header p{color:var(--muted); font-size:0.95rem; max-width:56ch; margin-bottom:44px;}
 
-  /* Column arranging */
-  .arrange-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  @media (max-width: 620px) { .arrange-grid { grid-template-columns: 1fr; } }
-  .col-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; }
-
-  .chip-pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
-  .chip {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    background: var(--chip);
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    padding: 7px 10px;
-    cursor: grab;
-    user-select: none;
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:32px 30px;
+    margin-bottom:1px;
   }
-  .chip:active { cursor: grabbing; }
-  .chip.heading-pick { border-color: var(--accent); color: var(--accent-ink); }
+  .card.disabled{opacity:0.4; pointer-events:none;}
 
-  .structure-list { list-style: none; margin: 0; padding: 0; min-height: 60px; border: 1px dashed var(--rule); border-radius: 4px; padding: 10px; }
-  .structure-list.drag-over { border-color: var(--accent); background: var(--accent-soft); }
-  .structure-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--card);
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    padding: 9px 10px;
-    margin-bottom: 6px;
-    cursor: grab;
+  .card h2{
+    font-family:var(--font-display); font-weight:700; font-size:1.05rem;
+    text-transform:uppercase; letter-spacing:0.04em;
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:6px;
   }
-  .structure-item:last-child { margin-bottom: 0; }
-  .structure-item .idx {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--accent-ink);
-    width: 18px;
+  .card h2 .num{
+    font-family:var(--font-display); font-size:0.75rem; color:var(--cyan);
+    border:1px solid var(--cyan); padding:2px 8px;
   }
-  .structure-item .name { font-family: 'IBM Plex Mono', monospace; font-size: 13px; flex: 1; }
-  .structure-item .remove { color: var(--danger); cursor: pointer; font-size: 15px; line-height: 1; }
-  .empty-note { color: var(--ink-soft); font-size: 13px; padding: 8px 2px; }
+  .card .hint{color:var(--muted); font-size:0.85rem; margin:6px 0 22px 0;}
 
-  .heading-select {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    padding: 8px 10px;
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    background: var(--card);
-    width: 100%;
-    margin-bottom: 16px;
+  .dropzone{
+    border:1px dashed var(--line);
+    padding:36px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .dropzone:hover, .dropzone.drag-over{border-color:var(--cyan); background:var(--panel-2);}
+  .dropzone input{display:none;}
+  .dropzone .filename{font-size:0.85rem; color:var(--cyan); margin-top:10px; letter-spacing:0.02em;}
+  .dropzone .cta-text{font-size:0.85rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted);}
+  .dropzone .cta-text strong{color:var(--text);}
+
+  .pill-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .pill{
+    font-family:var(--font-mono); font-size:0.8rem; letter-spacing:0.04em;
+    padding:8px 16px;
+    border:1px solid var(--line);
+    cursor:pointer;
+    background:var(--bg);
+    color:var(--muted);
+  }
+  .pill.selected{background:var(--text); color:var(--bg); border-color:var(--text);}
+
+  .arrange-grid{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line);}
+  @media (max-width: 620px){.arrange-grid{grid-template-columns:1fr;}}
+  .arrange-col{background:var(--panel); padding:22px;}
+  .col-label{
+    font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);
+    margin-bottom:14px;
   }
 
-  input[type=text].title-input {
-    font-family: 'Source Serif 4', serif;
-    font-size: 16px;
-    padding: 9px 12px;
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    width: 100%;
-    margin-bottom: 4px;
+  .chip-pool{display:flex; flex-wrap:wrap; gap:8px; min-height:40px;}
+  .chip{
+    font-family:var(--font-mono); font-size:0.78rem;
+    background:var(--bg);
+    border:1px solid var(--line);
+    padding:8px 12px;
+    cursor:grab;
+    user-select:none;
+    color:var(--text);
+  }
+  .chip:active{cursor:grabbing;}
+
+  .structure-list{list-style:none; min-height:60px; border:1px dashed var(--line); padding:10px;}
+  .structure-list.drag-over{border-color:var(--cyan); background:var(--panel-2);}
+  .structure-item{
+    display:flex; align-items:center; gap:10px;
+    background:var(--bg);
+    border:1px solid var(--line);
+    padding:10px 12px;
+    margin-bottom:6px;
+    cursor:grab;
+  }
+  .structure-item:last-child{margin-bottom:0;}
+  .structure-item .idx{
+    font-family:var(--font-display); font-size:0.72rem; color:var(--cyan); width:20px;
+  }
+  .structure-item .name{font-family:var(--font-mono); font-size:0.8rem; flex:1;}
+  .structure-item .remove{color:var(--red); cursor:pointer; font-size:1rem; line-height:1;}
+  .empty-note{color:var(--muted); font-size:0.8rem; padding:8px 2px;}
+
+  select.heading-select{
+    font-family:var(--font-mono); font-size:0.8rem;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--text);
+    width:100%;
+    margin-bottom:20px;
+    appearance:none;
+    letter-spacing:0.02em;
   }
 
-  button.generate {
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 600;
-    font-size: 14.5px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 12px 22px;
-    cursor: pointer;
+  input[type=text].title-input{
+    font-family:var(--font-mono); font-size:0.9rem;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--text);
+    width:100%;
+    margin-bottom:6px;
   }
-  button.generate:disabled { background: #A9B4BB; cursor: not-allowed; }
-  button.generate:hover:not(:disabled) { background: var(--accent-ink); }
 
-  .status { font-size: 13.5px; margin-top: 12px; }
-  .status.error { color: var(--danger); }
-  .status.ok { color: var(--accent-ink); }
+  button.generate{
+    font-family:var(--font-display); font-weight:700;
+    font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase;
+    background:var(--amber);
+    color:var(--bg);
+    border:none;
+    padding:14px 26px;
+    cursor:pointer;
+    margin-top:18px;
+  }
+  button.generate:disabled{background:var(--line); color:var(--muted); cursor:not-allowed;}
+  button.generate:hover:not(:disabled){background:#B06A12;}
 
-  footer { text-align: center; color: var(--ink-soft); font-size: 12px; margin-top: 28px; }
+  .status{font-size:0.8rem; margin-top:14px; letter-spacing:0.02em;}
+  .status.error{color:var(--red);}
+  .status.ok{color:var(--cyan);}
+
+  footer{text-align:center; color:var(--muted); font-size:0.7rem; letter-spacing:0.05em; text-transform:uppercase; margin-top:36px;}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="wrap">
+  <a class="back" href="/">← DataExact</a>
+
   <header>
-    <div class="eyebrow">Report Builder</div>
-    <h1>Turn a spreadsheet into a formatted report</h1>
-    <p>Upload an Excel file, choose which column heads each entry, arrange the rest, and download a Word document — one section per row.</p>
+    <div class="eyebrow">Tool</div>
+    <h1>Excel to Word</h1>
+    <p>Upload a spreadsheet, choose which column heads each entry, arrange the rest, and download a formatted Word report — one section per row.</p>
   </header>
 
-  <!-- Step 1: Upload -->
   <div class="card" id="step-upload">
-    <h2><span class="num">1</span> Upload your file</h2>
+    <h2><span class="num">01</span> Upload your file</h2>
     <div class="hint">.xlsx or .xlsm, up to 10 MB.</div>
     <div class="dropzone" id="dropzone">
       <input type="file" id="fileInput" accept=".xlsx,.xlsm">
-      <div class="cta"><strong>Click to choose a file</strong> or drag it here</div>
+      <div class="cta-text"><strong>Click to choose a file</strong> or drag it here</div>
       <div class="filename" id="filename"></div>
     </div>
   </div>
 
-  <!-- Step 2: Sheet -->
   <div class="card disabled" id="step-sheet">
-    <h2><span class="num">2</span> Choose a sheet</h2>
+    <h2><span class="num">02</span> Choose a sheet</h2>
     <div class="hint">Each report is built from one sheet at a time.</div>
     <div class="pill-row" id="sheetPills"></div>
   </div>
 
-  <!-- Step 3: Arrange -->
   <div class="card disabled" id="step-arrange">
-    <h2><span class="num">3</span> Arrange the report structure</h2>
+    <h2><span class="num">03</span> Arrange the report structure</h2>
     <div class="hint">Pick the heading column, then drag the rest into the order they should appear for every row.</div>
 
     <select class="heading-select" id="headingSelect">
@@ -226,23 +214,22 @@
     </select>
 
     <div class="arrange-grid">
-      <div>
-        <div class="col-label">Available columns</div>
+      <div class="arrange-col">
+        <div class="col-label">Available Columns</div>
         <div class="chip-pool" id="chipPool"></div>
       </div>
-      <div>
-        <div class="col-label">Report order (drag to reorder)</div>
+      <div class="arrange-col">
+        <div class="col-label">Report Order</div>
         <ul class="structure-list" id="structureList"></ul>
       </div>
     </div>
   </div>
 
-  <!-- Step 4: Generate -->
   <div class="card disabled" id="step-generate">
-    <h2><span class="num">4</span> Generate</h2>
+    <h2><span class="num">04</span> Generate</h2>
     <input type="text" class="title-input" id="titleInput" placeholder="Report title (optional)">
     <div class="hint" style="margin-top:0;">e.g. "Team Profiles Report"</div>
-    <button class="generate" id="generateBtn" disabled>Generate Word document</button>
+    <button class="generate" id="generateBtn" disabled>Generate Word Document</button>
     <div class="status" id="status"></div>
   </div>
 
@@ -250,14 +237,13 @@
 </div>
 
 <script>
-// Same-origin API (FastAPI serves this file too). Override if hosting separately.
 const API_BASE = "";
 
 let fileId = null;
 let allColumns = [];
 let selectedSheet = null;
 let headingColumn = null;
-let structureOrder = []; // ordered list of column names (excludes heading)
+let structureOrder = [];
 
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('fileInput');
@@ -312,7 +298,6 @@ function renderSheets(sheets) {
     pill.onclick = () => selectSheet(sheet, pill);
     sheetPills.appendChild(pill);
   });
-  // auto-select if only one sheet
   if (sheets.length === 1) {
     selectSheet(sheets[0], sheetPills.firstChild);
   }
@@ -354,7 +339,6 @@ function renderArrangeStep() {
 }
 
 function renderChipsAndStructure() {
-  // Pool = columns not yet in structureOrder and not the heading column
   chipPool.innerHTML = '';
   allColumns
     .filter(c => c !== headingColumn && !structureOrder.includes(c))
@@ -378,9 +362,7 @@ function makeChip(col) {
   chip.textContent = col;
   chip.draggable = true;
   chip.dataset.col = col;
-  chip.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/plain', col);
-  });
+  chip.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', col));
   return chip;
 }
 
@@ -389,7 +371,7 @@ function makeStructureItem(col, index) {
   li.className = 'structure-item';
   li.draggable = true;
   li.dataset.col = col;
-  li.innerHTML = `<span class="idx">${index + 1}.</span><span class="name">${col}</span><span class="remove" title="Remove">×</span>`;
+  li.innerHTML = `<span class="idx">${String(index + 1).padStart(2,'0')}</span><span class="name">${col}</span><span class="remove" title="Remove">×</span>`;
   li.querySelector('.remove').onclick = () => {
     structureOrder = structureOrder.filter(c => c !== col);
     renderChipsAndStructure();
@@ -407,7 +389,7 @@ function addDropTargetBehavior() {
     structureList.classList.remove('drag-over');
     const col = e.dataTransfer.getData('text/plain');
     if (!col || col === headingColumn) return;
-    structureOrder = structureOrder.filter(c => c !== col); // remove if reordering within list
+    structureOrder = structureOrder.filter(c => c !== col);
     structureOrder.push(col);
     renderChipsAndStructure();
     updateGenerateState();
