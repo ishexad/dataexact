@@ -538,7 +538,7 @@
           <span>contact_form.exe</span>
         </div>
         <div class="terminal-body">
-          <form id="contactForm">
+          <form id="contactForm" action="https://formspree.io/f/xljrdzej" method="POST">
             <div class="field-row">
               <div class="field">
                 <label for="name">Name</label>
@@ -632,13 +632,27 @@
     });
   });
 
-  // Contact form (front-end only, no backend)
+  // Contact form -> Formspree
   const form = document.getElementById('contactForm');
   const formMsg = document.getElementById('formMsg');
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    formMsg.textContent = '> message received — we\'ll reply within 1 business day.';
-    form.reset();
+    formMsg.textContent = '> sending...';
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' },
+      });
+      if (res.ok) {
+        formMsg.textContent = '> message received — we\'ll reply within 1 business day.';
+        form.reset();
+      } else {
+        formMsg.textContent = '> something went wrong — please email hello@dataexact.co.uk directly.';
+      }
+    } catch (err) {
+      formMsg.textContent = '> something went wrong — please email hello@dataexact.co.uk directly.';
+    }
   });
 
   // Hero background grid scanner (signature element)
