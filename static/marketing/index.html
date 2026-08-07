@@ -416,10 +416,6 @@
           <span>Signed in as <span class="name">${name}</span></span>
           <a href="/auth/logout">Logout</a>
         </div>`;
-    } else {
-      authArea.innerHTML = `
-        <a class="auth-btn" href="/auth/google/login">Sign in with Google</a>
-        <a class="auth-btn" href="/auth/facebook/login">Sign in with Facebook</a>`;
     }
   } catch (e) {
     // Auth backend not reachable — fail quietly, nav still works without it.
