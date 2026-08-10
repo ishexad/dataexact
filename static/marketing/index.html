@@ -792,13 +792,13 @@
     }
   });
 
-  // Hero background grid scanner (signature element)
+  // Hero background grid — lights up in a pixelated pattern under the cursor (signature element)
   const canvas = document.getElementById('heroCanvas');
   const ctx = canvas.getContext('2d');
+  const heroSection = canvas.closest('.hero');
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let w, h, cols, rows, cellSize = 34;
   let cells = [];
-  let scanX = 0;
 
   function resize() {
     const hero = canvas.parentElement;
@@ -810,26 +810,36 @@
     for (let x = 0; x < cols; x++) {
       cells.push([]);
       for (let y = 0; y < rows; y++) {
-        cells[x].push({ lit: false, anomaly: false, life: 0 });
+        cells[x].push({ anomaly: false, life: 0 });
       }
     }
   }
   window.addEventListener('resize', resize);
   resize();
 
-  function step() {
-    // occasionally light up cells near the scan line
-    const colAtScan = Math.floor(scanX / cellSize);
-    for (let dy = 0; dy < rows; dy++) {
-      if (cells[colAtScan] && cells[colAtScan][dy] && Math.random() < 0.02) {
-        cells[colAtScan][dy].lit = true;
-        cells[colAtScan][dy].anomaly = Math.random() < 0.12;
-        cells[colAtScan][dy].life = 40;
+  if (!prefersReduced) {
+    heroSection.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const cx = Math.floor((e.clientX - rect.left) / cellSize);
+      const cy = Math.floor((e.clientY - rect.top) / cellSize);
+      const radius = 2;
+      for (let dx = -radius; dx <= radius; dx++) {
+        for (let dy = -radius; dy <= radius; dy++) {
+          const x = cx + dx, y = cy + dy;
+          if (!cells[x] || !cells[x][y]) continue;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > radius) continue;
+          if (Math.random() < 0.35 / (dist + 1)) {
+            cells[x][y].anomaly = Math.random() < 0.12;
+            cells[x][y].life = 40;
+          }
+        }
       }
-    }
+    });
+  }
 
+  function draw() {
     ctx.clearRect(0, 0, w, h);
-
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
         const c = cells[x][y];
@@ -840,35 +850,12 @@
             : `rgba(31, 143, 148, ${alpha * 0.6})`;
           ctx.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
           c.life -= 1;
-          if (c.life <= 0) c.lit = false;
         }
       }
     }
-
-    // scan line
-    const grad = ctx.createLinearGradient(scanX - 60, 0, scanX, 0);
-    grad.addColorStop(0, 'rgba(201,122,25,0)');
-    grad.addColorStop(1, 'rgba(201,122,25,0.35)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(scanX - 60, 0, 60, h);
-    ctx.fillStyle = 'rgba(201,122,25,0.7)';
-    ctx.fillRect(scanX, 0, 1.5, h);
-
-    scanX += 2.2;
-    if (scanX > w + 60) scanX = -60;
-
-    if (!prefersReduced) requestAnimationFrame(step);
+    if (!prefersReduced) requestAnimationFrame(draw);
   }
-  if (!prefersReduced) requestAnimationFrame(step);
-  else {
-    // static single frame for reduced motion
-    ctx.fillStyle = 'rgba(31,143,148,0.08)';
-    for (let x = 0; x < cols; x += 3) {
-      for (let y = 0; y < rows; y += 4) {
-        ctx.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
-      }
-    }
-  }
+  if (!prefersReduced) requestAnimationFrame(draw);
 
 </script>
 
