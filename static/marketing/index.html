@@ -142,6 +142,63 @@
     opacity:0.9;
   }
   .hero .wrap{position:relative; z-index:1;}
+
+  .hero-inner{display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:stretch;}
+  @media (max-width:900px){.hero-inner{grid-template-columns:1fr; gap:40px;}}
+
+  .hero-copy{display:flex; flex-direction:column; justify-content:center;}
+
+  .hero-widget{
+    background:var(--panel);
+    border:1px solid var(--line);
+    box-shadow:0 20px 50px rgba(34,38,31,0.10);
+    padding:26px;
+    display:flex;
+    flex-direction:column;
+    height:100%;
+  }
+  .hero-widget .widget-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .hero-widget .widget-label{font-family:var(--font-display); font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase;}
+  .hero-widget .widget-badge{font-size:0.62rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--cyan); border:1px solid var(--cyan); padding:3px 8px;}
+
+  .hero-widget .dropzone{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    border:1px dashed var(--line);
+    padding:34px 20px;
+    text-align:center;
+    cursor:pointer;
+    background:var(--panel-2);
+    transition:border-color .15s, background .15s;
+  }
+  .hero-widget .dropzone:hover, .hero-widget .dropzone.drag-over{border-color:var(--cyan); background:rgba(31,143,148,0.08);}
+  .hero-widget .dropzone input{display:none;}
+  .hero-widget .dz-icon{font-size:1.4rem; color:var(--amber); margin-bottom:10px;}
+  .hero-widget .dz-text{font-size:0.85rem; color:var(--muted);}
+  .hero-widget .dz-text strong{color:var(--text); display:block; margin-bottom:2px;}
+  .hero-widget .dz-filename{margin-top:12px; font-size:0.82rem; color:var(--cyan); word-break:break-all;}
+
+  .hero-widget .widget-status{font-size:0.8rem; margin-top:14px; min-height:1.2em;}
+  .hero-widget .widget-status.error{color:var(--red);}
+  .hero-widget .widget-status.ok{color:var(--cyan);}
+
+  .hero-widget .widget-note{font-size:0.74rem; color:var(--muted); margin-top:16px; line-height:1.5;}
+  .hero-widget .widget-note a{color:var(--amber);}
+  .hero-widget .widget-note a:hover{border-bottom:1px solid var(--amber);}
+
+  /* ---------- COMPACT SECONDARY TOOLS ROW ---------- */
+  .tool-row{display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  @media (max-width:860px){.tool-row{grid-template-columns:1fr;}}
+  .tool-row .tcard{background:var(--panel); padding:28px 26px;}
+  .tool-row .tcard h3{
+    font-family:var(--font-display); font-weight:700; font-size:0.98rem;
+    text-transform:uppercase; letter-spacing:0.02em; margin-bottom:10px;
+  }
+  .tool-row .tcard p{color:var(--muted); font-size:0.85rem; margin-bottom:16px;}
+
   .hero-tag{
     display:inline-flex; align-items:center; gap:8px;
     font-size:0.75rem; letter-spacing:0.14em; text-transform:uppercase;
@@ -434,64 +491,136 @@
 <section class="hero">
   <canvas class="hero-grid-canvas" id="heroCanvas"></canvas>
   <div class="wrap">
-    <div class="hero-tag">System status: scanning for anomalies</div>
-    <h1>Your data,<br><span class="accent">exactly.</span></h1>
-    <p class="lede">DataExact builds tools and runs services that turn messy spreadsheets into clean documents, verified numbers, and dashboards you can trust — no guesswork, no manual cross-checking.</p>
-    <div class="hero-cta">
-      <a href="#products" class="btn btn-primary">View products →</a>
-      <a href="#services-audit" class="btn btn-ghost">Book a data audit</a>
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="hero-tag">Live tool — convert now, no signup</div>
+        <h1>Excel to Word,<br><span class="accent">in one drop.</span></h1>
+        <p class="lede">Upload a spreadsheet and get back a clean, formatted Word document — one section per row, headings and labels done for you. Built by DataExact, the team behind tools and services for trustworthy spreadsheets.</p>
+        <div class="hero-cta">
+          <a href="#heroWidget" class="btn btn-primary" id="heroCtaBtn">Convert a file now →</a>
+          <a href="/app" class="btn btn-ghost">Open the full tool</a>
+        </div>
+      </div>
+
+      <div class="hero-widget" id="heroWidget">
+        <div class="widget-top">
+          <span class="widget-label">Excel → Word</span>
+          <span class="widget-badge">Try it</span>
+        </div>
+        <div class="dropzone" id="heroDropzone">
+          <input type="file" id="heroFileInput" accept=".xlsx,.xlsm">
+          <div class="dz-icon">⇪</div>
+          <div class="dz-text"><strong>Drop your .xlsx here</strong>or click to choose a file</div>
+          <div class="dz-filename" id="heroFilename"></div>
+        </div>
+        <div class="widget-status" id="heroStatus"></div>
+        <div class="widget-note">Converts instantly using your first column as the heading and the rest in sheet order. Need to choose the columns and order yourself? <a href="/app">Open the full tool →</a></div>
+      </div>
     </div>
   </div>
 </section>
 
+<script>
+(function(){
+  const dropzone = document.getElementById('heroDropzone');
+  const fileInput = document.getElementById('heroFileInput');
+  const filenameEl = document.getElementById('heroFilename');
+  const statusEl = document.getElementById('heroStatus');
+  const ctaBtn = document.getElementById('heroCtaBtn');
+
+  ctaBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    fileInput.click();
+  });
+  dropzone.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) handleFile(fileInput.files[0]);
+  });
+
+  async function handleFile(file) {
+    filenameEl.textContent = file.name;
+    setStatus('Uploading…', '');
+    const uploadForm = new FormData();
+    uploadForm.append('file', file);
+
+    try {
+      const uploadRes = await fetch('/upload', { method: 'POST', body: uploadForm });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) throw new Error(uploadData.detail || 'Upload failed');
+
+      const sheet = uploadData.sheets[0];
+      const colsRes = await fetch(`/columns?file_id=${uploadData.file_id}&sheet=${encodeURIComponent(sheet)}`);
+      const colsData = await colsRes.json();
+      if (!colsRes.ok) throw new Error(colsData.detail || 'Could not read that sheet');
+      if (!colsData.columns.length) throw new Error('No columns found in that sheet');
+
+      setStatus('Generating your Word document…', '');
+      const heading = colsData.columns[0];
+      const genForm = new FormData();
+      genForm.append('file_id', uploadData.file_id);
+      genForm.append('sheet', sheet);
+      genForm.append('heading_column', heading);
+      genForm.append('column_order', colsData.columns.join(','));
+
+      const genRes = await fetch('/generate', { method: 'POST', body: genForm });
+      if (!genRes.ok) {
+        const errData = await genRes.json();
+        throw new Error(errData.detail || 'Generation failed');
+      }
+      const blob = await genRes.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'report.docx';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setStatus('Done — your report downloaded.', 'ok');
+    } catch (err) {
+      setStatus(err.message, 'error');
+    }
+  }
+
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className = 'widget-status' + (cls ? ' ' + cls : '');
+  }
+})();
+</script>
+
 <section id="products">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow">Products</div>
-      <h2>Tools that do the tedious part</h2>
-      <p>Four focused tools, built to solve the spreadsheet problems that eat the most time: reformatting for a document, tracking what changed, catching what doesn't belong, and getting the layout right. Two are live now, two are on the way.</p>
+      <div class="eyebrow">More tools</div>
+      <h2>Also from DataExact</h2>
+      <p>Excel to Word is our flagship — try it above. Here's the rest of what we're building around the same problem: getting spreadsheets into shape.</p>
     </div>
 
-    <div class="card-grid">
-      <div class="card" id="products-excel">
-        <div class="idx">PRODUCT / 01</div>
-        <div class="mini-viz" aria-hidden="true">
-          <div class="scan"></div>
-        </div>
-        <h3>Excel to Word</h3>
-        <p>Convert spreadsheets into clean, formatted Word documents in one pass — tables, headers, and summaries carried over correctly, ready to send.</p>
-        <div class="tags"><span class="tag">.xlsx → .docx</span><span class="tag">Auto-formatting</span><span class="tag">Batch export</span></div>
-        <a class="cta" href="/app">Try it now →</a>
-      </div>
-
-      <div class="card" id="products-anomaly">
-        <div class="idx">PRODUCT / 02</div>
-        <div class="soon-badge">COMING SOON</div>
-        <div class="mini-viz" id="anomalyViz" aria-hidden="true"></div>
-        <h3>Detect Anomalies in Excel</h3>
-        <p>Scans every row and column for values that break the pattern — typos, outliers, duplicate entries — and flags them before they reach a report.</p>
-        <div class="tags"><span class="tag">Outlier detection</span><span class="tag">Duplicate checks</span><span class="tag">Flag &amp; report</span></div>
-        <span class="cta soon">Coming soon</span>
-      </div>
-
-      <div class="card" id="products-compare">
-        <div class="idx">PRODUCT / 03</div>
-        <div class="mini-viz" aria-hidden="true">
-          <div class="scan"></div>
-        </div>
+    <div class="tool-row">
+      <div class="tcard" id="products-compare">
         <h3>Compare Excel Files</h3>
         <p>Upload two versions of a spreadsheet and get every changed, added, and removed value highlighted in a single downloadable report — rows matched by key, not position.</p>
-        <div class="tags"><span class="tag">Cell-level diff</span><span class="tag">Key-based matching</span><span class="tag">Highlighted export</span></div>
         <a class="cta" href="/compare">Try it now →</a>
       </div>
 
-      <div class="card" id="products-format">
-        <div class="idx">PRODUCT / 04</div>
+      <div class="tcard" id="products-anomaly">
         <div class="soon-badge">COMING SOON</div>
-        <div class="mini-viz" aria-hidden="true"></div>
+        <h3>Detect Anomalies in Excel</h3>
+        <p>Scans every row and column for values that break the pattern — typos, outliers, duplicate entries — and flags them before they reach a report.</p>
+        <span class="cta soon">Coming soon</span>
+      </div>
+
+      <div class="tcard" id="products-format">
+        <div class="soon-badge">COMING SOON</div>
         <h3>Format Report</h3>
         <p>Apply a consistent, polished layout to raw spreadsheet data — headers, borders, fonts, and structure — in one click, ready to share.</p>
-        <div class="tags"><span class="tag">Auto-styling</span><span class="tag">Consistent layout</span><span class="tag">One-click formatting</span></div>
         <span class="cta soon">Coming soon</span>
       </div>
     </div>
@@ -741,21 +870,6 @@
     }
   }
 
-  // Small anomaly-viz bars for the product card
-  const anomalyViz = document.getElementById('anomalyViz');
-  if (anomalyViz) {
-    const barCount = 22;
-    const flagIndex = Math.floor(barCount * 0.7);
-    for (let i = 0; i < barCount; i++) {
-      const bar = document.createElement('div');
-      const isFlag = i === flagIndex;
-      bar.className = isFlag ? 'flag' : 'bar';
-      const height = isFlag ? 52 : 8 + Math.random() * 24;
-      bar.style.left = (i * (100 / barCount)) + '%';
-      bar.style.height = height + 'px';
-      anomalyViz.appendChild(bar);
-    }
-  }
 </script>
 
 </body>
