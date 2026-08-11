@@ -25,6 +25,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from converter import get_sheets, get_columns, build_report
+import anomaly_detector
 import auth
 import billing
 import compare
@@ -70,6 +71,7 @@ app.include_router(auth.router)
 app.include_router(billing.router)
 app.include_router(compare.router)
 app.include_router(format_report.router)
+app.include_router(anomaly_detector.router)
 
 
 def _sweep_old_files():
@@ -211,6 +213,13 @@ async def format_no_slash():
     return RedirectResponse(url="/format/")
 
 app.mount("/format", StaticFiles(directory="static/format", html=True), name="format-tool")
+
+# Same pattern for the Detect Anomalies in Excel tool.
+@app.get("/anomaly")
+async def anomaly_no_slash():
+    return RedirectResponse(url="/anomaly/")
+
+app.mount("/anomaly", StaticFiles(directory="static/anomaly", html=True), name="anomaly-tool")
 
 # DataExact marketing site at the root — its "Excel to Word" product card
 # links to /app. Mounted last (root "/" would otherwise shadow everything).
