@@ -28,6 +28,8 @@ from converter import get_sheets, get_columns, build_report
 import auth
 import billing
 import compare
+import format_report
+import gating
 import usage
 
 UPLOAD_DIR = "uploads"
@@ -67,6 +69,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(billing.router)
 app.include_router(compare.router)
+app.include_router(format_report.router)
 
 
 def _sweep_old_files():
@@ -156,14 +159,7 @@ async def generate(
     column_order: str = Form(...),  # comma-separated, preserves user order
     title: str = Form(None),
 ):
-    logged_in = bool(request.session.get("user"))
-    if not logged_in:
-        usage.enforce_limit(request)
-    elif not billing.is_subscribed(request):
-        raise HTTPException(402, {
-            "reason": "subscription_required",
-            "message": "Subscribe to keep generating reports.",
-        })
+    logged_in = gating.gate(request)
 
     path = _file_path(file_id)
     if not os.path.exists(path):
@@ -181,8 +177,7 @@ async def generate(
     except ValueError as e:
         raise HTTPException(400, str(e))
 
-    if not logged_in:
-        usage.record_use(request)
+    gating.record_use(request, logged_in)
 
     return FileResponse(
         output_path,
@@ -209,6 +204,13 @@ async def compare_no_slash():
     return RedirectResponse(url="/compare/")
 
 app.mount("/compare", StaticFiles(directory="static/compare", html=True), name="compare-tool")
+
+# Same pattern for the Format Report tool.
+@app.get("/format")
+async def format_no_slash():
+    return RedirectResponse(url="/format/")
+
+app.mount("/format", StaticFiles(directory="static/format", html=True), name="format-tool")
 
 # DataExact marketing site at the root — its "Excel to Word" product card
 # links to /app. Mounted last (root "/" would otherwise shadow everything).

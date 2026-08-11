@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0KH9FETK25"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0KH9FETK25');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>Format Report — DataExact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #F7F5EE;
+    --panel:     #FFFFFF;
+    --panel-2:   #EFEDE3;
+    --line:      #DDD9CB;
+    --amber:     #C97A19;
+    --amber-dim: #F0D4A8;
+    --cyan:      #1F8F94;
+    --red:       #D14B3D;
+    --text:      #22261F;
+    --muted:     #767469;
+    --font-display: 'Orbitron', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth; background:var(--bg);}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-mono);
+    line-height:1.6;
+    min-height:100vh;
+    padding:56px 20px;
+  }
+  .wrap{max-width:920px; margin:0 auto;}
+
+  a.back{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--muted); text-decoration:none; margin-bottom:32px;
+  }
+  a.back:hover{color:var(--cyan);}
+
+  .eyebrow{
+    font-size:0.75rem; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--cyan); margin-bottom:14px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:''; width:24px; height:1px; background:var(--cyan);}
+
+  h1{
+    font-family:var(--font-display); font-weight:800;
+    font-size:clamp(1.7rem, 3.4vw, 2.5rem);
+    text-transform:uppercase; letter-spacing:0.01em;
+    margin-bottom:14px;
+  }
+  header p{color:var(--muted); font-size:0.95rem; max-width:56ch; margin-bottom:44px;}
+
+  .usage-note{
+    font-size:0.78rem; color:var(--muted); letter-spacing:0.02em;
+    margin-bottom:28px; padding:10px 14px;
+    border:1px solid var(--line); background:var(--panel-2);
+    display:none;
+  }
+  .usage-note.show{display:block;}
+  .usage-note.low{color:var(--amber); border-color:var(--amber-dim);}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:32px 30px;
+    margin-bottom:1px;
+  }
+  .card.disabled{opacity:0.4; pointer-events:none;}
+
+  .card h2{
+    font-family:var(--font-display); font-weight:700; font-size:1.05rem;
+    text-transform:uppercase; letter-spacing:0.04em;
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:6px;
+  }
+  .card h2 .num{
+    font-family:var(--font-display); font-size:0.75rem; color:var(--cyan);
+    border:1px solid var(--cyan); padding:2px 8px;
+  }
+  .card h2 .optional{
+    font-family:var(--font-mono); font-size:0.65rem; color:var(--muted);
+    text-transform:none; letter-spacing:0.02em; font-weight:400;
+  }
+  .card .hint{color:var(--muted); font-size:0.85rem; margin:6px 0 22px 0;}
+
+  .dropzone{
+    border:1px dashed var(--line);
+    padding:36px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .dropzone:hover, .dropzone.drag-over{border-color:var(--cyan); background:var(--panel-2);}
+  .dropzone input{display:none;}
+  .dropzone .filename{font-size:0.85rem; color:var(--cyan); margin-top:10px; letter-spacing:0.02em;}
+  .dropzone .cta-text{font-size:0.85rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted);}
+  .dropzone .cta-text strong{color:var(--text);}
+  .dropzone.small{padding:20px;}
+
+  .theme-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  @media (max-width:700px){.theme-grid{grid-template-columns:1fr;}}
+  .theme-card{
+    background:var(--panel); padding:20px; cursor:pointer;
+    border:2px solid transparent;
+  }
+  .theme-card:hover{background:var(--panel-2);}
+  .theme-card.selected{border-color:var(--cyan);}
+  .theme-swatch{width:100%; height:8px; margin-bottom:14px;}
+  .theme-name{font-family:var(--font-display); font-weight:700; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:6px;}
+  .theme-desc{color:var(--muted); font-size:0.78rem; margin-bottom:10px;}
+  .theme-fonts{font-size:0.7rem; color:var(--muted); letter-spacing:0.02em;}
+
+  input[type=text].title-input{
+    font-family:var(--font-mono); font-size:0.9rem;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--text);
+    width:100%;
+    margin-bottom:6px;
+  }
+
+  .field-label{
+    font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:10px;
+  }
+
+  button.generate{
+    font-family:var(--font-display); font-weight:700;
+    font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase;
+    background:var(--amber);
+    color:var(--bg);
+    border:none;
+    padding:14px 26px;
+    cursor:pointer;
+    margin-top:18px;
+  }
+  button.generate:disabled{background:var(--line); color:var(--muted); cursor:not-allowed;}
+  button.generate:hover:not(:disabled){background:#B06A12;}
+
+  .status{font-size:0.8rem; margin-top:14px; letter-spacing:0.02em;}
+  .status.error{color:var(--red);}
+  .status.ok{color:var(--cyan);}
+
+  footer{text-align:center; color:var(--muted); font-size:0.7rem; letter-spacing:0.05em; text-transform:uppercase; margin-top:36px;}
+
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(34,38,31,0.55);
+    align-items:center; justify-content:center; padding:20px; z-index:100;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-card{
+    background:var(--panel); border:1px solid var(--line);
+    max-width:400px; width:100%; padding:32px 28px; text-align:center;
+  }
+  .modal-card h3{
+    font-family:var(--font-display); font-weight:700; font-size:1rem;
+    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:12px;
+  }
+  .modal-card p{color:var(--muted); font-size:0.85rem; margin-bottom:22px;}
+  .provider-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; padding:12px 16px; margin-bottom:10px;
+    font-family:var(--font-mono); font-size:0.85rem; letter-spacing:0.02em;
+    background:var(--bg); border:1px solid var(--line); color:var(--text);
+    cursor:pointer; text-decoration:none;
+  }
+  .provider-btn:hover{border-color:var(--cyan); color:var(--cyan);}
+  .modal-close{
+    margin-top:8px; font-size:0.75rem; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--muted); background:none; border:none; cursor:pointer;
+  }
+  .modal-close:hover{color:var(--text);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← DataExact</a>
+
+  <header>
+    <div class="eyebrow">Tool</div>
+    <h1>Format Report</h1>
+    <p>Upload a plain Word document, pick a brand theme, and download it back with a cover page, styled headings, a branded header/footer, and a page border — ready to share.</p>
+  </header>
+
+  <div class="usage-note" id="usageNote"></div>
+
+  <div class="card" id="step-upload">
+    <h2><span class="num">01</span> Upload your document</h2>
+    <div class="hint">.docx, up to 10 MB.</div>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" accept=".docx">
+      <div class="cta-text"><strong>Click to choose a file</strong> or drag it here</div>
+      <div class="filename" id="filename"></div>
+    </div>
+  </div>
+
+  <div class="card disabled" id="step-theme">
+    <h2><span class="num">02</span> Choose a brand theme</h2>
+    <div class="hint">Sets the fonts, colors, cover page, and header/footer style.</div>
+    <div class="theme-grid" id="themeGrid"></div>
+  </div>
+
+  <div class="card disabled" id="step-branding">
+    <h2><span class="num">03</span> Branding details <span class="optional">— optional</span></h2>
+    <div class="field-label">Cover page title</div>
+    <input type="text" class="title-input" id="titleInput" placeholder="Defaults to your file name">
+    <div class="hint" style="margin-top:0; margin-bottom:22px;">e.g. "Q3 Sales Report"</div>
+    <div class="field-label">Logo</div>
+    <div class="dropzone small" id="logoDropzone">
+      <input type="file" id="logoInput" accept="image/png,image/jpeg">
+      <div class="cta-text"><strong>Click to add a logo</strong> or drag it here (PNG/JPG)</div>
+      <div class="filename" id="logoFilename"></div>
+    </div>
+  </div>
+
+  <div class="card disabled" id="step-generate">
+    <h2><span class="num">04</span> Generate</h2>
+    <button class="generate" id="generateBtn" disabled>Generate Branded Document</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <footer>Files are processed for this session only and not stored beyond generating your report.</footer>
+</div>
+
+<div class="modal-overlay" id="signinModal">
+  <div class="modal-card">
+    <h3 id="modalTitle">Free limit reached</h3>
+    <p id="modalMessage">You've used your 3 free reports this month. Sign in to keep going.</p>
+    <div id="providerButtons"></div>
+    <button class="modal-close" id="modalClose">Not now</button>
+  </div>
+</div>
+
+<script>
+const API_BASE = "";
+
+let selectedFile = null;
+let selectedTheme = null;
+let selectedLogoFile = null;
+let themes = [];
+
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const filenameEl = document.getElementById('filename');
+const stepTheme = document.getElementById('step-theme');
+const themeGrid = document.getElementById('themeGrid');
+const stepBranding = document.getElementById('step-branding');
+const titleInput = document.getElementById('titleInput');
+const logoDropzone = document.getElementById('logoDropzone');
+const logoInput = document.getElementById('logoInput');
+const logoFilenameEl = document.getElementById('logoFilename');
+const stepGenerate = document.getElementById('step-generate');
+const generateBtn = document.getElementById('generateBtn');
+const statusEl = document.getElementById('status');
+const usageNote = document.getElementById('usageNote');
+const signinModal = document.getElementById('signinModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessage = document.getElementById('modalMessage');
+const providerButtons = document.getElementById('providerButtons');
+const modalClose = document.getElementById('modalClose');
+
+modalClose.addEventListener('click', () => signinModal.classList.remove('show'));
+signinModal.addEventListener('click', e => { if (e.target === signinModal) signinModal.classList.remove('show'); });
+
+const PROVIDER_LABELS = { google: 'Continue with Google', facebook: 'Continue with Facebook' };
+const PLAN_LABELS = { pro: 'Subscribe to Pro — $9/mo', business: 'Subscribe to Business — $29/mo' };
+
+let availableProviders = [];
+
+async function loadProviders() {
+  try {
+    const res = await fetch(`${API_BASE}/auth/providers`);
+    const data = await res.json();
+    availableProviders = data.providers || [];
+  } catch (err) { /* sign-in options just won't show */ }
+}
+
+function showSigninModal() {
+  modalTitle.textContent = 'Free limit reached';
+  modalMessage.textContent = "You've used your 3 free reports this month. Sign in to keep going.";
+  providerButtons.innerHTML = '';
+  availableProviders.forEach(p => {
+    const a = document.createElement('a');
+    a.className = 'provider-btn';
+    a.href = `/auth/${p}/login?next=${encodeURIComponent('/format/')}`;
+    a.textContent = PROVIDER_LABELS[p] || `Continue with ${p}`;
+    providerButtons.appendChild(a);
+  });
+  signinModal.classList.add('show');
+}
+
+function showSubscribeModal() {
+  modalTitle.textContent = 'Subscribe to continue';
+  modalMessage.textContent = "You're signed in — subscribe to a plan to keep generating reports.";
+  providerButtons.innerHTML = '';
+  Object.keys(PLAN_LABELS).forEach(plan => {
+    const a = document.createElement('a');
+    a.className = 'provider-btn';
+    a.href = `/billing/checkout/${plan}`;
+    a.textContent = PLAN_LABELS[plan];
+    providerButtons.appendChild(a);
+  });
+  signinModal.classList.add('show');
+}
+
+async function loadUsage() {
+  try {
+    const res = await fetch(`${API_BASE}/usage`);
+    const data = await res.json();
+    if (data.logged_in) {
+      if (data.subscribed) {
+        usageNote.innerHTML = 'Subscribed — unlimited reports. <a href="/billing/portal">Manage subscription</a>';
+      } else {
+        usageNote.textContent = "You're signed in — subscribe to a plan to keep generating reports.";
+      }
+      usageNote.classList.add('show');
+      usageNote.classList.toggle('low', !data.subscribed);
+      return;
+    }
+    usageNote.textContent = data.remaining > 0
+      ? `${data.remaining} of ${data.limit} free reports left this month — shared with Excel to Word.`
+      : `You've used your ${data.limit} free reports this month. Sign in to keep going.`;
+    usageNote.classList.add('show');
+    usageNote.classList.toggle('low', data.remaining <= 1);
+  } catch (err) { /* non-critical */ }
+}
+
+async function loadThemes() {
+  try {
+    const res = await fetch(`${API_BASE}/format/themes`);
+    themes = await res.json();
+  } catch (err) {
+    themes = [];
+  }
+}
+
+loadProviders();
+loadUsage();
+loadThemes();
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropzone.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length) handleFile(fileInput.files[0]);
+});
+
+function handleFile(file) {
+  if (!file.name.toLowerCase().endsWith('.docx')) {
+    setStatus('Please choose a .docx file', 'error');
+    return;
+  }
+  selectedFile = file;
+  filenameEl.textContent = file.name;
+  setStatus('', '');
+  renderThemeStep();
+}
+
+function renderThemeStep() {
+  stepTheme.classList.remove('disabled');
+  themeGrid.innerHTML = '';
+  themes.forEach(theme => {
+    const card = document.createElement('div');
+    card.className = 'theme-card';
+    card.dataset.id = theme.id;
+    card.innerHTML = `
+      <div class="theme-swatch" style="background:#${theme.accent};"></div>
+      <div class="theme-name">${theme.name}</div>
+      <div class="theme-desc">${theme.description}</div>
+      <div class="theme-fonts">${theme.heading_font} / ${theme.body_font}</div>
+    `;
+    card.onclick = () => selectTheme(theme.id, card);
+    themeGrid.appendChild(card);
+  });
+}
+
+function selectTheme(themeId, cardEl) {
+  selectedTheme = themeId;
+  [...themeGrid.children].forEach(c => c.classList.remove('selected'));
+  cardEl.classList.add('selected');
+  stepBranding.classList.remove('disabled');
+  stepGenerate.classList.remove('disabled');
+  generateBtn.disabled = false;
+}
+
+logoDropzone.addEventListener('click', () => logoInput.click());
+logoDropzone.addEventListener('dragover', e => { e.preventDefault(); logoDropzone.classList.add('drag-over'); });
+logoDropzone.addEventListener('dragleave', () => logoDropzone.classList.remove('drag-over'));
+logoDropzone.addEventListener('drop', e => {
+  e.preventDefault();
+  logoDropzone.classList.remove('drag-over');
+  if (e.dataTransfer.files.length) handleLogoFile(e.dataTransfer.files[0]);
+});
+logoInput.addEventListener('change', () => {
+  if (logoInput.files.length) handleLogoFile(logoInput.files[0]);
+});
+
+function handleLogoFile(file) {
+  selectedLogoFile = file;
+  logoFilenameEl.textContent = file.name;
+}
+
+generateBtn.addEventListener('click', async () => {
+  setStatus('Generating…', '');
+  generateBtn.disabled = true;
+  const form = new FormData();
+  form.append('file', selectedFile);
+  form.append('theme', selectedTheme);
+  if (titleInput.value.trim()) form.append('title', titleInput.value.trim());
+  if (selectedLogoFile) form.append('logo', selectedLogoFile);
+
+  try {
+    const res = await fetch(`${API_BASE}/format/generate`, { method: 'POST', body: form });
+    if (res.status === 402) {
+      setStatus('', '');
+      const data = await res.json();
+      const reason = data.detail && data.detail.reason;
+      if (reason === 'subscription_required') showSubscribeModal();
+      else showSigninModal();
+      return;
+    }
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.detail || 'Generation failed');
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'branded_report.docx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setStatus('Report downloaded.', 'ok');
+    loadUsage();
+  } catch (err) {
+    setStatus(err.message, 'error');
+  } finally {
+    generateBtn.disabled = false;
+  }
+});
+
+function setStatus(msg, cls) {
+  statusEl.textContent = msg;
+  statusEl.className = 'status' + (cls ? ' ' + cls : '');
+}
+</script>
+</body>
+</html>
