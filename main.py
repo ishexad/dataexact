@@ -15,7 +15,10 @@ import time
 import asyncio
 import logging
 
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from dotenv import load_dotenv
+load_dotenv()  # local dev only — Render sets real env vars directly and has no .env file
+
+from fastapi import FastAPI, Request, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -23,7 +26,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from converter import get_sheets, get_columns, build_report
 import auth
+import billing
 import compare
+import usage
 
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
@@ -60,6 +65,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(billing.router)
 app.include_router(compare.router)
 
 
@@ -134,14 +140,31 @@ async def columns(file_id: str, sheet: str):
     return {"columns": cols}
 
 
+@app.get("/usage")
+async def usage_status(request: Request):
+    if request.session.get("user"):
+        return {"logged_in": True, "subscribed": billing.is_subscribed(request)}
+    return {"logged_in": False, "remaining": usage.remaining(request), "limit": usage.FREE_LIMIT}
+
+
 @app.post("/generate")
 async def generate(
+    request: Request,
     file_id: str = Form(...),
     sheet: str = Form(...),
     heading_column: str = Form(...),
     column_order: str = Form(...),  # comma-separated, preserves user order
     title: str = Form(None),
 ):
+    logged_in = bool(request.session.get("user"))
+    if not logged_in:
+        usage.enforce_limit(request)
+    elif not billing.is_subscribed(request):
+        raise HTTPException(402, {
+            "reason": "subscription_required",
+            "message": "Subscribe to keep generating reports.",
+        })
+
     path = _file_path(file_id)
     if not os.path.exists(path):
         raise HTTPException(404, "Unknown file_id (may have expired) — please re-upload")
@@ -157,6 +180,9 @@ async def generate(
         build_report(path, sheet, heading_column, order, output_path, title=title)
     except ValueError as e:
         raise HTTPException(400, str(e))
+
+    if not logged_in:
+        usage.record_use(request)
 
     return FileResponse(
         output_path,

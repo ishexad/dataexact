@@ -7,3 +7,5 @@ python-multipart
 authlib
 itsdangerous
 httpx
+stripe
+python-dotenv

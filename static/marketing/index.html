@@ -11,6 +11,7 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
 <title>DataExact — Precision Data Tools</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +34,7 @@
 
   *{box-sizing:border-box; margin:0; padding:0;}
 
-  html{scroll-behavior:smooth;}
+  html{scroll-behavior:smooth; background:var(--bg);}
 
   body{
     background:var(--bg);
@@ -127,6 +128,12 @@
     transition:background .15s, color .15s;
   }
   .navcontact:hover{background:var(--amber); color:#FFFFFF;}
+
+  .navplain{
+    font-family:var(--font-mono); font-size:0.85rem; letter-spacing:0.08em; text-transform:uppercase;
+    padding:10px 16px; border:1px solid transparent; transition:border-color .15s, color .15s;
+  }
+  .navplain:hover{color:var(--amber); border-color:var(--line);}
 
   .navtoggle{display:none; background:none; border:1px solid var(--line); color:var(--text); padding:8px 10px; font-family:var(--font-mono); cursor:pointer;}
 
@@ -320,6 +327,35 @@
   }
   @keyframes scan{0%{left:0;}100%{left:100%;}}
 
+  /* ---------- PRICING ---------- */
+  #pricing{border-bottom:1px solid var(--line); background:var(--panel);}
+  .pricing-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  @media (max-width:860px){.pricing-grid{grid-template-columns:1fr;}}
+
+  .pcard{background:var(--bg); padding:38px 34px; display:flex; flex-direction:column; position:relative;}
+  .pcard.featured{background:var(--panel-2);}
+  .pcard-badge{
+    position:absolute; top:0; right:0;
+    font-family:var(--font-display); font-size:0.62rem; letter-spacing:0.08em; text-transform:uppercase;
+    background:var(--amber); color:#FFFFFF; padding:5px 12px;
+  }
+  .pcard-name{
+    font-family:var(--font-display); font-weight:700; font-size:0.85rem;
+    text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); margin-bottom:14px;
+  }
+  .pcard-price{font-family:var(--font-display); font-weight:800; font-size:2.4rem; letter-spacing:0.01em;}
+  .pcard-price span{font-family:var(--font-mono); font-weight:400; font-size:0.95rem; color:var(--muted);}
+  .pcard-sub{font-size:0.78rem; color:var(--muted); margin:6px 0 24px;}
+  .pcard-features{list-style:none; margin-bottom:28px; flex:1;}
+  .pcard-features li{
+    font-size:0.86rem; padding:9px 0; border-top:1px solid var(--line);
+    display:flex; align-items:center; gap:10px;
+  }
+  .pcard-features li:first-child{border-top:none;}
+  .pcard-features li::before{content:'—'; color:var(--cyan);}
+  .pcard-cta{justify-content:center; width:100%; text-align:center;}
+  .pcard-note{font-size:0.72rem; color:var(--muted); margin-top:12px; text-align:center;}
+
   /* ---------- CONTACT ---------- */
   #contact{background:var(--panel);}
   .contact-wrap{display:grid; grid-template-columns:1fr 1.2fr; gap:60px;}
@@ -444,6 +480,7 @@
         </div>
       </div>
 
+      <a class="navplain" href="#pricing">Pricing</a>
       <a class="navcontact" href="#contact">Contact</a>
 
       <div class="navitem" id="authArea">
@@ -627,6 +664,98 @@
   </div>
 </section>
 
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Pricing</div>
+      <h2>Start free. Upgrade when you need more.</h2>
+      <p>Every visitor gets 3 free Excel to Word reports a month — no signup required. Need more than that? Sign in and subscribe.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <div class="pcard" id="pcard-free">
+        <div class="pcard-name">Free</div>
+        <div class="pcard-price">$0</div>
+        <div class="pcard-sub">no card required</div>
+        <ul class="pcard-features">
+          <li>3 reports per month</li>
+          <li>Files up to 10&nbsp;MB</li>
+          <li>No signup to start</li>
+        </ul>
+        <a href="/app" class="btn btn-ghost pcard-cta">Start converting →</a>
+      </div>
+
+      <div class="pcard featured" id="pcard-pro">
+        <div class="pcard-badge">Most popular</div>
+        <div class="pcard-name">Pro</div>
+        <div class="pcard-price">$9<span>/mo</span></div>
+        <div class="pcard-sub">for regular use</div>
+        <ul class="pcard-features">
+          <li>Unlimited reports</li>
+          <li>Files up to 25&nbsp;MB</li>
+          <li>Priority processing</li>
+        </ul>
+        <a href="/billing/checkout/pro" class="btn btn-primary pcard-cta" id="proCta" data-plan="pro">Subscribe to Pro →</a>
+      </div>
+
+      <div class="pcard" id="pcard-business">
+        <div class="pcard-name">Business</div>
+        <div class="pcard-price">$29<span>/mo</span></div>
+        <div class="pcard-sub">for teams</div>
+        <ul class="pcard-features">
+          <li>Everything in Pro</li>
+          <li>Multiple team seats</li>
+          <li>API access</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="/billing/checkout/business" class="btn btn-ghost pcard-cta" id="businessCta" data-plan="business">Subscribe to Business →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(async function(){
+  let providers = [];
+  let billingStatus = { logged_in: false, subscribed: false };
+  try {
+    const [provRes, statusRes] = await Promise.all([fetch('/auth/providers'), fetch('/billing/status')]);
+    providers = (await provRes.json()).providers || [];
+    billingStatus = await statusRes.json();
+  } catch (e) { /* pricing cards still work as plain links */ }
+
+  const proCta = document.getElementById('proCta');
+  const businessCta = document.getElementById('businessCta');
+
+  if (billingStatus.logged_in && billingStatus.subscribed) {
+    [proCta, businessCta].forEach(btn => {
+      btn.href = '/billing/portal';
+      btn.textContent = 'Manage subscription →';
+    });
+    const current = billingStatus.plan === 'business' ? 'pcard-business' : 'pcard-pro';
+    document.getElementById(current)?.insertAdjacentHTML('afterbegin', '<div class="pcard-badge" style="background:var(--cyan);">Current plan</div>');
+    return;
+  }
+
+  // Not subscribed yet: paid CTAs go straight to checkout if already signed in,
+  // otherwise route through sign-in first, coming right back to checkout after.
+  [proCta, businessCta].forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if (billingStatus.logged_in) return; // href already points at /billing/checkout/{plan}
+      const plan = btn.dataset.plan;
+      if (providers.length) {
+        e.preventDefault();
+        window.location.href = `/auth/${providers[0]}/login?next=${encodeURIComponent('/billing/checkout/' + plan)}`;
+      } else {
+        // No sign-in provider configured yet — fall back to the in-tool flow.
+        e.preventDefault();
+        window.location.href = '/app';
+      }
+    });
+  });
+})();
+</script>
+
 <section id="services">
   <div class="wrap">
     <div class="section-head">
@@ -719,6 +848,7 @@
     <div class="logo"><span class="bracket">[</span>DATAEXACT<span class="bracket">]</span></div>
     <div class="foot-links">
       <a href="#products">Products</a>
+      <a href="#pricing">Pricing</a>
       <a href="#services">Services</a>
       <a href="#contact">Contact</a>
     </div>

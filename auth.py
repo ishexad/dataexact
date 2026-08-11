@@ -76,6 +76,18 @@ def _init_db():
                 UNIQUE(provider, provider_user_id)
             )
         """)
+        # Billing columns, added after the fact — SQLite has no
+        # "ADD COLUMN IF NOT EXISTS", so just swallow the "already exists" error.
+        for column_def in (
+            "stripe_customer_id TEXT",
+            "plan TEXT",
+            "subscription_status TEXT",
+            "current_period_end REAL",
+        ):
+            try:
+                conn.execute(f"ALTER TABLE users ADD COLUMN {column_def}")
+            except sqlite3.OperationalError:
+                pass
 
 
 @contextmanager
@@ -88,7 +100,7 @@ def _db():
         conn.close()
 
 
-def _upsert_user(provider: str, provider_user_id: str, email: str, name: str):
+def _upsert_user(provider: str, provider_user_id: str, email: str, name: str) -> int:
     now = time.time()
     with _db() as conn:
         conn.execute("""
@@ -100,15 +112,56 @@ def _upsert_user(provider: str, provider_user_id: str, email: str, name: str):
                           email = excluded.email,
                           name = excluded.name
         """, (provider, provider_user_id, email, name, now, now))
+        row = conn.execute(
+            "SELECT id FROM users WHERE provider=? AND provider_user_id=?",
+            (provider, provider_user_id),
+        ).fetchone()
+        return row[0]
 
 
 _init_db()
 
 
+def get_user(user_id: int) -> dict | None:
+    with _db() as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
+        return dict(row) if row else None
+
+
+def get_user_by_stripe_customer(customer_id: str) -> dict | None:
+    with _db() as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT * FROM users WHERE stripe_customer_id=?", (customer_id,)
+        ).fetchone()
+        return dict(row) if row else None
+
+
+def set_stripe_customer_id(user_id: int, customer_id: str):
+    with _db() as conn:
+        conn.execute("UPDATE users SET stripe_customer_id=? WHERE id=?", (customer_id, user_id))
+
+
+def update_subscription(customer_id: str, plan: str | None, status: str | None, period_end: float | None):
+    with _db() as conn:
+        conn.execute("""
+            UPDATE users SET plan=?, subscription_status=?, current_period_end=?
+            WHERE stripe_customer_id=?
+        """, (plan, status, period_end, customer_id))
+
+
+@router.get("/auth/providers")
+async def providers():
+    return {"providers": list(oauth._clients.keys())}
+
+
 @router.get("/auth/{provider}/login")
-async def login(provider: str, request: Request):
+async def login(provider: str, request: Request, next: str = "/"):
     if provider not in oauth._clients:
         return JSONResponse({"error": f"{provider} login isn't configured yet"}, status_code=404)
+    # Only allow same-site relative paths, so this can't be used as an open redirect.
+    request.session["oauth_next"] = next if next.startswith("/") else "/"
     redirect_uri = f"{BASE_URL}/auth/{provider}/callback"
     client = oauth.create_client(provider)
     return await client.authorize_redirect(request, redirect_uri)
@@ -135,10 +188,11 @@ async def callback(provider: str, request: Request):
     else:
         return JSONResponse({"error": "unsupported provider"}, status_code=400)
 
-    _upsert_user(provider, provider_user_id, email, name)
+    user_id = _upsert_user(provider, provider_user_id, email, name)
 
-    request.session["user"] = {"provider": provider, "email": email, "name": name}
-    return RedirectResponse(url="/")
+    request.session["user"] = {"id": user_id, "provider": provider, "email": email, "name": name}
+    next_url = request.session.pop("oauth_next", "/")
+    return RedirectResponse(url=next_url)
 
 
 @router.get("/auth/logout")
