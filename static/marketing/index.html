@@ -282,14 +282,11 @@
   }
   #products .card{background:var(--panel);}
   .card:hover{background:var(--panel-2);}
-  .card .idx{
-    font-family:var(--font-display); font-size:0.75rem; color:var(--muted);
-    letter-spacing:0.1em;
-  }
   .card h3{
     font-family:var(--font-display); font-weight:700; font-size:1.25rem;
     text-transform:uppercase; margin:16px 0 14px;
     letter-spacing:0.02em;
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
   .card p{color:var(--muted); font-size:0.92rem; margin-bottom:22px;}
   .card .tags{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;}
@@ -313,8 +310,8 @@
   }
   .free-badge{
     font-family:var(--font-display); font-size:0.62rem; letter-spacing:0.08em;
-    color:var(--cyan); border:1px solid var(--cyan); padding:2px 8px;
-    display:inline-block; margin-bottom:10px;
+    color:var(--cyan); border:1px solid var(--cyan); padding:3px 8px;
+    display:inline-block;
   }
 
   .service-checklist{list-style:none; margin-bottom:24px;}
@@ -328,21 +325,15 @@
     color:var(--cyan); font-weight:700;
   }
 
-  /* mini visual per card */
-  .mini-viz{
+  /* static icon visual per service card */
+  .service-viz{
     height:64px; margin-bottom:22px;
     border:1px solid var(--line);
     background:var(--panel-2);
-    position:relative; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    padding:6px;
   }
-  .mini-viz .bar{position:absolute; bottom:0; width:6px; background:var(--cyan); opacity:0.85;}
-  .mini-viz .flag{position:absolute; bottom:0; width:6px; background:var(--red);}
-  .mini-viz .scan{
-    position:absolute; top:0; bottom:0; width:1px; background:var(--amber);
-    box-shadow:0 0 8px var(--amber);
-    animation:scan 3.2s linear infinite;
-  }
-  @keyframes scan{0%{left:0;}100%{left:100%;}}
+  .service-viz svg{height:100%; width:auto; max-width:100%;}
 
   /* ---------- PRICING ---------- */
   #pricing{border-bottom:1px solid var(--line); background:var(--panel);}
@@ -776,30 +767,62 @@
     <div class="section-head">
       <div class="eyebrow">Services</div>
       <h2>When you need a team on it</h2>
-      <p>For deeper problems than a tool can solve alone — a free audit of your data, or a dashboard built around the metrics that actually matter to you. Here's exactly what's included in each.</p>
+      <p>For deeper problems than a tool can solve alone — a free audit of how your organization works with data, or a dashboard built around the metrics that actually matter to you. Here's exactly what's included in each.</p>
     </div>
 
     <div class="card-grid">
       <div class="card" id="services-audit">
-        <div class="idx">SERVICE / 01</div>
-        <div class="free-badge">FREE</div>
-        <div class="mini-viz" aria-hidden="true"><div class="scan"></div></div>
-        <h3>Data Audit</h3>
-        <p>A free, no-obligation audit of your spreadsheet data. Book a slot and we'll go through it end to end, then hand back a plain-English report of what's wrong and how to fix it — no cost, no commitment to buy anything after.</p>
+        <div class="service-viz" aria-hidden="true">
+          <svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="var(--amber)" stroke-width="1.5" opacity="0.65">
+              <line x1="60" y1="4" x2="60" y2="0"/>
+              <line x1="60" y1="60" x2="60" y2="64"/>
+              <line x1="30" y1="32" x2="24" y2="32"/>
+              <line x1="90" y1="32" x2="96" y2="32"/>
+              <line x1="39" y1="12" x2="35" y2="8"/>
+              <line x1="81" y1="12" x2="85" y2="8"/>
+              <line x1="39" y1="52" x2="35" y2="56"/>
+              <line x1="81" y1="52" x2="85" y2="56"/>
+            </g>
+            <polygon points="60,6 80,17 80,39 60,58 40,39 40,17" fill="var(--bg)" stroke="var(--cyan)" stroke-width="2.5"/>
+            <polygon points="60,13 74,21 74,35 60,50 46,35 46,21" fill="none" stroke="var(--cyan)" stroke-width="1" opacity="0.5"/>
+            <path d="M49 31 L57 40 L73 20" fill="none" stroke="var(--cyan)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Data Audit <span class="free-badge">FREE</span></h3>
+        <p>A free, no-obligation audit of how your whole organization works with data — not just one file. We look at your data quality, the tools and infrastructure you're using (or missing), and where the biggest wins are, then hand back a clear roadmap.</p>
         <ul class="service-checklist">
-          <li>Full read-through of every sheet and column you send us</li>
-          <li>Duplicate and near-duplicate row check</li>
-          <li>Formatting and consistency check — stray characters, mismatched types, inconsistent date/number formats</li>
-          <li>Missing-value and outlier scan</li>
-          <li>A written findings report, issues ranked by severity</li>
-          <li>A short call to walk through what we found and what to fix first</li>
+          <li>Review of the data sources, tools, and systems currently in use across your team(s)</li>
+          <li>Data quality assessment — accuracy, consistency, and structure across your key datasets</li>
+          <li>Infrastructure gap analysis — what's missing, duplicated, or held together manually</li>
+          <li>Recommendations on infrastructure worth deploying next — storage, pipelines, reporting, and more</li>
+          <li>A written findings report with a prioritized improvement roadmap</li>
+          <li>A call to walk through what we found and what to tackle first</li>
         </ul>
         <a class="cta" href="#contact">Book your free audit →</a>
       </div>
 
       <div class="card" id="services-dashboard">
-        <div class="idx">SERVICE / 02</div>
-        <div class="mini-viz" aria-hidden="true"><div class="scan"></div></div>
+        <div class="service-viz" aria-hidden="true">
+          <svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="6" width="108" height="52" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+            <path d="M6 15 L6 6 L15 6" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+            <path d="M105 6 L114 6 L114 15" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+            <path d="M114 49 L114 58 L105 58" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+            <path d="M15 58 L6 58 L6 49" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+
+            <rect x="16" y="16" width="56" height="7" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
+            <rect x="16" y="16" width="44" height="7" fill="var(--cyan)"/>
+            <rect x="16" y="28" width="56" height="7" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
+            <rect x="16" y="28" width="28" height="7" fill="var(--amber)"/>
+            <rect x="16" y="40" width="56" height="7" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
+            <rect x="16" y="40" width="50" height="7" fill="var(--cyan)"/>
+
+            <polygon points="97,14 108,20 108,34 97,40 86,34 86,20" fill="var(--bg)" stroke="var(--amber)" stroke-width="2"/>
+            <path d="M90 31 L97 24 L104 31" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M90 25 L97 18 L104 25" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+          </svg>
+        </div>
         <h3>Dashboarding</h3>
         <p>We build a live dashboard around the metrics that actually matter to you, connected directly to your data — no more digging through spreadsheets for an answer. Scoped to your data during a free discovery call, priced after that based on what you need.</p>
         <ul class="service-checklist">
