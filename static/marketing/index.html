@@ -311,6 +311,22 @@
     color:var(--muted); border:1px solid var(--line); padding:2px 8px;
     display:inline-block; margin-bottom:10px;
   }
+  .free-badge{
+    font-family:var(--font-display); font-size:0.62rem; letter-spacing:0.08em;
+    color:var(--cyan); border:1px solid var(--cyan); padding:2px 8px;
+    display:inline-block; margin-bottom:10px;
+  }
+
+  .service-checklist{list-style:none; margin-bottom:24px;}
+  .service-checklist li{
+    font-size:0.86rem; color:var(--text); padding:9px 0 9px 26px;
+    border-top:1px solid var(--line); position:relative;
+  }
+  .service-checklist li:first-child{border-top:none;}
+  .service-checklist li::before{
+    content:'✓'; position:absolute; left:0; top:9px;
+    color:var(--cyan); font-weight:700;
+  }
 
   /* mini visual per card */
   .mini-viz{
@@ -760,25 +776,39 @@
     <div class="section-head">
       <div class="eyebrow">Services</div>
       <h2>When you need a team on it</h2>
-      <p>For deeper problems than a tool can solve alone — a full audit of your data, or a dashboard built around the metrics that actually matter to you.</p>
+      <p>For deeper problems than a tool can solve alone — a free audit of your data, or a dashboard built around the metrics that actually matter to you. Here's exactly what's included in each.</p>
     </div>
 
     <div class="card-grid">
       <div class="card" id="services-audit">
         <div class="idx">SERVICE / 01</div>
+        <div class="free-badge">FREE</div>
         <div class="mini-viz" aria-hidden="true"><div class="scan"></div></div>
         <h3>Data Audit</h3>
-        <p>We go through your datasets end to end — checking accuracy, consistency, and structure — and hand back a clear report of what's wrong and how to fix it.</p>
-        <div class="tags"><span class="tag">Accuracy review</span><span class="tag">Structure check</span><span class="tag">Findings report</span></div>
-        <a class="cta" href="#contact">Book an audit →</a>
+        <p>A free, no-obligation audit of your spreadsheet data. Book a slot and we'll go through it end to end, then hand back a plain-English report of what's wrong and how to fix it — no cost, no commitment to buy anything after.</p>
+        <ul class="service-checklist">
+          <li>Full read-through of every sheet and column you send us</li>
+          <li>Duplicate and near-duplicate row check</li>
+          <li>Formatting and consistency check — stray characters, mismatched types, inconsistent date/number formats</li>
+          <li>Missing-value and outlier scan</li>
+          <li>A written findings report, issues ranked by severity</li>
+          <li>A short call to walk through what we found and what to fix first</li>
+        </ul>
+        <a class="cta" href="#contact">Book your free audit →</a>
       </div>
 
       <div class="card" id="services-dashboard">
         <div class="idx">SERVICE / 02</div>
         <div class="mini-viz" aria-hidden="true"><div class="scan"></div></div>
         <h3>Dashboarding</h3>
-        <p>We build a live dashboard around your data, so the numbers that matter are always visible — no more digging through spreadsheets for an answer.</p>
-        <div class="tags"><span class="tag">Live metrics</span><span class="tag">Custom views</span><span class="tag">Built around your data</span></div>
+        <p>We build a live dashboard around the metrics that actually matter to you, connected directly to your data — no more digging through spreadsheets for an answer. Scoped to your data during a free discovery call, priced after that based on what you need.</p>
+        <ul class="service-checklist">
+          <li>A discovery call to identify the metrics and questions your dashboard needs to answer</li>
+          <li>A custom-built dashboard connected to your actual data source</li>
+          <li>Live, always-current numbers — no manual refreshing or copy-pasting</li>
+          <li>Access for your whole team, not just one person</li>
+          <li>A handoff walkthrough once it's built, plus light support after launch</li>
+        </ul>
         <a class="cta" href="#contact">Start a project →</a>
       </div>
     </div>
