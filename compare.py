@@ -21,7 +21,6 @@ from diff_engine import get_sheets, get_columns, build_diff_report
 
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -33,24 +32,25 @@ def _path(pair_id: str, which: str) -> str:
     return os.path.join(UPLOAD_DIR, f"{pair_id}_{which}.xlsx")
 
 
-async def _save_upload(file: UploadFile, path: str):
+async def _save_upload(file: UploadFile, path: str, limit: int):
     if not file.filename.lower().endswith((".xlsx", ".xlsm")):
         raise HTTPException(400, f"'{file.filename}' isn't a .xlsx/.xlsm file")
     contents = await file.read()
-    if len(contents) > MAX_UPLOAD_BYTES:
-        raise HTTPException(400, f"'{file.filename}' is too large (10 MB limit)")
+    if len(contents) > limit:
+        raise HTTPException(400, f"'{file.filename}' is too large ({limit // (1024 * 1024)} MB limit)")
     with open(path, "wb") as f:
         f.write(contents)
 
 
 @router.post("/upload")
-async def upload(file_a: UploadFile = File(...), file_b: UploadFile = File(...)):
+async def upload(request: Request, file_a: UploadFile = File(...), file_b: UploadFile = File(...)):
     pair_id = str(uuid.uuid4())
     path_a = _path(pair_id, "a")
     path_b = _path(pair_id, "b")
 
-    await _save_upload(file_a, path_a)
-    await _save_upload(file_b, path_b)
+    limit = gating.max_upload_bytes(request)
+    await _save_upload(file_a, path_a, limit)
+    await _save_upload(file_b, path_b, limit)
 
     try:
         sheets_a = get_sheets(path_a)

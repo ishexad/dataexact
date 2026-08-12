@@ -32,7 +32,6 @@ import gating
 
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB, same cap as the other tools
 MAX_LOGO_BYTES = 2 * 1024 * 1024
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -270,8 +269,9 @@ async def generate(
     if not file.filename.lower().endswith(".docx"):
         raise HTTPException(400, "Please upload a .docx file")
     contents = await file.read()
-    if len(contents) > MAX_UPLOAD_BYTES:
-        raise HTTPException(400, "File too large (10 MB limit)")
+    limit = gating.max_upload_bytes(request)
+    if len(contents) > limit:
+        raise HTTPException(400, f"File too large ({limit // (1024 * 1024)} MB limit)")
 
     logo_bytes = None
     if logo is not None and logo.filename:

@@ -13,6 +13,15 @@ from fastapi import HTTPException, Request
 import billing
 import usage
 
+FREE_MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+PRO_MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+
+
+def max_upload_bytes(request: Request) -> int:
+    """Per-file upload cap: bigger for subscribed users, matching the
+    pricing page's "Files up to 25 MB" claim on Pro/Business."""
+    return PRO_MAX_UPLOAD_BYTES if billing.is_subscribed(request) else FREE_MAX_UPLOAD_BYTES
+
 
 def gate(request: Request, tool: str) -> bool:
     """Raise 402 if this request can't generate right now. Returns whether

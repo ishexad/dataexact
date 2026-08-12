@@ -35,7 +35,6 @@ import usage
 
 UPLOAD_DIR = "uploads"
 OUTPUT_DIR = "outputs"
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB cap for a public tool
 
 # Cleanup job settings: since this is a public tool, uploaded and generated
 # files are temporary session artifacts, not something to retain. A sweep
@@ -127,13 +126,14 @@ def _file_path(file_id: str) -> str:
 
 
 @app.post("/upload")
-async def upload(file: UploadFile = File(...)):
+async def upload(request: Request, file: UploadFile = File(...)):
     if not file.filename.lower().endswith((".xlsx", ".xlsm")):
         raise HTTPException(400, "Please upload a .xlsx or .xlsm file")
 
     contents = await file.read()
-    if len(contents) > MAX_UPLOAD_BYTES:
-        raise HTTPException(400, "File too large (10 MB limit)")
+    limit = gating.max_upload_bytes(request)
+    if len(contents) > limit:
+        raise HTTPException(400, f"File too large ({limit // (1024 * 1024)} MB limit)")
 
     file_id = str(uuid.uuid4())
     path = _file_path(file_id)

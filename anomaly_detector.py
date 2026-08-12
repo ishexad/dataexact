@@ -27,7 +27,6 @@ from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 import gating
 
 UPLOAD_DIR = "uploads"
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB, same cap as the other tools
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -283,13 +282,14 @@ def detect(excel_path: str, sheet_name) -> dict:
 
 
 @router.post("/upload")
-async def upload(file: UploadFile = File(...)):
+async def upload(request: Request, file: UploadFile = File(...)):
     if not file.filename.lower().endswith((".xlsx", ".xlsm")):
         raise HTTPException(400, "Please upload a .xlsx or .xlsm file")
 
     contents = await file.read()
-    if len(contents) > MAX_UPLOAD_BYTES:
-        raise HTTPException(400, "File too large (10 MB limit)")
+    limit = gating.max_upload_bytes(request)
+    if len(contents) > limit:
+        raise HTTPException(400, f"File too large ({limit // (1024 * 1024)} MB limit)")
 
     file_id = str(uuid.uuid4())
     path = os.path.join(UPLOAD_DIR, f"{file_id}.xlsx")
