@@ -19,7 +19,7 @@ commit them to the repo):
   GOOGLE_CLIENT_SECRET
   FACEBOOK_CLIENT_ID
   FACEBOOK_CLIENT_SECRET
-  BASE_URL                e.g. https://dataexact.co.uk (used to build the
+  BASE_URL                e.g. https://www.dataexact.io (used to build the
                            OAuth redirect/callback URLs correctly)
 """
 

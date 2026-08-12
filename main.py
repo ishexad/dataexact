@@ -67,6 +67,22 @@ app.add_middleware(
     secret_key=os.environ.get("SESSION_SECRET_KEY", "dev-only-insecure-key-change-me"),
 )
 
+# dataexact.co.uk was the original domain; dataexact.io is now primary.
+# Redirect any visitor/backlink on the old domain straight to the new one
+# (same path/query) instead of running two live copies of the same site.
+OLD_DOMAIN_HOSTS = {"dataexact.co.uk", "www.dataexact.co.uk"}
+NEW_DOMAIN_HOST = "www.dataexact.io"
+
+
+@app.middleware("http")
+async def redirect_old_domain(request: Request, call_next):
+    host = request.headers.get("host", "").split(":")[0].lower()
+    if host in OLD_DOMAIN_HOSTS:
+        new_url = request.url.replace(scheme="https", netloc=NEW_DOMAIN_HOST)
+        return RedirectResponse(url=str(new_url), status_code=301)
+    return await call_next(request)
+
+
 app.include_router(auth.router)
 app.include_router(billing.router)
 app.include_router(compare.router)
