@@ -24,6 +24,7 @@
     --panel-2:   #EFEDE3;
     --line:      #DDD9CB;
     --amber:     #C97A19;
+    --amber-dim: #F0D4A8;
     --cyan:      #1F8F94;
     --red:       #D14B3D;
     --green:     #3E8E5A;
@@ -127,6 +128,43 @@
   .swatch.red{background:#F8D7DA;}
 
   footer{text-align:center; color:var(--muted); font-size:0.7rem; letter-spacing:0.05em; text-transform:uppercase; margin-top:36px;}
+
+  .usage-note{
+    font-size:0.78rem; color:var(--muted); letter-spacing:0.02em;
+    margin-bottom:28px; padding:10px 14px;
+    border:1px solid var(--line); background:var(--panel-2);
+    display:none;
+  }
+  .usage-note.show{display:block;}
+  .usage-note.low{color:var(--amber); border-color:var(--amber-dim);}
+
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(34,38,31,0.55);
+    align-items:center; justify-content:center; padding:20px; z-index:100;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-card{
+    background:var(--panel); border:1px solid var(--line);
+    max-width:400px; width:100%; padding:32px 28px; text-align:center;
+  }
+  .modal-card h3{
+    font-family:var(--font-display); font-weight:700; font-size:1rem;
+    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:12px;
+  }
+  .modal-card p{color:var(--muted); font-size:0.85rem; margin-bottom:22px;}
+  .provider-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; padding:12px 16px; margin-bottom:10px;
+    font-family:var(--font-mono); font-size:0.85rem; letter-spacing:0.02em;
+    background:var(--bg); border:1px solid var(--line); color:var(--text);
+    cursor:pointer; text-decoration:none;
+  }
+  .provider-btn:hover{border-color:var(--cyan); color:var(--cyan);}
+  .modal-close{
+    margin-top:8px; font-size:0.75rem; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--muted); background:none; border:none; cursor:pointer;
+  }
+  .modal-close:hover{color:var(--text);}
 </style>
 </head>
 <body>
@@ -138,6 +176,8 @@
     <h1>Compare Excel Files</h1>
     <p>Upload two versions of a spreadsheet, pick a key column to match rows by, and download a report with every changed, added, and removed value highlighted.</p>
   </header>
+
+  <div class="usage-note" id="usageNote"></div>
 
   <div class="card" id="step-upload">
     <h2><span class="num">01</span> Upload both files</h2>
@@ -200,6 +240,15 @@
   <footer>Files are processed for this session only and not stored beyond generating your report.</footer>
 </div>
 
+<div class="modal-overlay" id="signinModal">
+  <div class="modal-card">
+    <h3 id="modalTitle">Free limit reached</h3>
+    <p id="modalMessage">You've used your 3 free files on this tool this month. Sign in to keep going.</p>
+    <div id="providerButtons"></div>
+    <button class="modal-close" id="modalClose">Not now</button>
+  </div>
+</div>
+
 <script>
 const API_BASE = "/compare";
 
@@ -221,6 +270,81 @@ const keyHint = document.getElementById('keyHint');
 const stepGenerate = document.getElementById('step-generate');
 const generateBtn = document.getElementById('generateBtn');
 const statusEl = document.getElementById('status');
+const usageNote = document.getElementById('usageNote');
+const signinModal = document.getElementById('signinModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessage = document.getElementById('modalMessage');
+const providerButtons = document.getElementById('providerButtons');
+const modalClose = document.getElementById('modalClose');
+
+modalClose.addEventListener('click', () => signinModal.classList.remove('show'));
+signinModal.addEventListener('click', e => { if (e.target === signinModal) signinModal.classList.remove('show'); });
+
+const PROVIDER_LABELS = { google: 'Continue with Google', facebook: 'Continue with Facebook' };
+const PLAN_LABELS = { pro: 'Subscribe to Pro — $9/mo', business: 'Subscribe to Business — $29/mo' };
+
+let availableProviders = [];
+
+async function loadProviders() {
+  try {
+    const res = await fetch('/auth/providers');
+    const data = await res.json();
+    availableProviders = data.providers || [];
+  } catch (err) { /* sign-in options just won't show */ }
+}
+
+function showSigninModal() {
+  modalTitle.textContent = 'Free limit reached';
+  modalMessage.textContent = "You've used your 3 free files on this tool this month. Sign in to keep going.";
+  providerButtons.innerHTML = '';
+  availableProviders.forEach(p => {
+    const a = document.createElement('a');
+    a.className = 'provider-btn';
+    a.href = `/auth/${p}/login?next=${encodeURIComponent('/compare/')}`;
+    a.textContent = PROVIDER_LABELS[p] || `Continue with ${p}`;
+    providerButtons.appendChild(a);
+  });
+  signinModal.classList.add('show');
+}
+
+function showSubscribeModal() {
+  modalTitle.textContent = 'Subscribe to continue';
+  modalMessage.textContent = "You're signed in — subscribe to a plan to keep generating reports.";
+  providerButtons.innerHTML = '';
+  Object.keys(PLAN_LABELS).forEach(plan => {
+    const a = document.createElement('a');
+    a.className = 'provider-btn';
+    a.href = `/billing/checkout/${plan}`;
+    a.textContent = PLAN_LABELS[plan];
+    providerButtons.appendChild(a);
+  });
+  signinModal.classList.add('show');
+}
+
+async function loadUsage() {
+  try {
+    const res = await fetch('/usage?tool=compare');
+    const data = await res.json();
+    if (data.logged_in) {
+      if (data.subscribed) {
+        usageNote.innerHTML = 'Subscribed — unlimited reports on every tool. <a href="/billing/portal">Manage subscription</a>';
+      } else {
+        usageNote.textContent = "You're signed in — subscribe to a plan to keep generating reports.";
+      }
+      usageNote.classList.add('show');
+      usageNote.classList.toggle('low', !data.subscribed);
+      return;
+    }
+    usageNote.textContent = data.remaining > 0
+      ? `${data.remaining} of ${data.limit} free files left on this tool this month.`
+      : `You've used your ${data.limit} free files on this tool this month. Sign in to keep going.`;
+    usageNote.classList.add('show');
+    usageNote.classList.toggle('low', data.remaining <= 1);
+  } catch (err) { /* non-critical */ }
+}
+
+loadProviders();
+loadUsage();
 
 function wireDropzone(dz, fi, fn, onFile) {
   dz.addEventListener('click', () => fi.click());
@@ -333,6 +457,14 @@ generateBtn.addEventListener('click', async () => {
 
   try {
     const res = await fetch(`${API_BASE}/generate`, { method: 'POST', body: form });
+    if (res.status === 402) {
+      setStatus('', '');
+      const data = await res.json();
+      const reason = data.detail && data.detail.reason;
+      if (reason === 'subscription_required') showSubscribeModal();
+      else showSigninModal();
+      return;
+    }
     if (!res.ok) {
       const data = await res.json();
       throw new Error(data.detail || 'Comparison failed');
@@ -343,6 +475,7 @@ generateBtn.addEventListener('click', async () => {
     a.href = url; a.download = 'comparison_report.xlsx';
     document.body.appendChild(a); a.click(); a.remove();
     setStatus('Report downloaded.', 'ok');
+    loadUsage();
   } catch (err) {
     setStatus(err.message, 'error');
   } finally {

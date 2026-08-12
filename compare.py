@@ -13,9 +13,10 @@ Flow:
 import os
 import uuid
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Request
 from fastapi.responses import FileResponse
 
+import gating
 from diff_engine import get_sheets, get_columns, build_diff_report
 
 UPLOAD_DIR = "uploads"
@@ -84,11 +85,14 @@ async def columns(pair_id: str, sheet_a: str, sheet_b: str):
 
 @router.post("/generate")
 async def generate(
+    request: Request,
     pair_id: str = Form(...),
     sheet_a: str = Form(...),
     sheet_b: str = Form(...),
     key_column: str = Form(...),
 ):
+    logged_in = gating.gate(request, "compare")
+
     path_a = _path(pair_id, "a")
     path_b = _path(pair_id, "b")
     if not (os.path.exists(path_a) and os.path.exists(path_b)):
@@ -101,6 +105,8 @@ async def generate(
         build_diff_report(path_a, sheet_a, path_b, sheet_b, key_column, output_path)
     except ValueError as e:
         raise HTTPException(400, str(e))
+
+    gating.record_use(request, "compare", logged_in)
 
     return FileResponse(
         output_path,

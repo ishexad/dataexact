@@ -370,11 +370,11 @@ function showSubscribeModal() {
 
 async function loadUsage() {
   try {
-    const res = await fetch(`${API_BASE}/usage`);
+    const res = await fetch(`${API_BASE}/usage?tool=excel_to_word`);
     const data = await res.json();
     if (data.logged_in) {
       if (data.subscribed) {
-        usageNote.innerHTML = 'Subscribed — unlimited reports. <a href="/billing/portal">Manage subscription</a>';
+        usageNote.innerHTML = 'Subscribed — unlimited reports on every tool. <a href="/billing/portal">Manage subscription</a>';
       } else {
         usageNote.textContent = "You're signed in — subscribe to a plan to keep generating reports.";
       }
@@ -383,8 +383,8 @@ async function loadUsage() {
       return;
     }
     usageNote.textContent = data.remaining > 0
-      ? `${data.remaining} of ${data.limit} free reports left this month.`
-      : `You've used your ${data.limit} free reports this month. Sign in to keep going.`;
+      ? `${data.remaining} of ${data.limit} free files left on this tool this month.`
+      : `You've used your ${data.limit} free files on this tool this month. Sign in to keep going.`;
     usageNote.classList.add('show');
     usageNote.classList.toggle('low', data.remaining <= 1);
   } catch (err) { /* non-critical */ }

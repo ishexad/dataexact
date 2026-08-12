@@ -265,7 +265,7 @@ async def generate(
     if theme not in THEMES:
         raise HTTPException(400, f"Unknown theme: {theme}")
 
-    logged_in = gating.gate(request)
+    logged_in = gating.gate(request, "format")
 
     if not file.filename.lower().endswith(".docx"):
         raise HTTPException(400, "Please upload a .docx file")
@@ -295,7 +295,7 @@ async def generate(
     except Exception:
         raise HTTPException(400, "Could not read this file as a valid Word document")
 
-    gating.record_use(request, logged_in)
+    gating.record_use(request, "format", logged_in)
 
     return FileResponse(
         output_path,

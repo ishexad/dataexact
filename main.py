@@ -162,10 +162,10 @@ async def columns(file_id: str, sheet: str):
 
 
 @app.get("/usage")
-async def usage_status(request: Request):
+async def usage_status(request: Request, tool: str):
     if request.session.get("user"):
         return {"logged_in": True, "subscribed": billing.is_subscribed(request)}
-    return {"logged_in": False, "remaining": usage.remaining(request), "limit": usage.FREE_LIMIT}
+    return {"logged_in": False, "remaining": usage.remaining(request, tool), "limit": usage.FREE_LIMIT}
 
 
 @app.post("/generate")
@@ -177,7 +177,7 @@ async def generate(
     column_order: str = Form(...),  # comma-separated, preserves user order
     title: str = Form(None),
 ):
-    logged_in = gating.gate(request)
+    logged_in = gating.gate(request, "excel_to_word")
 
     path = _file_path(file_id)
     if not os.path.exists(path):
@@ -195,7 +195,7 @@ async def generate(
     except ValueError as e:
         raise HTTPException(400, str(e))
 
-    gating.record_use(request, logged_in)
+    gating.record_use(request, "excel_to_word", logged_in)
 
     return FileResponse(
         output_path,

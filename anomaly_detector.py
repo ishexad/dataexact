@@ -311,7 +311,7 @@ async def detect_endpoint(
     file_id: str = Form(...),
     sheet: str = Form(...),
 ):
-    logged_in = gating.gate(request)
+    logged_in = gating.gate(request, "anomaly")
 
     path = os.path.join(UPLOAD_DIR, f"{file_id}.xlsx")
     if not os.path.exists(path):
@@ -322,5 +322,5 @@ async def detect_endpoint(
     except ValueError as e:
         raise HTTPException(400, str(e))
 
-    gating.record_use(request, logged_in)
+    gating.record_use(request, "anomaly", logged_in)
     return result
