@@ -28,6 +28,7 @@ from converter import get_sheets, get_columns, build_report
 import anomaly_detector
 import auth
 import billing
+import codebook
 import compare
 import format_report
 import gating
@@ -84,26 +85,36 @@ async def redirect_old_domain(request: Request, call_next):
 
 app.include_router(auth.router)
 app.include_router(billing.router)
+app.include_router(codebook.router)
 app.include_router(compare.router)
 app.include_router(format_report.router)
 app.include_router(anomaly_detector.router)
 
 
+def _max_age_for(directory: str, name: str) -> int:
+    """Most artifacts are short-lived, but a Qualitative Coding corpus has to
+    outlive the hour it takes to tag files and build a code tree — see
+    codebook.CORPUS_MAX_AGE_SECONDS. Those are the *.json files in uploads/."""
+    if directory == UPLOAD_DIR and name.endswith(".json"):
+        return codebook.CORPUS_MAX_AGE_SECONDS
+    return FILE_MAX_AGE_SECONDS
+
+
 def _sweep_old_files():
-    """Delete files older than FILE_MAX_AGE_SECONDS from uploads/ and outputs/."""
+    """Delete expired files from uploads/ and outputs/."""
     now = time.time()
     removed = 0
     for directory in (UPLOAD_DIR, OUTPUT_DIR):
         for name in os.listdir(directory):
             path = os.path.join(directory, name)
             try:
-                if os.path.isfile(path) and (now - os.path.getmtime(path)) > FILE_MAX_AGE_SECONDS:
+                if os.path.isfile(path) and (now - os.path.getmtime(path)) > _max_age_for(directory, name):
                     os.remove(path)
                     removed += 1
             except FileNotFoundError:
                 pass  # already removed by a concurrent sweep/request
     if removed:
-        logger.info(f"cleanup: removed {removed} file(s) older than {FILE_MAX_AGE_SECONDS}s")
+        logger.info(f"cleanup: removed {removed} expired file(s)")
 
 
 async def _cleanup_loop():
@@ -236,6 +247,16 @@ async def anomaly_no_slash():
     return RedirectResponse(url="/anomaly/")
 
 app.mount("/anomaly", StaticFiles(directory="static/anomaly", html=True), name="anomaly-tool")
+
+# Same pattern for the Qualitative Coding tool. Shares the "/codebook" prefix
+# with codebook.router's API routes — exact API routes (POST /codebook/upload,
+# /codebook/extract, /codebook/export) match before this Mount's catch-all,
+# same as compare/format/anomaly above.
+@app.get("/codebook")
+async def codebook_no_slash():
+    return RedirectResponse(url="/codebook/")
+
+app.mount("/codebook", StaticFiles(directory="static/codebook", html=True), name="codebook-tool")
 
 # DataExact marketing site at the root — its "Excel to Word" product card
 # links to /app. Mounted last (root "/" would otherwise shadow everything).

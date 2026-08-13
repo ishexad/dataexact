@@ -9,3 +9,4 @@ itsdangerous
 httpx
 stripe
 python-dotenv
+pymupdf

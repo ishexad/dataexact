@@ -198,7 +198,9 @@
   .hero-widget .widget-note a:hover{border-bottom:1px solid var(--amber);}
 
   /* ---------- COMPACT SECONDARY TOOLS ROW ---------- */
-  .tool-row{display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  /* Two across so the four tools sit as an even 2x2 rather than leaving a
+     lone card stranded on a second row. */
+  .tool-row{display:grid; grid-template-columns:repeat(2, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
   @media (max-width:860px){.tool-row{grid-template-columns:1fr;}}
   .tool-row .tcard{background:var(--panel); padding:28px 26px;}
   .tool-row .tcard h3{
@@ -471,6 +473,10 @@
             <span class="d-title">Format Report</span>
             <span class="d-sub">Brand a plain Word document in one click</span>
           </a>
+          <a href="/codebook">
+            <span class="d-title">Qualitative Coding</span>
+            <span class="d-sub">Code a corpus of PDFs and Word docs at once</span>
+          </a>
         </div>
       </div>
 
@@ -645,10 +651,16 @@
     <div class="section-head">
       <div class="eyebrow">More tools</div>
       <h2>Also from DataExact</h2>
-      <p>Excel to Word is our flagship — try it above. Here's the rest of what we're building around the same problem: getting spreadsheets into shape.</p>
+      <p>Excel to Word is our flagship — try it above. Here's the rest of what we're building around the same problem: getting your data into shape, whether it starts in a spreadsheet or buried in a stack of documents.</p>
     </div>
 
     <div class="tool-row">
+      <div class="tcard" id="products-codebook">
+        <h3>Qualitative Coding</h3>
+        <p>Upload a whole corpus of PDFs and Word documents, tag them, and build a code tree of main codes and sub-codes. Every matching passage comes back as an excerpt with its source and location — counted per code, per document, and exportable to Excel.</p>
+        <a class="cta" href="/codebook">Try it now →</a>
+      </div>
+
       <div class="tcard" id="products-compare">
         <h3>Compare Excel Files</h3>
         <p>Upload two versions of a spreadsheet and get every changed, added, and removed value highlighted in a single downloadable report — rows matched by key, not position.</p>
@@ -675,7 +687,7 @@
     <div class="section-head">
       <div class="eyebrow">Pricing</div>
       <h2>Start free. Upgrade when you need more.</h2>
-      <p>Every visitor gets 3 free files a month on <em>each</em> tool — Excel to Word, Compare Excel Files, Format Report, and Detect Anomalies — no signup required. Need more than that on any of them? Sign in and subscribe once for unlimited access to every tool.</p>
+      <p>Every visitor gets 3 free files a month on <em>each</em> tool — Excel to Word, Compare Excel Files, Format Report, Detect Anomalies, and Qualitative Coding — no signup required. On Qualitative Coding that's three full coding runs, each across your whole corpus. Need more than that on any of them? Sign in and subscribe once for unlimited access to every tool.</p>
     </div>
 
     <div class="pricing-grid">
@@ -874,6 +886,7 @@
                 <option>Excel to Word</option>
                 <option>Format Report</option>
                 <option>Detect Anomalies in Excel</option>
+                <option>Qualitative Coding</option>
                 <option>Data Audit</option>
                 <option>Dashboarding</option>
                 <option>Something else</option>
