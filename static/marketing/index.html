@@ -156,50 +156,77 @@
 
   .hero-copy{display:flex; flex-direction:column; justify-content:center;}
 
-  .hero-widget{
+  /* ---------- HERO QUICK-ACCESS TOOL TILES ---------- */
+  /* The cover used to hold a cut-down Excel→Word widget. It now opens straight
+     into the three full Excel tools instead, one tile each. */
+  .hero-tools{
     background:var(--panel);
     border:1px solid var(--line);
     box-shadow:0 20px 50px rgba(34,38,31,0.10);
-    padding:26px;
     display:flex;
     flex-direction:column;
-    height:100%;
+    /* Sized by its own content rather than stretched to match the copy column —
+       stretching made each tile ~200px tall for two lines of text. */
+    align-self:center;
   }
-  .hero-widget .widget-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
-  .hero-widget .widget-label{font-family:var(--font-display); font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase;}
-  .hero-widget .widget-badge{font-size:0.62rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--cyan); border:1px solid var(--cyan); padding:3px 8px;}
+  .hero-tools .tools-top{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:20px 24px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-tools .tools-label{font-family:var(--font-display); font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase;}
+  .hero-tools .tools-badge{font-size:0.62rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--cyan); border:1px solid var(--cyan); padding:3px 8px; white-space:nowrap;}
 
-  .hero-widget .dropzone{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    border:1px dashed var(--line);
-    padding:34px 20px;
-    text-align:center;
-    cursor:pointer;
+  .tool-tile{
+    display:flex; align-items:flex-start; gap:16px;
+    padding:20px 24px;
+    border-top:1px solid var(--line);
+    transition:background .15s, border-left-color .15s;
+    border-left:3px solid transparent;
+  }
+  .tool-tile:first-of-type{border-top:none;}
+  .tool-tile:hover, .tool-tile:focus-visible{background:var(--panel-2); border-left-color:var(--amber); outline:none;}
+
+  .tool-tile .tile-icon{
+    flex:none; width:38px; height:38px;
+    border:1px solid var(--line); background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .tool-tile:hover .tile-icon{border-color:var(--cyan);}
+  .tool-tile .tile-icon svg{width:22px; height:22px;}
+
+  .tool-tile .tile-body{flex:1; min-width:0;}
+  .tool-tile .tile-name{
+    font-family:var(--font-display); font-weight:700; font-size:0.9rem;
+    text-transform:uppercase; letter-spacing:0.02em;
+    display:flex; align-items:center; gap:8px;
+  }
+  .tool-tile .tile-desc{font-size:0.79rem; color:var(--muted); line-height:1.45; margin-top:5px;}
+  .tool-tile .tile-go{
+    flex:none; color:var(--amber); font-size:1rem; padding-top:8px;
+    transition:transform .15s;
+  }
+  .tool-tile:hover .tile-go{transform:translateX(3px);}
+
+  .hero-tools .tools-foot{
+    padding:14px 24px; border-top:1px solid var(--line);
+    font-size:0.74rem; color:var(--muted); line-height:1.5;
     background:var(--panel-2);
-    transition:border-color .15s, background .15s;
   }
-  .hero-widget .dropzone:hover, .hero-widget .dropzone.drag-over{border-color:var(--cyan); background:rgba(31,143,148,0.08);}
-  .hero-widget .dropzone input{display:none;}
-  .hero-widget .dz-icon{font-size:1.4rem; color:var(--amber); margin-bottom:10px;}
-  .hero-widget .dz-text{font-size:0.85rem; color:var(--muted);}
-  .hero-widget .dz-text strong{color:var(--text); display:block; margin-bottom:2px;}
-  .hero-widget .dz-filename{margin-top:12px; font-size:0.82rem; color:var(--cyan); word-break:break-all;}
+  .hero-tools .tools-foot a{color:var(--amber);}
+  .hero-tools .tools-foot a:hover{border-bottom:1px solid var(--amber);}
 
-  .hero-widget .widget-status{font-size:0.8rem; margin-top:14px; min-height:1.2em;}
-  .hero-widget .widget-status.error{color:var(--red);}
-  .hero-widget .widget-status.ok{color:var(--cyan);}
-
-  .hero-widget .widget-note{font-size:0.74rem; color:var(--muted); margin-top:16px; line-height:1.5;}
-  .hero-widget .widget-note a{color:var(--amber);}
-  .hero-widget .widget-note a:hover{border-bottom:1px solid var(--amber);}
+  /* On narrow screens the icon, gaps and arrow squeeze the description into a
+     very tall column — claw some width back. */
+  @media (max-width:520px){
+    .hero-tools .tools-top{padding:16px 18px;}
+    .tool-tile{padding:16px 18px; gap:12px;}
+    .hero-tools .tools-foot{padding:13px 18px;}
+  }
 
   /* ---------- COMPACT SECONDARY TOOLS ROW ---------- */
-  /* Two across so the four tools sit as an even 2x2 rather than leaving a
-     lone card stranded on a second row. */
+  /* Two across — the Excel tools live on the hero tiles, so this row holds
+     only the two document tools, side by side. */
   .tool-row{display:grid; grid-template-columns:repeat(2, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
   @media (max-width:860px){.tool-row{grid-template-columns:1fr;}}
   .tool-row .tcard{background:var(--panel); padding:28px 26px;}
@@ -544,114 +571,81 @@
   <div class="wrap">
     <div class="hero-inner">
       <div class="hero-copy">
-        <div class="hero-tag">Live tool — convert now, no signup</div>
-        <h1>Excel to Word,<br><span class="accent">in one drop.</span></h1>
-        <p class="lede">Upload a spreadsheet and get back a clean, formatted Word document — one section per row, headings and labels done for you. Built by DataExact, the team behind tools and services for trustworthy spreadsheets.</p>
+        <div class="hero-tag">Live tools — no signup to start</div>
+        <h1>Your Excel files,<br><span class="accent">sorted in one drop.</span></h1>
+        <p class="lede">Three tools for the spreadsheet work that eats your day: turn one into a formatted Word report, catch the values that break the pattern, or see exactly what changed between two versions. Pick one and go — every tool is free for your first 3 files a month.</p>
         <div class="hero-cta">
-          <a href="#heroWidget" class="btn btn-primary" id="heroCtaBtn">Convert a file now →</a>
-          <a href="/app" class="btn btn-ghost">Open the full tool</a>
+          <a href="/app" class="btn btn-primary">Open Excel to Word →</a>
+          <a href="#products" class="btn btn-ghost">See every tool</a>
         </div>
       </div>
 
-      <div class="hero-widget" id="heroWidget">
-        <div class="widget-top">
-          <span class="widget-label">Excel → Word</span>
-          <span class="widget-badge">Try it</span>
+      <div class="hero-tools" id="heroTools">
+        <div class="tools-top">
+          <span class="tools-label">Excel tools — open one</span>
+          <span class="tools-badge">Full version</span>
         </div>
-        <div class="dropzone" id="heroDropzone">
-          <input type="file" id="heroFileInput" accept=".xlsx,.xlsm">
-          <div class="dz-icon">⇪</div>
-          <div class="dz-text"><strong>Drop your .xlsx here</strong>or click to choose a file</div>
-          <div class="dz-filename" id="heroFilename"></div>
-        </div>
-        <div class="widget-status" id="heroStatus"></div>
-        <div class="widget-note">Converts instantly using your first column as the heading and the rest in sheet order. Need to choose the columns and order yourself? <a href="/app">Open the full tool →</a></div>
+
+        <a class="tool-tile" href="/app" aria-label="Open Excel to Word">
+          <span class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2.5" y="3.5" width="8" height="17" stroke="var(--cyan)" stroke-width="1.6"/>
+              <path d="M2.5 8.5H10.5M2.5 13.5H10.5" stroke="var(--cyan)" stroke-width="1.1" opacity="0.6"/>
+              <rect x="13.5" y="3.5" width="8" height="17" stroke="var(--amber)" stroke-width="1.6"/>
+              <path d="M15.5 8.5H19.5M15.5 12H19.5M15.5 15.5H18" stroke="var(--amber)" stroke-width="1.1" opacity="0.7"/>
+            </svg>
+          </span>
+          <span class="tile-body">
+            <span class="tile-name">Excel to Word</span>
+            <span class="tile-desc">Pick your heading column and column order, then get a formatted .docx — one section per row.</span>
+          </span>
+          <span class="tile-go" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tool-tile" href="/anomaly" aria-label="Open Detect Anomalies in Excel">
+          <span class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2.5" y="4.5" width="19" height="15" stroke="var(--cyan)" stroke-width="1.6"/>
+              <path d="M2.5 9.5H21.5M2.5 14.5H21.5M9 4.5V19.5M15 4.5V19.5" stroke="var(--cyan)" stroke-width="1.1" opacity="0.55"/>
+              <rect x="9" y="9.5" width="6" height="5" fill="var(--red)" opacity="0.85"/>
+            </svg>
+          </span>
+          <span class="tile-body">
+            <span class="tile-name">Detect Anomalies</span>
+            <span class="tile-desc">Scan every row and column for duplicates, stray characters, blanks, wrong types, and outliers.</span>
+          </span>
+          <span class="tile-go" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tool-tile" href="/compare" aria-label="Open Compare Excel Files">
+          <span class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2.5" y="3.5" width="8" height="17" stroke="var(--cyan)" stroke-width="1.6"/>
+              <rect x="13.5" y="3.5" width="8" height="17" stroke="var(--cyan)" stroke-width="1.6"/>
+              <path d="M4.5 8H8.5M4.5 12H8.5M4.5 16H7" stroke="var(--cyan)" stroke-width="1.1" opacity="0.6"/>
+              <path d="M15.5 8H19.5M15.5 16H18" stroke="var(--cyan)" stroke-width="1.1" opacity="0.6"/>
+              <path d="M15.5 12H19.5" stroke="var(--amber)" stroke-width="2"/>
+            </svg>
+          </span>
+          <span class="tile-body">
+            <span class="tile-name">Compare Excel Files</span>
+            <span class="tile-desc">Match two versions by key and get every changed, added, and removed value in one report.</span>
+          </span>
+          <span class="tile-go" aria-hidden="true">→</span>
+        </a>
+
+        <div class="tools-foot">Also here: <a href="/format">Format Report</a> for Word documents and <a href="/codebook">Qualitative Coding</a> for PDF and Word corpora.</div>
       </div>
     </div>
   </div>
 </section>
-
-<script>
-(function(){
-  const dropzone = document.getElementById('heroDropzone');
-  const fileInput = document.getElementById('heroFileInput');
-  const filenameEl = document.getElementById('heroFilename');
-  const statusEl = document.getElementById('heroStatus');
-  const ctaBtn = document.getElementById('heroCtaBtn');
-
-  ctaBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    fileInput.click();
-  });
-  dropzone.addEventListener('click', () => fileInput.click());
-  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
-  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
-  dropzone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropzone.classList.remove('drag-over');
-    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-  });
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files.length) handleFile(fileInput.files[0]);
-  });
-
-  async function handleFile(file) {
-    filenameEl.textContent = file.name;
-    setStatus('Uploading…', '');
-    const uploadForm = new FormData();
-    uploadForm.append('file', file);
-
-    try {
-      const uploadRes = await fetch('/upload', { method: 'POST', body: uploadForm });
-      const uploadData = await uploadRes.json();
-      if (!uploadRes.ok) throw new Error(uploadData.detail || 'Upload failed');
-
-      const sheet = uploadData.sheets[0];
-      const colsRes = await fetch(`/columns?file_id=${uploadData.file_id}&sheet=${encodeURIComponent(sheet)}`);
-      const colsData = await colsRes.json();
-      if (!colsRes.ok) throw new Error(colsData.detail || 'Could not read that sheet');
-      if (!colsData.columns.length) throw new Error('No columns found in that sheet');
-
-      setStatus('Generating your Word document…', '');
-      const heading = colsData.columns[0];
-      const genForm = new FormData();
-      genForm.append('file_id', uploadData.file_id);
-      genForm.append('sheet', sheet);
-      genForm.append('heading_column', heading);
-      genForm.append('column_order', colsData.columns.join(','));
-
-      const genRes = await fetch('/generate', { method: 'POST', body: genForm });
-      if (!genRes.ok) {
-        const errData = await genRes.json();
-        throw new Error(errData.detail || 'Generation failed');
-      }
-      const blob = await genRes.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'report.docx';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setStatus('Done — your report downloaded.', 'ok');
-    } catch (err) {
-      setStatus(err.message, 'error');
-    }
-  }
-
-  function setStatus(msg, cls) {
-    statusEl.textContent = msg;
-    statusEl.className = 'widget-status' + (cls ? ' ' + cls : '');
-  }
-})();
-</script>
 
 <section id="products">
   <div class="wrap">
     <div class="section-head">
       <div class="eyebrow">More tools</div>
       <h2>Also from DataExact</h2>
-      <p>Excel to Word is our flagship — try it above. Here's the rest of what we're building around the same problem: getting your data into shape, whether it starts in a spreadsheet or buried in a stack of documents.</p>
+      <p>The three Excel tools are up top — open any of them in one click. These two work on documents rather than spreadsheets. Same problem either way: getting your data into shape, whether it starts in a spreadsheet or buried in a stack of documents.</p>
     </div>
 
     <div class="tool-row">
@@ -659,18 +653,6 @@
         <h3>Qualitative Coding</h3>
         <p>Upload a whole corpus of PDFs and Word documents, tag them, and build a code tree of main codes and sub-codes. Every matching passage comes back as an excerpt with its source and location — counted per code, per document, and exportable to Excel.</p>
         <a class="cta" href="/codebook">Try it now →</a>
-      </div>
-
-      <div class="tcard" id="products-compare">
-        <h3>Compare Excel Files</h3>
-        <p>Upload two versions of a spreadsheet and get every changed, added, and removed value highlighted in a single downloadable report — rows matched by key, not position.</p>
-        <a class="cta" href="/compare">Try it now →</a>
-      </div>
-
-      <div class="tcard" id="products-anomaly">
-        <h3>Detect Anomalies in Excel</h3>
-        <p>Scans every row and column for values that break the pattern — duplicates, stray characters, missing values, mismatched types, outliers — and lists them for you before they reach a report.</p>
-        <a class="cta" href="/anomaly">Try it now →</a>
       </div>
 
       <div class="tcard" id="products-format">
