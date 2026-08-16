@@ -16,6 +16,7 @@ import uuid
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Request
 from fastapi.responses import FileResponse
 
+import analytics
 import gating
 from diff_engine import get_sheets, get_columns, build_diff_report
 
@@ -32,7 +33,8 @@ def _path(pair_id: str, which: str) -> str:
     return os.path.join(UPLOAD_DIR, f"{pair_id}_{which}.xlsx")
 
 
-async def _save_upload(file: UploadFile, path: str, limit: int):
+async def _save_upload(file: UploadFile, path: str, limit: int) -> int:
+    """Returns the size written, so /upload can log the pair's total bytes."""
     if not file.filename.lower().endswith((".xlsx", ".xlsm")):
         raise HTTPException(400, f"'{file.filename}' isn't a .xlsx/.xlsm file")
     contents = await file.read()
@@ -40,6 +42,7 @@ async def _save_upload(file: UploadFile, path: str, limit: int):
         raise HTTPException(400, f"'{file.filename}' is too large ({limit // (1024 * 1024)} MB limit)")
     with open(path, "wb") as f:
         f.write(contents)
+    return len(contents)
 
 
 @router.post("/upload")
@@ -49,8 +52,15 @@ async def upload(request: Request, file_a: UploadFile = File(...), file_b: Uploa
     path_b = _path(pair_id, "b")
 
     limit = gating.max_upload_bytes(request)
-    await _save_upload(file_a, path_a, limit)
-    await _save_upload(file_b, path_b, limit)
+    # This tool takes two files per request, so one upload event covers the
+    # pair, with file_size_bytes as their combined size.
+    try:
+        total_bytes = await _save_upload(file_a, path_a, limit)
+        total_bytes += await _save_upload(file_b, path_b, limit)
+    except HTTPException as e:
+        analytics.log_event(request, "compare", analytics.EVENT_UPLOAD,
+                            success=False, error_message=str(e.detail))
+        raise
 
     try:
         sheets_a = get_sheets(path_a)
@@ -58,8 +68,12 @@ async def upload(request: Request, file_a: UploadFile = File(...), file_b: Uploa
     except Exception:
         os.remove(path_a)
         os.remove(path_b)
+        analytics.log_event(request, "compare", analytics.EVENT_UPLOAD,
+                            file_size_bytes=total_bytes, success=False,
+                            error_message="not a valid Excel workbook")
         raise HTTPException(400, "Could not read one of the files as a valid Excel workbook")
 
+    analytics.log_event(request, "compare", analytics.EVENT_UPLOAD, file_size_bytes=total_bytes)
     return {"pair_id": pair_id, "sheets_a": sheets_a, "sheets_b": sheets_b}
 
 
@@ -103,11 +117,17 @@ async def generate(
 
     try:
         build_diff_report(path_a, sheet_a, path_b, sheet_b, key_column, output_path)
-    except ValueError as e:
-        raise HTTPException(400, str(e))
+    except Exception as e:
+        analytics.log_event(request, "compare", analytics.EVENT_PROCESSED,
+                            success=False, error_message=str(e))
+        if isinstance(e, ValueError):
+            raise HTTPException(400, str(e))
+        raise
 
+    analytics.log_event(request, "compare", analytics.EVENT_PROCESSED)
     gating.record_use(request, "compare", logged_in)
 
+    analytics.log_event(request, "compare", analytics.EVENT_DOWNLOAD)
     return FileResponse(
         output_path,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

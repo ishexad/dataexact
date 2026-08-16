@@ -25,6 +25,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from converter import get_sheets, get_columns, build_report
+import analytics
 import anomaly_detector
 import auth
 import billing
@@ -83,6 +84,7 @@ async def redirect_old_domain(request: Request, call_next):
     return await call_next(request)
 
 
+app.include_router(analytics.router)
 app.include_router(auth.router)
 app.include_router(billing.router)
 app.include_router(codebook.router)
@@ -144,6 +146,9 @@ async def upload(request: Request, file: UploadFile = File(...)):
     contents = await file.read()
     limit = gating.max_upload_bytes(request)
     if len(contents) > limit:
+        analytics.log_event(request, "excel_to_word", analytics.EVENT_UPLOAD,
+                            file_size_bytes=len(contents), success=False,
+                            error_message=f"over the {limit // (1024 * 1024)} MB upload limit")
         raise HTTPException(400, f"File too large ({limit // (1024 * 1024)} MB limit)")
 
     file_id = str(uuid.uuid4())
@@ -155,8 +160,13 @@ async def upload(request: Request, file: UploadFile = File(...)):
         sheets = get_sheets(path)
     except Exception:
         os.remove(path)
+        analytics.log_event(request, "excel_to_word", analytics.EVENT_UPLOAD,
+                            file_size_bytes=len(contents), success=False,
+                            error_message="not a valid Excel workbook")
         raise HTTPException(400, "Could not read this file as a valid Excel workbook")
 
+    analytics.log_event(request, "excel_to_word", analytics.EVENT_UPLOAD,
+                        file_size_bytes=len(contents))
     return {"file_id": file_id, "sheets": sheets}
 
 
@@ -203,11 +213,17 @@ async def generate(
 
     try:
         build_report(path, sheet, heading_column, order, output_path, title=title)
-    except ValueError as e:
-        raise HTTPException(400, str(e))
+    except Exception as e:
+        analytics.log_event(request, "excel_to_word", analytics.EVENT_PROCESSED,
+                            success=False, error_message=str(e))
+        if isinstance(e, ValueError):
+            raise HTTPException(400, str(e))
+        raise
 
+    analytics.log_event(request, "excel_to_word", analytics.EVENT_PROCESSED)
     gating.record_use(request, "excel_to_word", logged_in)
 
+    analytics.log_event(request, "excel_to_word", analytics.EVENT_DOWNLOAD)
     return FileResponse(
         output_path,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",

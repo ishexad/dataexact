@@ -28,6 +28,7 @@ from docx.shared import Inches, Pt, RGBColor
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
 
+import analytics
 import gating
 
 UPLOAD_DIR = "uploads"
@@ -271,7 +272,12 @@ async def generate(
     contents = await file.read()
     limit = gating.max_upload_bytes(request)
     if len(contents) > limit:
+        analytics.log_event(request, "format", analytics.EVENT_UPLOAD,
+                            file_size_bytes=len(contents), success=False,
+                            error_message=f"over the {limit // (1024 * 1024)} MB upload limit")
         raise HTTPException(400, f"File too large ({limit // (1024 * 1024)} MB limit)")
+
+    analytics.log_event(request, "format", analytics.EVENT_UPLOAD, file_size_bytes=len(contents))
 
     logo_bytes = None
     if logo is not None and logo.filename:
@@ -291,12 +297,18 @@ async def generate(
         apply_branding(input_path, theme, output_path, logo_bytes=logo_bytes,
                         title=title, filename_hint=file.filename)
     except ValueError as e:
+        analytics.log_event(request, "format", analytics.EVENT_PROCESSED,
+                            success=False, error_message=str(e))
         raise HTTPException(400, str(e))
-    except Exception:
+    except Exception as e:
+        analytics.log_event(request, "format", analytics.EVENT_PROCESSED,
+                            success=False, error_message=str(e))
         raise HTTPException(400, "Could not read this file as a valid Word document")
 
+    analytics.log_event(request, "format", analytics.EVENT_PROCESSED)
     gating.record_use(request, "format", logged_in)
 
+    analytics.log_event(request, "format", analytics.EVENT_DOWNLOAD)
     return FileResponse(
         output_path,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",

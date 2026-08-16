@@ -24,6 +24,7 @@ from collections import Counter
 import pandas as pd
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
+import analytics
 import gating
 
 UPLOAD_DIR = "uploads"
@@ -289,6 +290,9 @@ async def upload(request: Request, file: UploadFile = File(...)):
     contents = await file.read()
     limit = gating.max_upload_bytes(request)
     if len(contents) > limit:
+        analytics.log_event(request, "anomaly", analytics.EVENT_UPLOAD,
+                            file_size_bytes=len(contents), success=False,
+                            error_message=f"over the {limit // (1024 * 1024)} MB upload limit")
         raise HTTPException(400, f"File too large ({limit // (1024 * 1024)} MB limit)")
 
     file_id = str(uuid.uuid4())
@@ -300,8 +304,12 @@ async def upload(request: Request, file: UploadFile = File(...)):
         sheets = get_sheets(path)
     except Exception:
         os.remove(path)
+        analytics.log_event(request, "anomaly", analytics.EVENT_UPLOAD,
+                            file_size_bytes=len(contents), success=False,
+                            error_message="not a valid Excel workbook")
         raise HTTPException(400, "Could not read this file as a valid Excel workbook")
 
+    analytics.log_event(request, "anomaly", analytics.EVENT_UPLOAD, file_size_bytes=len(contents))
     return {"file_id": file_id, "sheets": sheets}
 
 
@@ -319,8 +327,15 @@ async def detect_endpoint(
 
     try:
         result = detect(path, sheet)
-    except ValueError as e:
-        raise HTTPException(400, str(e))
+    except Exception as e:
+        analytics.log_event(request, "anomaly", analytics.EVENT_PROCESSED,
+                            success=False, error_message=str(e))
+        if isinstance(e, ValueError):
+            raise HTTPException(400, str(e))
+        raise
 
+    # Results are rendered in the page rather than downloaded, so there's no
+    # download event for this tool.
+    analytics.log_event(request, "anomaly", analytics.EVENT_PROCESSED)
     gating.record_use(request, "anomaly", logged_in)
     return result

@@ -42,6 +42,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 from pydantic import BaseModel
 
+import analytics
 import gating
 
 UPLOAD_DIR = "uploads"
@@ -182,15 +183,25 @@ async def upload(request: Request, files: List[UploadFile] = File(...)):
 
     limit = gating.max_upload_bytes(request)
     documents = []
+    # A corpus arrives as one request of many files, so one upload event
+    # covers the batch, sized by their combined bytes.
+    total_bytes = 0
+
+    def _fail(message: str):
+        analytics.log_event(request, "codebook", analytics.EVENT_UPLOAD,
+                            file_size_bytes=total_bytes, success=False,
+                            error_message=message)
+        return HTTPException(400, message)
 
     for file in files:
         name_lower = (file.filename or "").lower()
         if not name_lower.endswith((".pdf", ".docx")):
-            raise HTTPException(400, f"'{file.filename}' isn't a .pdf or .docx file")
+            raise _fail(f"'{file.filename}' isn't a .pdf or .docx file")
 
         contents = await file.read()
+        total_bytes += len(contents)
         if len(contents) > limit:
-            raise HTTPException(400, f"'{file.filename}' is too large ({limit // (1024 * 1024)} MB limit)")
+            raise _fail(f"'{file.filename}' is too large ({limit // (1024 * 1024)} MB limit)")
 
         try:
             if name_lower.endswith(".pdf"):
@@ -198,12 +209,11 @@ async def upload(request: Request, files: List[UploadFile] = File(...)):
             else:
                 segments = _segments_from_docx(contents)
         except Exception:
-            raise HTTPException(400, f"Could not read '{file.filename}' — it may be corrupt or password-protected")
+            raise _fail(f"Could not read '{file.filename}' — it may be corrupt or password-protected")
 
         if not segments:
-            raise HTTPException(
-                400,
-                f"No extractable text found in '{file.filename}' (a scanned PDF needs OCR first)",
+            raise _fail(
+                f"No extractable text found in '{file.filename}' (a scanned PDF needs OCR first)"
             )
 
         doc_id = str(uuid.uuid4())
@@ -216,6 +226,7 @@ async def upload(request: Request, files: List[UploadFile] = File(...)):
             "segment_count": len(segments),
         })
 
+    analytics.log_event(request, "codebook", analytics.EVENT_UPLOAD, file_size_bytes=total_bytes)
     return {
         "documents": documents,
         "expires_in_hours": CORPUS_MAX_AGE_SECONDS // 3600,
@@ -385,11 +396,20 @@ async def extract(
     codes_json: str = Form(...),
 ):
     logged_in = gating.gate(request, "codebook")
-    refs, entries = _parse_inputs(documents_json, codes_json)
-    documents = _load_documents(refs)
+    try:
+        refs, entries = _parse_inputs(documents_json, codes_json)
+        documents = _load_documents(refs)
+        results = _run_coding(documents, entries)
+    except HTTPException as e:
+        analytics.log_event(request, "codebook", analytics.EVENT_PROCESSED,
+                            success=False, error_message=str(e.detail))
+        raise
+    except Exception as e:
+        analytics.log_event(request, "codebook", analytics.EVENT_PROCESSED,
+                            success=False, error_message=str(e))
+        raise
 
-    results = _run_coding(documents, entries)
-
+    analytics.log_event(request, "codebook", analytics.EVENT_PROCESSED)
     gating.record_use(request, "codebook", logged_in)
     return results
 
@@ -481,6 +501,7 @@ async def export(
     output_path = os.path.join(OUTPUT_DIR, f"{uuid.uuid4()}.xlsx")
     build_export(results, output_path)
 
+    analytics.log_event(request, "codebook", analytics.EVENT_DOWNLOAD)
     return FileResponse(
         output_path,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
