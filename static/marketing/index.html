@@ -525,7 +525,8 @@
       <a class="navcontact" href="#contact">Contact</a>
 
       <div class="navitem" id="authArea">
-        <!-- Filled in by JS below: either "Sign in" buttons or "Signed in as X · Logout" -->
+        <!-- Filled in by JS below: a sign-in button per configured provider,
+             or "Signed in as X · Logout" once they're back. -->
       </div>
     </div>
   </nav>
@@ -549,17 +550,36 @@
 <script>
 (async function(){
   const authArea = document.getElementById('authArea');
+  const PROVIDER_LABELS = { google: 'Sign in with Google', facebook: 'Sign in with Facebook' };
+
   try {
-    const res = await fetch('/me');
-    const data = await res.json();
+    const [meRes, provRes] = await Promise.all([fetch('/me'), fetch('/auth/providers')]);
+    const data = await meRes.json();
+
     if (data.user) {
-      const name = data.user.name || data.user.email || 'there';
       authArea.innerHTML = `
         <div class="auth-status">
-          <span>Signed in as <span class="name">${name}</span></span>
+          <span>Signed in as <span class="name"></span></span>
           <a href="/auth/logout">Logout</a>
         </div>`;
+      // Set as text, not interpolated markup — a display name comes from the
+      // OAuth provider and shouldn't be able to inject anything into the nav.
+      authArea.querySelector('.name').textContent = data.user.name || data.user.email || 'there';
+      return;
     }
+
+    // Signed out: one button per provider that actually has credentials
+    // configured. If none do, the nav stays as it was rather than showing a
+    // button that dead-ends on "login isn't configured yet".
+    const providers = (await provRes.json()).providers || [];
+    const next = encodeURIComponent(location.pathname + location.hash);
+    providers.forEach(p => {
+      const a = document.createElement('a');
+      a.className = 'auth-btn';
+      a.href = `/auth/${p}/login?next=${next}`;
+      a.textContent = PROVIDER_LABELS[p] || `Sign in with ${p}`;
+      authArea.appendChild(a);
+    });
   } catch (e) {
     // Auth backend not reachable — fail quietly, nav still works without it.
   }
