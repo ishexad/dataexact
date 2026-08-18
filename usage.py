@@ -73,6 +73,12 @@ def _ip_hash(request: Request) -> str:
     return hashlib.sha256(f"{salt}:{ip}".encode()).hexdigest()
 
 
+def ip_hash(request: Request) -> str:
+    """Public alias: email_auth.py rate-limits sign-in emails by the same
+    hashed-IP identity this module gates free files with."""
+    return _ip_hash(request)
+
+
 def _current_count(ip_hash: str, tool: str) -> int:
     now = time.time()
     with _db() as conn:

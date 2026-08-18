@@ -304,6 +304,13 @@ function showSigninModal() {
     a.textContent = PROVIDER_LABELS[p] || `Continue with ${p}`;
     providerButtons.appendChild(a);
   });
+  // Always offer the emailed-link route too — it's the only way in for
+  // someone with neither a Google nor a Facebook account.
+  const emailOption = document.createElement('a');
+  emailOption.className = 'provider-btn';
+  emailOption.href = `/signin/?next=${encodeURIComponent('/compare/')}`;
+  emailOption.textContent = 'Sign in with email';
+  providerButtons.appendChild(emailOption);
   signinModal.classList.add('show');
 }
 

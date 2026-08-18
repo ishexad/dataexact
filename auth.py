@@ -122,6 +122,19 @@ def _upsert_user(provider: str, provider_user_id: str, email: str, name: str) ->
 _init_db()
 
 
+def upsert_email_user(email: str, name: str) -> int:
+    """Create/refresh an account that signs in by emailed link rather than
+    OAuth (see email_auth.py). The address is the provider id, so the same
+    address always lands on the same row."""
+    return _upsert_user("email", email.lower(), email, name)
+
+
+def sign_in(request: Request, user_id: int, provider: str, email: str, name: str) -> None:
+    """The one place the session's user shape is written, so the OAuth
+    callback and the magic-link verify can't drift apart."""
+    request.session["user"] = {"id": user_id, "provider": provider, "email": email, "name": name}
+
+
 def get_user(user_id: int) -> dict | None:
     with _db() as conn:
         conn.row_factory = sqlite3.Row
@@ -190,7 +203,7 @@ async def callback(provider: str, request: Request):
 
     user_id = _upsert_user(provider, provider_user_id, email, name)
 
-    request.session["user"] = {"id": user_id, "provider": provider, "email": email, "name": name}
+    sign_in(request, user_id, provider, email, name)
     next_url = request.session.pop("oauth_next", "/")
     return RedirectResponse(url=next_url)
 

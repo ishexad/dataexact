@@ -525,7 +525,7 @@
       <a class="navcontact" href="#contact">Contact</a>
 
       <div class="navitem" id="authArea">
-        <!-- Filled in by JS below: a sign-in button per configured provider,
+        <!-- Filled in by JS below: a "Sign in" button through to /signin,
              or "Signed in as X · Logout" once they're back. -->
       </div>
     </div>
@@ -550,11 +550,8 @@
 <script>
 (async function(){
   const authArea = document.getElementById('authArea');
-  const PROVIDER_LABELS = { google: 'Sign in with Google', facebook: 'Sign in with Facebook' };
-
   try {
-    const [meRes, provRes] = await Promise.all([fetch('/me'), fetch('/auth/providers')]);
-    const data = await meRes.json();
+    const data = await (await fetch('/me')).json();
 
     if (data.user) {
       authArea.innerHTML = `
@@ -568,18 +565,14 @@
       return;
     }
 
-    // Signed out: one button per provider that actually has credentials
-    // configured. If none do, the nav stays as it was rather than showing a
-    // button that dead-ends on "login isn't configured yet".
-    const providers = (await provRes.json()).providers || [];
-    const next = encodeURIComponent(location.pathname + location.hash);
-    providers.forEach(p => {
-      const a = document.createElement('a');
-      a.className = 'auth-btn';
-      a.href = `/auth/${p}/login?next=${next}`;
-      a.textContent = PROVIDER_LABELS[p] || `Sign in with ${p}`;
-      authArea.appendChild(a);
-    });
+    // Signed out: a single button through to /signin, which is where every
+    // way in lives (Google, Facebook, emailed link). The nav deliberately
+    // doesn't enumerate providers itself — one page to change, not two.
+    const a = document.createElement('a');
+    a.className = 'auth-btn';
+    a.href = `/signin/?next=${encodeURIComponent(location.pathname + location.hash)}`;
+    a.textContent = 'Sign in';
+    authArea.appendChild(a);
   } catch (e) {
     // Auth backend not reachable — fail quietly, nav still works without it.
   }
@@ -759,18 +752,14 @@
 
   // Not subscribed yet: paid CTAs go straight to checkout if already signed in,
   // otherwise route through sign-in first, coming right back to checkout after.
+  // Via /signin rather than a provider directly, so someone paying with an
+  // emailed-link account isn't pushed into an OAuth flow they can't complete.
   [proCta, businessCta].forEach(btn => {
     btn.addEventListener('click', (e) => {
       if (billingStatus.logged_in) return; // href already points at /billing/checkout/{plan}
-      const plan = btn.dataset.plan;
-      if (providers.length) {
-        e.preventDefault();
-        window.location.href = `/auth/${providers[0]}/login?next=${encodeURIComponent('/billing/checkout/' + plan)}`;
-      } else {
-        // No sign-in provider configured yet — fall back to the in-tool flow.
-        e.preventDefault();
-        window.location.href = '/app';
-      }
+      e.preventDefault();
+      const next = encodeURIComponent('/billing/checkout/' + btn.dataset.plan);
+      window.location.href = `/signin/?next=${next}`;
     });
   });
 })();

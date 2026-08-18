@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0KH9FETK25"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0KH9FETK25');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex">
+<title>Sign in — DataExact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:        #F7F5EE;
+    --panel:     #FFFFFF;
+    --panel-2:   #EFEDE3;
+    --line:      #DDD9CB;
+    --amber:     #C97A19;
+    --cyan:      #1F8F94;
+    --red:       #D14B3D;
+    --text:      #22261F;
+    --muted:     #767469;
+    --font-display: 'Orbitron', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{background:var(--bg);}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--font-mono);
+    line-height:1.6; min-height:100vh;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  .card{
+    background:var(--panel); border:1px solid var(--line);
+    width:100%; max-width:420px; padding:36px 32px;
+  }
+  .logo{
+    font-family:var(--font-display); font-weight:800; font-size:1rem;
+    letter-spacing:0.08em; text-transform:uppercase; text-align:center;
+    display:block; margin-bottom:26px;
+  }
+  .logo .bracket{color:var(--amber);}
+  h1{
+    font-family:var(--font-display); font-weight:700; font-size:1.05rem;
+    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:10px;
+  }
+  .lede{color:var(--muted); font-size:0.85rem; margin-bottom:24px;}
+
+  .provider-btn{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; padding:12px 16px; margin-bottom:10px;
+    font-family:var(--font-mono); font-size:0.85rem; letter-spacing:0.02em;
+    background:var(--bg); border:1px solid var(--line); color:var(--text);
+    cursor:pointer; text-decoration:none;
+  }
+  .provider-btn:hover{border-color:var(--cyan); color:var(--cyan);}
+
+  .divider{
+    display:flex; align-items:center; gap:12px;
+    color:var(--muted); font-size:0.72rem; text-transform:uppercase;
+    letter-spacing:0.1em; margin:20px 0;
+  }
+  .divider::before, .divider::after{content:""; flex:1; height:1px; background:var(--line);}
+
+  label{
+    display:block; font-size:0.72rem; text-transform:uppercase;
+    letter-spacing:0.08em; color:var(--muted); margin-bottom:8px;
+  }
+  input[type=email]{
+    width:100%; padding:12px 14px; font-family:var(--font-mono); font-size:0.9rem;
+    background:var(--bg); border:1px solid var(--line); color:var(--text);
+  }
+  input[type=email]:focus{outline:none; border-color:var(--cyan);}
+  button.primary{
+    width:100%; margin-top:12px; padding:12px 16px;
+    font-family:var(--font-mono); font-size:0.85rem; letter-spacing:0.04em;
+    text-transform:uppercase; background:var(--amber); color:#fff;
+    border:1px solid var(--amber); cursor:pointer;
+  }
+  button.primary:hover{background:#B36A14;}
+  button.primary:disabled{opacity:0.55; cursor:default;}
+
+  .note{font-size:0.78rem; color:var(--muted); margin-top:16px; text-align:center;}
+  .msg{
+    font-size:0.82rem; padding:12px 14px; margin-bottom:20px;
+    border:1px solid var(--line); background:var(--panel-2);
+  }
+  .msg.error{border-color:var(--red); color:var(--red); background:#FBEDEB;}
+  .msg.ok{border-color:var(--cyan); color:var(--cyan); background:#E9F4F4;}
+  .hidden{display:none;}
+  .back{display:block; text-align:center; margin-top:22px; font-size:0.78rem; color:var(--muted);}
+  .back:hover{color:var(--amber);}
+  .devlink{word-break:break-all; font-size:0.72rem; margin-top:10px; display:block; color:var(--cyan);}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <a class="logo" href="/"><span class="bracket">[</span> DataExact <span class="bracket">]</span></a>
+
+  <div id="banner" class="msg hidden"></div>
+
+  <div id="signinView">
+    <h1>Sign in</h1>
+    <p class="lede">One account unlocks every tool. No password to remember.</p>
+
+    <div id="providerButtons"></div>
+    <div id="orDivider" class="divider hidden">or</div>
+
+    <form id="emailForm">
+      <label for="email">Email address</label>
+      <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@company.com">
+      <button type="submit" class="primary" id="submitBtn">Email me a sign-in link</button>
+    </form>
+    <p class="note">We'll email you a link that signs you in. If you've not used
+      DataExact before, that link creates your account.</p>
+  </div>
+
+  <div id="sentView" class="hidden">
+    <h1>Check your email</h1>
+    <p class="lede">We've sent a sign-in link to <strong id="sentTo"></strong>.
+      It works once and expires in <span id="expiryMins">15</span> minutes.</p>
+    <p class="note">Nothing arrived? Check spam, or
+      <a href="#" id="tryAgain" style="color:var(--amber)">try a different address</a>.</p>
+    <a class="devlink hidden" id="devLink"></a>
+  </div>
+
+  <div id="signedInView" class="hidden">
+    <h1>You're signed in</h1>
+    <p class="lede">Signed in as <strong id="whoami"></strong>.</p>
+    <a class="provider-btn" id="continueLink" href="/">Continue →</a>
+    <a class="back" href="/auth/logout">Sign out</a>
+  </div>
+
+  <a class="back" href="/" id="backLink">← Back to DataExact</a>
+</div>
+
+<script>
+(async function(){
+  const params = new URLSearchParams(location.search);
+  const rawNext = params.get('next') || '/';
+  // Same rule the server applies: relative paths only, so a crafted link
+  // can't bounce someone off-site after signing in.
+  const next = rawNext.startsWith('/') ? rawNext : '/';
+
+  const PROVIDER_LABELS = { google: 'Continue with Google', facebook: 'Continue with Facebook' };
+  const ERRORS = {
+    link_expired: "That sign-in link has expired or was already used. Request a new one below."
+  };
+
+  const banner = document.getElementById('banner');
+  const signinView = document.getElementById('signinView');
+  const sentView = document.getElementById('sentView');
+  const signedInView = document.getElementById('signedInView');
+  const providerButtons = document.getElementById('providerButtons');
+  const orDivider = document.getElementById('orDivider');
+  const emailForm = document.getElementById('emailForm');
+  const emailInput = document.getElementById('email');
+  const submitBtn = document.getElementById('submitBtn');
+
+  function showBanner(text, kind){
+    banner.textContent = text;
+    banner.className = `msg ${kind}`;
+  }
+
+  if (ERRORS[params.get('error')]) showBanner(ERRORS[params.get('error')], 'error');
+
+  // Already signed in? Don't make them do it again.
+  try {
+    const me = await (await fetch('/me')).json();
+    if (me.user) {
+      document.getElementById('whoami').textContent = me.user.name || me.user.email;
+      document.getElementById('continueLink').href = next;
+      signinView.classList.add('hidden');
+      signedInView.classList.remove('hidden');
+      document.getElementById('backLink').classList.add('hidden');
+      return;
+    }
+  } catch (e) { /* fall through to the sign-in form */ }
+
+  try {
+    const providers = (await (await fetch('/auth/providers')).json()).providers || [];
+    providers.forEach(p => {
+      const a = document.createElement('a');
+      a.className = 'provider-btn';
+      a.href = `/auth/${p}/login?next=${encodeURIComponent(next)}`;
+      a.textContent = PROVIDER_LABELS[p] || `Continue with ${p}`;
+      providerButtons.appendChild(a);
+    });
+    if (providers.length) orDivider.classList.remove('hidden');
+  } catch (e) { /* email sign-in still works on its own */ }
+
+  emailForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    const body = new FormData();
+    body.append('email', emailInput.value.trim());
+    body.append('next', next);
+
+    try {
+      const res = await fetch('/auth/email/request', { method: 'POST', body });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        showBanner(data.detail || "Couldn't send that link. Please try again.", 'error');
+        return;
+      }
+
+      document.getElementById('sentTo').textContent = data.email;
+      document.getElementById('expiryMins').textContent = data.expires_in_minutes;
+      banner.className = 'msg hidden';
+      signinView.classList.add('hidden');
+      sentView.classList.remove('hidden');
+
+      // Local development without a mail provider — the server hands the link
+      // back so the flow is clickable. Never present against a real host.
+      if (data.dev_link) {
+        const dev = document.getElementById('devLink');
+        dev.href = data.dev_link;
+        dev.textContent = `[dev] ${data.dev_link}`;
+        dev.classList.remove('hidden');
+      }
+    } catch (err) {
+      showBanner("Couldn't reach the server. Please try again.", 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Email me a sign-in link';
+    }
+  });
+
+  document.getElementById('tryAgain').addEventListener('click', (e) => {
+    e.preventDefault();
+    sentView.classList.add('hidden');
+    signinView.classList.remove('hidden');
+    emailInput.value = '';
+    emailInput.focus();
+  });
+})();
+</script>
+
+</body>
+</html>

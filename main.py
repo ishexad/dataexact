@@ -31,6 +31,7 @@ import auth
 import billing
 import codebook
 import compare
+import email_auth
 import format_report
 import gating
 import usage
@@ -86,6 +87,7 @@ async def redirect_old_domain(request: Request, call_next):
 
 app.include_router(analytics.router)
 app.include_router(auth.router)
+app.include_router(email_auth.router)
 app.include_router(billing.router)
 app.include_router(codebook.router)
 app.include_router(compare.router)
@@ -273,6 +275,15 @@ async def codebook_no_slash():
     return RedirectResponse(url="/codebook/")
 
 app.mount("/codebook", StaticFiles(directory="static/codebook", html=True), name="codebook-tool")
+
+# Every sign-in route in one place: OAuth buttons plus the emailed-link form
+# (email_auth.py). The nav and the tools' free-limit prompts all point here
+# rather than each rebuilding the list of ways to sign in.
+@app.get("/signin")
+async def signin_no_slash():
+    return RedirectResponse(url="/signin/")
+
+app.mount("/signin", StaticFiles(directory="static/signin", html=True), name="signin")
 
 # DataExact marketing site at the root — its "Excel to Word" product card
 # links to /app. Mounted last (root "/" would otherwise shadow everything).
