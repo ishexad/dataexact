@@ -411,12 +411,11 @@ async def export_endpoint(
     file_id: str = Form(...),
     sheet: str = Form(...),
 ):
-    """Subscriber-only. Everyone can run a check and read the findings on
-    screen; taking them away as a file is the paid part, so this uses
-    require_subscription rather than the free-allowance gate. The detection
-    itself already counted against the caller's allowance in /detect, so
-    exporting doesn't charge a second time."""
-    gating.require_subscription(request)
+    # Gate but don't consume, same as codebook's export: the /detect run that
+    # produced these findings already counted against the caller's allowance,
+    # so downloading them shouldn't charge a second time — while still
+    # blocking anyone out of quota who skips /detect and calls this directly.
+    gating.gate(request, "anomaly")
 
     path = os.path.join(UPLOAD_DIR, f"{file_id}.xlsx")
     if not os.path.exists(path):

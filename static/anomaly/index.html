@@ -147,7 +147,6 @@
   button.generate.secondary:disabled{background:none; color:var(--muted); border-color:var(--line);}
 
   .export-row{display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;}
-  .export-note{font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);}
 
   .status{font-size:0.8rem; margin-top:14px; letter-spacing:0.02em;}
   .status.error{color:var(--red);}
@@ -281,7 +280,6 @@
     <div class="results-summary" id="resultsSummary"></div>
     <div class="export-row" id="exportRow">
       <button class="generate secondary" id="exportBtn">Export to Excel</button>
-      <span class="export-note" id="exportNote">Subscribers only</span>
     </div>
     <div class="table-scroll">
       <table class="results-table" id="resultsTable">
@@ -366,10 +364,10 @@
       findings by design.</p>
 
     <h4>Can I download the results?</h4>
-    <p>Results are shown on screen for everyone. If you need an exportable file you
-      need to subscribe &mdash; the export gives you the whole list as an .xlsx: a
-      summary sheet with the counts by issue type, and one row per issue with its
-      row number, column, type and detail.</p>
+    <p>Yes. Export gives you the whole list as an .xlsx: a summary sheet with the
+      counts by issue type, and one row per issue with its row number, column, type
+      and detail. It draws on the same free allowance as the check itself, so
+      exporting a sheet you have just checked doesn't cost you a second file.</p>
 
     <h4>What are the limits?</h4>
     <p>.xlsx and .xlsm, up to 10 MB, one sheet at a time. Three checks a month without
@@ -408,7 +406,6 @@ const resultsTable = document.getElementById('resultsTable');
 const resultsBody = document.getElementById('resultsBody');
 const noIssues = document.getElementById('noIssues');
 const exportBtn = document.getElementById('exportBtn');
-const exportNote = document.getElementById('exportNote');
 const usageNote = document.getElementById('usageNote');
 const signinModal = document.getElementById('signinModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -432,13 +429,9 @@ async function loadProviders() {
   } catch (err) { /* sign-in options just won't show */ }
 }
 
-// Both modals take optional copy: the same paywall is reached two different
-// ways now — running out of free checks, and clicking the subscriber-only
-// export — and telling someone they've "used their free reports" when they
-// haven't is just confusing.
-function showSigninModal(title, message) {
-  modalTitle.textContent = title || 'Free limit reached';
-  modalMessage.textContent = message || "You've used your 3 free reports this month. Sign in to keep going.";
+function showSigninModal() {
+  modalTitle.textContent = 'Free limit reached';
+  modalMessage.textContent = "You've used your 3 free reports this month. Sign in to keep going.";
   providerButtons.innerHTML = '';
   availableProviders.forEach(p => {
     const a = document.createElement('a');
@@ -457,9 +450,9 @@ function showSigninModal(title, message) {
   signinModal.classList.add('show');
 }
 
-function showSubscribeModal(title, message) {
-  modalTitle.textContent = title || 'Subscribe to continue';
-  modalMessage.textContent = message || "You're signed in — subscribe to a plan to keep generating reports.";
+function showSubscribeModal() {
+  modalTitle.textContent = 'Subscribe to continue';
+  modalMessage.textContent = "You're signed in — subscribe to a plan to keep generating reports.";
   providerButtons.innerHTML = '';
   Object.keys(PLAN_LABELS).forEach(plan => {
     const a = document.createElement('a');
@@ -579,16 +572,6 @@ detectBtn.addEventListener('click', async () => {
   }
 });
 
-// The export is a paid extra, so say so up front rather than letting someone
-// click it and get a paywall. /usage already tells us whether they're subscribed.
-async function refreshExportNote() {
-  try {
-    const res = await fetch(`${API_BASE}/usage?tool=anomaly`);
-    const data = await res.json();
-    exportNote.textContent = data.subscribed ? '' : 'Subscribers only';
-  } catch (err) { /* leave the note as it is */ }
-}
-
 exportBtn.addEventListener('click', async () => {
   setStatus('Building spreadsheet…', '');
   exportBtn.disabled = true;
@@ -602,13 +585,8 @@ exportBtn.addEventListener('click', async () => {
       setStatus('', '');
       const data = await res.json();
       const reason = data.detail && data.detail.reason;
-      if (reason === 'subscription_required') {
-        showSubscribeModal('Subscribe to export',
-          'Exporting to Excel is part of a subscription. Your results stay on screen either way.');
-      } else {
-        showSigninModal('Subscribe to export',
-          'Exporting to Excel is part of a subscription. Sign in to subscribe — your results stay on screen either way.');
-      }
+      if (reason === 'subscription_required') showSubscribeModal();
+      else showSigninModal();
       return;
     }
     if (!res.ok) {
@@ -634,7 +612,6 @@ exportBtn.addEventListener('click', async () => {
 
 function renderResults(data) {
   results.classList.add('show');
-  refreshExportNote();
   const issueCount = data.issues.length;
   const summaryParts = Object.entries(data.summary)
     .map(([type, count]) => `<span class="summary-pill">${count} × ${type}</span>`)
