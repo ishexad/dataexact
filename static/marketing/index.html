@@ -215,8 +215,7 @@
 
   .tool-tile .tile-body{flex:1; min-width:0;}
   .tool-tile .tile-name{
-    font-family:var(--font-display); font-weight:700; font-size:0.9375rem;
-    text-transform:uppercase; letter-spacing:0.02em;
+    font-family:var(--font-display); font-weight:700; font-size:0.9375rem; letter-spacing:0;
     display:flex; align-items:center; gap:8px;
   }
   .tool-tile .tile-desc{font-size:0.875rem; color:var(--muted); line-height:1.45; margin-top:5px;}
@@ -249,8 +248,7 @@
   @media (max-width:860px){.tool-row{grid-template-columns:1fr;}}
   .tool-row .tcard{background:var(--panel); padding:28px 26px;}
   .tool-row .tcard h3{
-    font-family:var(--font-display); font-weight:700; font-size:0.98rem;
-    text-transform:uppercase; letter-spacing:0.02em; margin-bottom:10px;
+    font-family:var(--font-display); font-weight:700; font-size:0.98rem; letter-spacing:0; margin-bottom:10px;
   }
   .tool-row .tcard p{color:var(--muted); font-size:0.9375rem; margin-bottom:16px;}
 
@@ -270,9 +268,8 @@
     font-weight:900;
     font-size:clamp(2.4rem, 6vw, 4.6rem);
     line-height:1.02;
-    letter-spacing:0.01em;
+    letter-spacing:-0.015em;
     max-width:11ch;
-    text-transform:uppercase;
     background:rgba(255,255,255,0.5);
   }
   .hero h1 .accent{color:var(--amber);}
@@ -312,8 +309,7 @@
   .eyebrow::before{content:''; width:24px; height:1px; background:var(--cyan);}
   .section-head h2{
     font-family:var(--font-display); font-weight:800;
-    font-size:clamp(1.7rem, 3.4vw, 2.5rem);
-    text-transform:uppercase; letter-spacing:0.01em;
+    font-size:clamp(1.7rem, 3.4vw, 2.5rem); letter-spacing:-0.01em;
   }
   .section-head p{color:var(--muted); margin-top:16px; font-size:0.98rem;}
 
@@ -330,9 +326,8 @@
   #products .card{background:var(--panel);}
   .card:hover{background:var(--panel-2);}
   .card h3{
-    font-family:var(--font-display); font-weight:700; font-size:1.25rem;
-    text-transform:uppercase; margin:16px 0 14px;
-    letter-spacing:0.02em;
+    font-family:var(--font-display); font-weight:700; font-size:1.25rem; margin:16px 0 14px;
+    letter-spacing:0;
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
   .card p{color:var(--muted); font-size:0.9375rem; margin-bottom:22px;}
@@ -415,9 +410,8 @@
   #contact{background:var(--panel);}
   .contact-wrap{display:grid; grid-template-columns:1fr 1.2fr; gap:60px;}
   .contact-info h2{
-    font-family:var(--font-display); font-weight:800; text-transform:uppercase;
-    font-size:clamp(1.7rem,3.4vw,2.3rem); margin-bottom:18px;
-  }
+    font-family:var(--font-display); font-weight:800;
+    font-size:clamp(1.7rem,3.4vw,2.3rem); margin-bottom:18px; letter-spacing:-0.01em;}
   .contact-info p{color:var(--muted); margin-bottom:28px; max-width:38ch;}
   .contact-line{display:flex; gap:12px; font-size:0.9375rem; margin-bottom:12px; color:var(--text);}
   .contact-line .k{color:var(--muted); min-width:90px; text-transform:uppercase; font-size:0.875rem; letter-spacing:0.08em; padding-top:2px;}
