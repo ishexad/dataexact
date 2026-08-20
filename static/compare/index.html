@@ -14,6 +14,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>Compare Excel Files — DataExact</title>
+<meta name="description" content="Compare two Excel files and get a highlighted .xlsx showing every added, removed and changed row, matched on the key column you choose. Three free, no signup.">
+<link rel="canonical" href="https://www.dataexact.io/compare/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DataExact">
+<meta property="og:title" content="Compare Excel Files — DataExact">
+<meta property="og:description" content="Compare two Excel files and get a highlighted .xlsx showing every added, removed and changed row, matched on the key column you choose. Three free, no signup.">
+<meta property="og:url" content="https://www.dataexact.io/compare/">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -165,6 +173,35 @@
     color:var(--muted); background:none; border:none; cursor:pointer;
   }
   .modal-close:hover{color:var(--text);}
+
+  /* ---------- ABOUT / EXPLAINER ----------
+     Below-the-tool prose. The tool itself is ~150 words of UI labels, which
+     reads as an empty page to a search engine; this is the page's actual
+     content, and it doubles as an answer to what people ask before using it. */
+  .about{
+    margin-top:56px; padding-top:40px;
+    border-top:1px solid var(--line);
+    max-width:72ch;
+  }
+  .about h2{
+    font-family:var(--font-display); font-weight:700; font-size:1.15rem;
+    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:16px;
+  }
+  .about h3{
+    font-family:var(--font-display); font-weight:700; font-size:0.9rem;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:34px 0 12px; color:var(--text);
+  }
+  .about h4{
+    font-size:0.88rem; font-weight:400; color:var(--text);
+    margin:20px 0 6px;
+  }
+  .about p, .about li{color:var(--muted); font-size:0.88rem;}
+  .about p{margin-bottom:14px;}
+  .about ul, .about ol{padding-left:22px; margin-bottom:14px;}
+  .about li{margin-bottom:7px;}
+  .about a{color:var(--cyan); border-bottom:1px solid transparent;}
+  .about a:hover{border-bottom-color:var(--cyan);}
 </style>
 </head>
 <body>
@@ -236,6 +273,85 @@
     </div>
     <div class="status" id="status"></div>
   </div>
+
+
+  <section class="about">
+    <h2>Compare two Excel files and see exactly what changed</h2>
+    <p>Opening two versions of a spreadsheet side by side and hunting for the
+      differences is slow and easy to get wrong. This tool reads both files, matches
+      the rows up, and hands back a single Excel workbook that spells out every
+      change: which cells differ, what they used to say, what they say now, and which
+      rows were added or removed entirely.</p>
+
+    <h3>Rows are matched on a key, not on position</h3>
+    <p>You choose a key column &mdash; an ID, an email address, a SKU, anything unique
+      to each record. Rows are paired using that key rather than the order they appear
+      in, so a file that has been re-sorted between versions still compares correctly.
+      A row whose key exists in one file but not the other is reported as added or
+      removed, rather than as a wall of false changes.</p>
+
+    <h3>How it works</h3>
+    <ol>
+      <li><strong>Upload both files</strong> &mdash; the older version as File A, the
+        newer one as File B. Both need to be .xlsx or .xlsm.</li>
+      <li><strong>Pick the sheet in each file.</strong> They do not have to share a
+        name or sit in the same position.</li>
+      <li><strong>Choose the key column</strong> from the columns the two sheets have
+        in common.</li>
+      <li><strong>Download the comparison</strong> as a highlighted .xlsx.</li>
+    </ol>
+
+    <h3>What you get back</h3>
+    <p>One workbook with five sheets:</p>
+    <ul>
+      <li><strong>Summary</strong> &mdash; counts of changed cells, added rows and removed rows</li>
+      <li><strong>Changes</strong> &mdash; one line per changed cell: key, column, old value, new value</li>
+      <li><strong>Added Rows</strong> &mdash; full records present in File B but not File A</li>
+      <li><strong>Removed Rows</strong> &mdash; full records present in File A but not File B</li>
+      <li><strong>Highlighted (File B)</strong> &mdash; the new file in full, with changed
+        cells shaded yellow and added rows shaded green, so you can read changes in context</li>
+    </ul>
+
+    <h3>Trivial differences are ignored on purpose</h3>
+    <p>Values are normalised before being compared, so <em>42000</em> and
+      <em>42000.0</em> do not count as a change, a blank cell and an empty cell are
+      treated as the same thing, and leading or trailing spaces are stripped. The aim
+      is a list of changes that are all worth reading, rather than one padded out with
+      formatting noise</p>
+
+    <h3>What people use it for</h3>
+    <ul>
+      <li>Checking a price list or rate card against last month's version</li>
+      <li>Verifying that a data migration moved every record across intact</li>
+      <li>Reviewing what a colleague changed in a shared workbook</li>
+      <li>Reconciling a supplier catalogue or stock file between updates.</li>
+      <li>Auditing a membership or payroll export period on period</li>
+    </ul>
+
+    <h3>Common questions</h3>
+
+    <h4>Do the two files need identical columns?</h4>
+    <p>No. Columns common to both sheets are compared, and the tool also reports which
+      columns exist in only one of the files &mdash; so a renamed or dropped column is
+      obvious rather than silently ignored.</p>
+
+    <h4>Does it compare formulas or results?</h4>
+    <p>Results. A formula is read as the value it currently produces, which is normally
+      what you want when checking whether the numbers moved.</p>
+
+    <h4>What if my key column has duplicates?</h4>
+    <p>Keys are expected to be unique to each row. Where the same key appears more than
+      once, matching becomes ambiguous &mdash; <a href="/anomaly/">Detect Anomalies</a>
+      will find repeated values in a column that ought to be unique.</p>
+
+    <h4>What are the file limits?</h4>
+    <p>.xlsx and .xlsm, up to 10 MB per file, two files per comparison. Three
+      comparisons a month without an account.</p>
+
+    <h4>What happens to my files?</h4>
+    <p>Both are processed for your session and deleted within the hour. Neither is
+      kept, shared, or used for anything else.</p>
+  </section>
 
   <footer>Files are processed for this session only and not stored beyond generating your report.</footer>
 </div>

@@ -14,6 +14,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>Qualitative Coding — DataExact</title>
+<meta name="description" content="Code a corpus of PDFs and Word documents against your own code tree. Every matching excerpt plus per-code frequency counts, exported to Excel. No AI, no API key.">
+<link rel="canonical" href="https://www.dataexact.io/codebook/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DataExact">
+<meta property="og:title" content="Qualitative Coding — DataExact">
+<meta property="og:description" content="Code a corpus of PDFs and Word documents against your own code tree. Every matching excerpt plus per-code frequency counts, exported to Excel. No AI, no API key.">
+<meta property="og:url" content="https://www.dataexact.io/codebook/">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -267,6 +275,35 @@
     color:var(--muted); background:none; border:none; cursor:pointer;
   }
   .modal-close:hover{color:var(--text);}
+
+  /* ---------- ABOUT / EXPLAINER ----------
+     Below-the-tool prose. The tool itself is ~150 words of UI labels, which
+     reads as an empty page to a search engine; this is the page's actual
+     content, and it doubles as an answer to what people ask before using it. */
+  .about{
+    margin-top:56px; padding-top:40px;
+    border-top:1px solid var(--line);
+    max-width:72ch;
+  }
+  .about h2{
+    font-family:var(--font-display); font-weight:700; font-size:1.15rem;
+    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:16px;
+  }
+  .about h3{
+    font-family:var(--font-display); font-weight:700; font-size:0.9rem;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:34px 0 12px; color:var(--text);
+  }
+  .about h4{
+    font-size:0.88rem; font-weight:400; color:var(--text);
+    margin:20px 0 6px;
+  }
+  .about p, .about li{color:var(--muted); font-size:0.88rem;}
+  .about p{margin-bottom:14px;}
+  .about ul, .about ol{padding-left:22px; margin-bottom:14px;}
+  .about li{margin-bottom:7px;}
+  .about a{color:var(--cyan); border-bottom:1px solid transparent;}
+  .about a:hover{border-bottom-color:var(--cyan);}
 </style>
 </head>
 <body>
@@ -338,6 +375,83 @@
       <div class="empty-note" id="noExcerpts" style="display:none;">No excerpts match these filters.</div>
     </div>
   </div>
+
+
+  <section class="about">
+    <h2>Code a document corpus against your own codebook</h2>
+    <p>Qualitative coding means reading a body of documents and marking every passage
+      that speaks to each of your themes, then counting what came up where. Done by
+      hand across thirty interview transcripts it takes days. This tool applies your
+      code tree across the whole corpus at once and returns every coded excerpt, with
+      the counts per code per document.</p>
+
+    <h3>A two-level code tree, the way Dedoose works</h3>
+    <p>You build main codes, each with optional sub-codes, and give each one the
+      keywords that signal it. A main code can be applied in its own right, and each
+      sub-code is matched separately, so you can work at whichever level of granularity
+      the analysis needs. A code with no keywords falls back to matching its own name.</p>
+
+    <h3>Matching is deterministic, not AI</h3>
+    <p>Codes are applied by keyword search, not by a language model. Nothing is sent to
+      an external service, there is no API key, and no interpretation happens that you
+      did not specify. The same corpus and the same code tree produce the same
+      excerpts every time, which is what makes the result auditable &mdash; you can
+      state exactly why any passage was coded the way it was.</p>
+    <p>Single-word keywords match on word boundaries, so <em>cost</em> does not fire on
+      <em>costume</em>. Multi-word keywords match as phrases. Matching ignores case.</p>
+
+    <h3>How it works</h3>
+    <ol>
+      <li><strong>Upload your corpus</strong> &mdash; up to 25 PDF or .docx files at once.</li>
+      <li><strong>Tag each document</strong> if it helps: by site, year, interviewer,
+        source, whatever you will want to compare across later.</li>
+      <li><strong>Build your code tree</strong> with main codes, sub-codes and the
+        keywords for each.</li>
+      <li><strong>Extract</strong> to see every coded excerpt on screen, or
+        <strong>export</strong> the whole thing to Excel.</li>
+    </ol>
+
+    <h3>Excerpts are passages, not fragments</h3>
+    <p>Documents are split into passage-sized segments before matching &mdash; text
+      blocks for PDFs, paragraphs and table cells for Word files &mdash; so what comes
+      back reads as a quotable unit rather than half a sentence or an entire page.
+      Long passages are split on sentence boundaries rather than mid-word. PDF excerpts
+      cite a page number; Word excerpts cite a paragraph or table position, since Word
+      files carry no page numbers until they are rendered.</p>
+
+    <h3>The Excel export</h3>
+    <ul>
+      <li><strong>Summary</strong> &mdash; documents coded, codes applied, excerpts found,
+        and a per-document count</li>
+      <li><strong>Excerpts</strong> &mdash; one row per excerpt with its document, tag,
+        code, sub-code, location, matched keywords and the passage itself</li>
+      <li><strong>Code Frequency</strong> &mdash; codes down the side, documents across
+        the top, counts in the grid, ready to chart or test</li>
+    </ul>
+
+    <h3>Common questions</h3>
+
+    <h4>Does it work on scanned PDFs?</h4>
+    <p>Only if they already contain a text layer. A scan that is purely images has
+      nothing to search, and will need OCR first &mdash; the tool tells you rather than
+      returning an empty result.</p>
+
+    <h4>How long is my corpus kept?</h4>
+    <p>Six hours, deliberately longer than the other tools, because tagging files and
+      building a code tree is real work that can outlast a single sitting. Only the
+      extracted text is stored, never the original PDFs or Word files.</p>
+
+    <h4>How many documents can I code at once?</h4>
+    <p>Up to 25 files per upload, each up to 10 MB, and up to 5,000 excerpts per run.
+      Hitting the excerpt cap usually means a keyword is too broad.</p>
+
+    <h4>Can I keep working on a codebook over several sessions?</h4>
+    <p>The code tree lives in the page while you work. Export to Excel before you
+      finish for the day so you have a record of both the codes and the excerpts.</p>
+
+    <h4>What are the free limits?</h4>
+    <p>Three extractions a month without an account, each across your whole corpus.</p>
+  </section>
 
   <footer>Your PDFs and Word files are never stored — only the text extracted from them, cleared automatically a few hours after upload.</footer>
 </div>

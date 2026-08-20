@@ -15,6 +15,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>Excel to Word — DataExact</title>
+<meta name="description" content="Turn an Excel spreadsheet into an organized Word document. Choose the column that heads each entry, arrange the rest, download a .docx. Three files free, no signup.">
+<link rel="canonical" href="https://www.dataexact.io/app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DataExact">
+<meta property="og:title" content="Excel to Word — DataExact">
+<meta property="og:description" content="Turn an Excel spreadsheet into an organized Word document. Choose the column that heads each entry, arrange the rest, download a .docx. Three files free, no signup.">
+<meta property="og:url" content="https://www.dataexact.io/app/">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -225,6 +233,35 @@
     color:var(--muted); background:none; border:none; cursor:pointer;
   }
   .modal-close:hover{color:var(--text);}
+
+  /* ---------- ABOUT / EXPLAINER ----------
+     Below-the-tool prose. The tool itself is ~140 words of UI labels, which
+     reads as an empty page to a search engine; this is the page's actual
+     content, and it doubles as an answer to what people ask before using it. */
+  .about{
+    margin-top:56px; padding-top:40px;
+    border-top:1px solid var(--line);
+    max-width:72ch;
+  }
+  .about h2{
+    font-family:var(--font-display); font-weight:700; font-size:1.15rem;
+    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:16px;
+  }
+  .about h3{
+    font-family:var(--font-display); font-weight:700; font-size:0.9rem;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:34px 0 12px; color:var(--text);
+  }
+  .about h4{
+    font-size:0.88rem; font-weight:400; color:var(--text);
+    margin:20px 0 6px;
+  }
+  .about p, .about li{color:var(--muted); font-size:0.88rem;}
+  .about p{margin-bottom:14px;}
+  .about ul, .about ol{padding-left:22px; margin-bottom:14px;}
+  .about li{margin-bottom:7px;}
+  .about a{color:var(--cyan); border-bottom:1px solid transparent;}
+  .about a:hover{border-bottom-color:var(--cyan);}
 </style>
 </head>
 <body>
@@ -282,6 +319,79 @@
     <button class="generate" id="generateBtn" disabled>Generate Word Document</button>
     <div class="status" id="status"></div>
   </div>
+
+
+  <section class="about">
+    <h2>Convert an Excel spreadsheet into a Word document</h2>
+    <p>Spreadsheets are good at holding structured records and bad at reading like
+      a document. This tool takes one sheet and turns every row into its own section
+      of a Word file: a heading you choose, then the columns you choose underneath it,
+      in the order you put them. A 200-row directory becomes a 200-entry clean document
+      without copying a single cell by hand.</p>
+
+    <h3>How it works</h3>
+    <ol>
+      <li><strong>Upload a .xlsx or .xlsm file</strong> and pick the sheet you want.
+        Nothing to install — it runs in the browser on any operating system.</li>
+      <li><strong>Choose the heading column.</strong> Whatever sits in that column
+        becomes the title of each section: a person's name, a product code, a site
+        reference.</li>
+      <li><strong>Arrange the remaining columns</strong> into the order they should
+        appear, and leave out any you don't need.</li>
+      <li><strong>Add an optional report title</strong> and download the .docx.</li>
+    </ol>
+
+    <h3>What the Word file looks like</h3>
+    <p>Each row becomes a Heading 1 carrying the value from your heading column,
+      followed by one paragraph per remaining column with the label in bold. Because
+      it uses Word's real heading styles rather than hand-formatted text. Empty cells
+      keep their label and leave the value blank, so
+      the structure stays consistent from one entry to the next.</p>
+    <p>Values come through as text. Formulas arrive as their calculated result, while
+      cell colours, fonts and conditional formatting are not carried across — the point
+      is a clean document you can style in Word, not a picture of your spreadsheet.</p>
+
+    <h3>What people use it for</h3>
+    <ul>
+      <li>Office Staff working with spreadsheets and need a cleaner word document</li>
+      <li>Product and catalogue sheets, written up one entry per product</li>
+      <li>Survey responses turned into a readable write-up, one respondent per section</li>
+      <li>Asset registers, site lists and risk registers — anything held one record per row</li>
+      <li>Interview or case notes kept in a tracker that need to read as a report</li>
+    </ul>
+
+    <h3>Common questions</h3>
+
+    <h4>Do I need an account?</h4>
+    <p>No. Three files a month on this tool without signing up. Subscribe for unlimited number of files.</p>
+
+    <h4>Which file types can I upload?</h4>
+    <p>.xlsx and .xlsm, up to 10 MB. The older .xls format isn't supported — open it
+      in Excel and save it as .xlsx first.</p>
+
+    <h4>What happens to my file?</h4>
+    <p>It's processed for your session and deleted within the hour. It isn't kept,
+      shared, or used for anything else.</p>
+
+    <h4>Can I control the fonts and colours?</h4>
+    <p>Not in this tool — the output deliberately uses Word's default styles, which
+      makes it easy to restyle afterwards. Run the result through
+      <a href="/format/">Format Report</a> to add a cover page, a branded header and
+      footer, and a consistent theme.</p>
+
+    <h4>Can I pick which columns appear?</h4>
+    <p>Yes. Only the columns you arrange are included, in the order you set. Anything
+      you leave out is ignored.</p>
+
+    <h4>Is there a limit on rows?</h4>
+    <p>No fixed row limit — the 10 MB file size is the practical ceiling. Very large
+      sheets simply take a few seconds longer to build.</p>
+
+    <p>Working with more than one spreadsheet? <a href="/compare/">Compare Excel Files</a>
+      highlights what changed between two versions, and
+      <a href="/anomaly/">Detect Anomalies</a> flags duplicates, gaps and outliers before
+      you turn a sheet into a document.</p>
+  </section>
 
   <footer>Files are processed for this session only and not stored beyond generating your report.</footer>
 </div>

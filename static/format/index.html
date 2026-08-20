@@ -14,6 +14,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>Format Report — DataExact</title>
+<meta name="description" content="Apply a professional theme to a plain Word document: cover page, branded header and footer, consistent heading fonts and colours. Three free, no signup.">
+<link rel="canonical" href="https://www.dataexact.io/format/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DataExact">
+<meta property="og:title" content="Format Report — DataExact">
+<meta property="og:description" content="Apply a professional theme to a plain Word document: cover page, branded header and footer, consistent heading fonts and colours. Three free, no signup.">
+<meta property="og:url" content="https://www.dataexact.io/format/">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -186,6 +194,35 @@
     color:var(--muted); background:none; border:none; cursor:pointer;
   }
   .modal-close:hover{color:var(--text);}
+
+  /* ---------- ABOUT / EXPLAINER ----------
+     Below-the-tool prose. The tool itself is ~150 words of UI labels, which
+     reads as an empty page to a search engine; this is the page's actual
+     content, and it doubles as an answer to what people ask before using it. */
+  .about{
+    margin-top:56px; padding-top:40px;
+    border-top:1px solid var(--line);
+    max-width:72ch;
+  }
+  .about h2{
+    font-family:var(--font-display); font-weight:700; font-size:1.15rem;
+    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:16px;
+  }
+  .about h3{
+    font-family:var(--font-display); font-weight:700; font-size:0.9rem;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:34px 0 12px; color:var(--text);
+  }
+  .about h4{
+    font-size:0.88rem; font-weight:400; color:var(--text);
+    margin:20px 0 6px;
+  }
+  .about p, .about li{color:var(--muted); font-size:0.88rem;}
+  .about p{margin-bottom:14px;}
+  .about ul, .about ol{padding-left:22px; margin-bottom:14px;}
+  .about li{margin-bottom:7px;}
+  .about a{color:var(--cyan); border-bottom:1px solid transparent;}
+  .about a:hover{border-bottom-color:var(--cyan);}
 </style>
 </head>
 <body>
@@ -234,6 +271,80 @@
     <button class="generate" id="generateBtn" disabled>Generate Branded Document</button>
     <div class="status" id="status"></div>
   </div>
+
+
+  <section class="about">
+    <h2>Give a plain Word document a professional look</h2>
+    <p>A document can be completely sound and still look like a first draft. This tool
+      takes a plain .docx and applies a consistent visual identity to it: a cover page,
+      a branded header and footer, page numbers, a page border, and coherent heading
+      and body typography &mdash; in one pass, without you opening a style dialog.</p>
+
+    <h3>Three themes</h3>
+    <ul>
+      <li><strong>Corporate</strong> is navy accent, Cambria headings over a Calibri
+        body. Traditional, built for reports that go to a board or a client.</li>
+      <li><strong>Minimal</strong> is charcoal accent, Calibri Light headings,
+        restrained and generous with whitespace.</li>
+      <li><strong>Bold</strong> is warm accent with confident Arial headings, for
+        something that needs more presence.</li>
+    </ul>
+
+    <h3>How it works</h3>
+    <ol>
+      <li><strong>Upload a .docx file</strong> &mdash; the plain document you want branded.</li>
+      <li><strong>Pick a theme.</strong></li>
+      <li><strong>Add a logo and a cover title</strong> if you want them. Both are
+        optional: without a title the filename is used, and without a logo the header
+        carries the theme name instead.</li>
+      <li><strong>Download the branded .docx.</strong></li>
+    </ol>
+
+    <h3>It restyles your styles, not your text</h3>
+    <p>Rather than reformatting paragraphs one at a time, the tool redefines the
+      document's own style objects &mdash; Normal, Heading 1, Heading 2, Heading 3 and
+      Title. Every paragraph already using those styles picks up the new look
+      automatically, which is what lets a whole document change appearance in one step.
+      Your words and their order and the structure are untouched.</p>
+    <p>The flip side is worth knowing. Text formatted by hand &mdash; someone selecting
+      a line and clicking bold instead of applying Heading 2 &mdash; is not using a
+      style, so there is nothing to restyle and it stays exactly as it was. When a
+      document comes back looking only partly branded, that is almost always the
+      reason and applying Word's real heading styles before uploading fixes it.</p>
+
+    <h3>What people use it for</h3>
+    <ul>
+      <li>Turning a working draft into something ready to send to a client</li>
+      <li>Putting one consistent identity across documents written by several people</li>
+      <li>Adding a cover page and page numbers to a report that needs to look finished</li>
+      <li>Branding the output of <a href="/app/">Excel to Word</a>, which deliberately
+        produces a clean, unstyled document for exactly this purpose</li>
+    </ul>
+
+    <h3>Common questions</h3>
+
+    <h4>Which file types can I upload?</h4>
+    <p>.docx only. The older .doc format is not supported &mdash; open it in Word and
+      save it as .docx first. PDFs cannot be restyled, since their layout is already
+      fixed in place.</p>
+
+    <h4>How big can the logo be?</h4>
+    <p>Up to 2 MB, in any common image format. It appears on the cover page and in the
+      header, scaled to fit &mdash; a transparent PNG generally sits best against the page.</p>
+
+    <h4>Will it change my headings and paragraphs?</h4>
+    <p>Only how they look. No text is added, removed or reordered, apart from the cover
+      page inserted at the front.</p>
+
+    <h4>Can I use my own colours and fonts?</h4>
+    <p>Not yet &mdash; the three themes are fixed. Because the output uses proper Word
+      styles, though, changing the accent colour or heading font across the whole
+      document afterwards is a single edit to the style in Word.</p>
+
+    <h4>What happens to my file?</h4>
+    <p>Processed for your session and deleted within the hour. Not kept, not shared,
+      not used for anything else. Three documents a month without an account.</p>
+  </section>
 
   <footer>Files are processed for this session only and not stored beyond generating your report.</footer>
 </div>
