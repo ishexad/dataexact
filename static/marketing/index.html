@@ -482,6 +482,21 @@
     .contact-wrap{grid-template-columns:1fr;}
     .field-row{grid-template-columns:1fr;}
   }
+
+  /* ---- Touch targets ----
+     44px minimum on anything you tap — about the width of a fingertip, and
+     what Apple and Google both ask for. Inline links inside a sentence are
+     exempt on purpose: WCAG allows it and padding them out would break the
+     line they sit in. .navtoggle gets height only, never display: the mobile
+     media query owns whether it is shown at all. */
+  .navplain, .navcontact, .auth-btn, .btn, .cta, .foot-links a{
+    min-height:44px; display:inline-flex; align-items:center; justify-content:center;
+  }
+  .cta, .foot-links a{justify-content:flex-start;}
+  .navtoggle{min-height:44px;}
+  .navitem > button{min-height:44px;}
+  .dropdown a{min-height:44px; justify-content:center;}
+  .field input, .field select, .field textarea{min-height:44px;}
 </style>
 </head>
 <body>

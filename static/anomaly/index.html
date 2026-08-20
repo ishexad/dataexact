@@ -253,6 +253,24 @@
   }
   .sample-link:hover:not(:disabled){color:var(--amber);}
   .sample-link:disabled{color:var(--muted); cursor:default; text-decoration:none;}
+
+  /* ---- Touch targets ----
+     44px minimum on anything you tap — about the width of a fingertip, and
+     what Apple and Google both ask for. Inline links inside a sentence are
+     exempt on purpose: WCAG allows it and padding them out would break the
+     line they sit in. Where growing a control would move the page, the area
+     is added as padding and pulled back with a negative margin. */
+  a.back{min-height:44px; padding:10px 0; margin-bottom:16px;}
+  .sample-line{margin-top:24px;}
+  .sample-link{display:inline-block; padding:13px 6px; margin:-13px -6px;}
+  button.generate, button.add-btn, .provider-btn, .modal-close{min-height:44px;}
+  select, input[type=text]{min-height:44px;}
+  .pill, .chip{min-height:44px; display:inline-flex; align-items:center;}
+  .structure-item .remove, .remove-x{
+    min-width:44px; min-height:44px;
+    display:inline-flex; align-items:center; justify-content:center;
+    margin-top:-10px; margin-bottom:-10px;
+  }
 </style>
 </head>
 <body>
