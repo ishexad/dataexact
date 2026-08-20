@@ -43,11 +43,23 @@ logger = logging.getLogger("uvicorn.error")
 router = APIRouter(prefix="/admin")
 
 # Matched case-insensitively against the email on the OAuth session.
-ADMIN_EMAILS = {
-    e.strip().lower()
-    for e in os.environ.get("ADMIN_EMAILS", "").split(",")
-    if e.strip()
-}
+def _parse_admin_emails(raw: str) -> set:
+    """Split the ADMIN_EMAILS value into addresses.
+
+    This is typed into a hosting dashboard by hand, so it tolerates the usual
+    damage: surrounding quotes, stray spaces around the commas, and any
+    casing. A value pasted as "me@example.com" with the quotes included would
+    otherwise never match anything, and the only symptom would be a 404.
+    """
+    emails = set()
+    for part in raw.split(","):
+        cleaned = part.strip().strip('"').strip("'").strip().lower()
+        if cleaned:
+            emails.add(cleaned)
+    return emails
+
+
+ADMIN_EMAILS = _parse_admin_emails(os.environ.get("ADMIN_EMAILS", ""))
 
 # Tool ids match the ones gating.py/usage.py already use, so the free-limit
 # counters and these events describe the same thing by the same name.
@@ -102,8 +114,13 @@ def _init_db():
 
 _init_db()
 
-if not ADMIN_EMAILS:
-    logger.warning("ADMIN_EMAILS is not set — /admin/stats will 404 for everyone")
+if ADMIN_EMAILS:
+    logger.info(f"admin stats: /admin/stats allows {', '.join(sorted(ADMIN_EMAILS))}")
+else:
+    logger.warning(
+        "ADMIN_EMAILS is not set — /admin/stats will 404 for everyone. "
+        "Set it to a comma-separated list of the emails allowed in."
+    )
 
 
 def session_id(request: Request) -> str:
@@ -273,12 +290,33 @@ def collect_stats() -> dict:
 
 def _require_admin(request: Request):
     """404 rather than 403 — an unauthorised visitor shouldn't learn that
-    this route exists at all."""
+    this route exists at all.
+
+    Hiding the reason from a stranger also hides it from the owner, who then
+    can't tell an unset variable from a mistyped one from signing in with the
+    wrong account. The response stays a bare 404; the server log carries what
+    it can't say.
+    """
     user = request.session.get("user")
-    email = (user or {}).get("email") or ""
-    if not user or email.strip().lower() not in ADMIN_EMAILS:
-        raise HTTPException(404)
-    return user
+    email = ((user or {}).get("email") or "").strip().lower()
+
+    if user and email in ADMIN_EMAILS:
+        return user
+
+    if not ADMIN_EMAILS:
+        logger.warning(
+            "/admin/stats refused: ADMIN_EMAILS is empty. Set it to "
+            f"{email or 'the address you sign in with'} to grant access."
+        )
+    elif user:
+        logger.warning(
+            f"/admin/stats refused for {email or '(no email on this account)'} — "
+            f"ADMIN_EMAILS currently allows {', '.join(sorted(ADMIN_EMAILS))}"
+        )
+    else:
+        logger.info("/admin/stats refused: not signed in")
+
+    raise HTTPException(404)
 
 
 @router.get("/stats")
