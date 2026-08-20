@@ -23,13 +23,22 @@ from collections import Counter
 
 import pandas as pd
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.utils import get_column_letter
 
 import analytics
 import gating
 
 UPLOAD_DIR = "uploads"
+OUTPUT_DIR = "outputs"
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+HEADER_FILL = PatternFill(start_color="2E2E2E", end_color="2E2E2E", fill_type="solid")
+HEADER_FONT = Font(color="FFFFFF", bold=True)
 
 router = APIRouter(prefix="/anomaly")
 
@@ -282,6 +291,63 @@ def detect(excel_path: str, sheet_name) -> dict:
     }
 
 
+# ---------------------------------------------------------------------
+# Excel export — subscriber-only, see /export below
+# ---------------------------------------------------------------------
+
+def _autosize(ws):
+    for col_cells in ws.columns:
+        length = max((len(str(c.value)) if c.value is not None else 0) for c in col_cells)
+        ws.column_dimensions[get_column_letter(col_cells[0].column)].width = min(max(length + 2, 10), 70)
+
+
+def _write_header(ws, headers, row=1):
+    for i, header in enumerate(headers, start=1):
+        cell = ws.cell(row=row, column=i, value=header)
+        cell.fill = HEADER_FILL
+        cell.font = HEADER_FONT
+        cell.alignment = Alignment(vertical="center")
+
+
+def build_export(result: dict, output_path: str, source_name: str = "", sheet_name: str = "") -> str:
+    """Write the detection result as a two-sheet workbook: the headline
+    numbers, then one row per issue in the same order as the on-screen table."""
+    wb = Workbook()
+
+    ws = wb.active
+    ws.title = "Summary"
+    ws.append(["Anomaly Report"])
+    ws["A1"].font = Font(bold=True, size=14)
+    ws.append([])
+    if source_name:
+        ws.append(["File", source_name])
+    if sheet_name:
+        ws.append(["Sheet", sheet_name])
+    ws.append(["Rows checked", result["row_count"]])
+    ws.append(["Columns checked", result["column_count"]])
+    ws.append(["Issues found", len(result["issues"])])
+    ws.append([])
+
+    if result["summary"]:
+        _write_header(ws, ["Issue type", "Count"], row=ws.max_row + 1)
+        for issue_type, count in sorted(result["summary"].items(), key=lambda kv: -kv[1]):
+            ws.append([issue_type, count])
+    _autosize(ws)
+
+    ws = wb.create_sheet("Issues")
+    _write_header(ws, ["Row", "Column", "Issue", "Detail"])
+    for i, issue in enumerate(result["issues"], start=2):
+        ws.cell(row=i, column=1, value=issue["row"])
+        ws.cell(row=i, column=2, value=issue["column"] or "(whole row)")
+        ws.cell(row=i, column=3, value=issue["type"])
+        ws.cell(row=i, column=4, value=issue["detail"]).alignment = Alignment(wrap_text=True, vertical="top")
+    _autosize(ws)
+    ws.column_dimensions["D"].width = 70
+
+    wb.save(output_path)
+    return output_path
+
+
 @router.post("/upload")
 async def upload(request: Request, file: UploadFile = File(...)):
     if not file.filename.lower().endswith((".xlsx", ".xlsm")):
@@ -334,8 +400,43 @@ async def detect_endpoint(
             raise HTTPException(400, str(e))
         raise
 
-    # Results are rendered in the page rather than downloaded, so there's no
-    # download event for this tool.
     analytics.log_event(request, "anomaly", analytics.EVENT_PROCESSED)
     gating.record_use(request, "anomaly", logged_in)
     return result
+
+
+@router.post("/export")
+async def export_endpoint(
+    request: Request,
+    file_id: str = Form(...),
+    sheet: str = Form(...),
+):
+    """Subscriber-only. Everyone can run a check and read the findings on
+    screen; taking them away as a file is the paid part, so this uses
+    require_subscription rather than the free-allowance gate. The detection
+    itself already counted against the caller's allowance in /detect, so
+    exporting doesn't charge a second time."""
+    gating.require_subscription(request)
+
+    path = os.path.join(UPLOAD_DIR, f"{file_id}.xlsx")
+    if not os.path.exists(path):
+        raise HTTPException(404, "Unknown file_id (may have expired) — please re-upload")
+
+    try:
+        result = detect(path, sheet)
+    except Exception as e:
+        analytics.log_event(request, "anomaly", analytics.EVENT_DOWNLOAD,
+                            success=False, error_message=str(e))
+        if isinstance(e, ValueError):
+            raise HTTPException(400, str(e))
+        raise
+
+    output_path = os.path.join(OUTPUT_DIR, f"{uuid.uuid4()}.xlsx")
+    build_export(result, output_path, sheet_name=sheet)
+
+    analytics.log_event(request, "anomaly", analytics.EVENT_DOWNLOAD)
+    return FileResponse(
+        output_path,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        filename="anomaly_report.xlsx",
+    )

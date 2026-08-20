@@ -37,6 +37,27 @@ def gate(request: Request, tool: str) -> bool:
     return logged_in
 
 
+def require_subscription(request: Request) -> None:
+    """Raise 402 unless this request comes from an active subscriber.
+
+    Different rule from gate(): that one gives anonymous visitors a free
+    allowance of the tool itself. This is for extras that are paid outright,
+    where the free tier gets the tool but not the extra — currently the
+    Excel export on Detect Anomalies. Reasons are separated so the UI knows
+    whether to offer sign-in or checkout.
+    """
+    if not request.session.get("user"):
+        raise HTTPException(402, {
+            "reason": "signin_required",
+            "message": "Sign in and subscribe to export your results.",
+        })
+    if not billing.is_subscribed(request):
+        raise HTTPException(402, {
+            "reason": "subscription_required",
+            "message": "Subscribe to export your results.",
+        })
+
+
 def record_use(request: Request, tool: str, logged_in: bool) -> None:
     if not logged_in:
         usage.record_use(request, tool)

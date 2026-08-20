@@ -14,6 +14,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light">
 <title>Detect Anomalies in Excel — DataExact</title>
+<meta name="description" content="Scan an Excel sheet for duplicates, missing values, outliers, inconsistent dates and formatting slips. Get a plain row-by-row list of what looks wrong.">
+<link rel="canonical" href="https://www.dataexact.io/anomaly/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DataExact">
+<meta property="og:title" content="Detect Anomalies in Excel — DataExact">
+<meta property="og:description" content="Scan an Excel sheet for duplicates, missing values, outliers, inconsistent dates and formatting slips. Get a plain row-by-row list of what looks wrong.">
+<meta property="og:url" content="https://www.dataexact.io/anomaly/">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -130,6 +138,12 @@
   }
   button.generate:disabled{background:var(--line); color:var(--muted); cursor:not-allowed;}
   button.generate:hover:not(:disabled){background:#B06A12;}
+  button.generate.secondary{background:none; color:var(--text); border:1px solid var(--line);}
+  button.generate.secondary:hover:not(:disabled){background:var(--panel-2); border-color:var(--cyan); color:var(--cyan);}
+  button.generate.secondary:disabled{background:none; color:var(--muted); border-color:var(--line);}
+
+  .export-row{display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;}
+  .export-note{font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);}
 
   .status{font-size:0.8rem; margin-top:14px; letter-spacing:0.02em;}
   .status.error{color:var(--red);}
@@ -194,6 +208,35 @@
     color:var(--muted); background:none; border:none; cursor:pointer;
   }
   .modal-close:hover{color:var(--text);}
+
+  /* ---------- ABOUT / EXPLAINER ----------
+     Below-the-tool prose. The tool itself is ~150 words of UI labels, which
+     reads as an empty page to a search engine; this is the page's actual
+     content, and it doubles as an answer to what people ask before using it. */
+  .about{
+    margin-top:56px; padding-top:40px;
+    border-top:1px solid var(--line);
+    max-width:72ch;
+  }
+  .about h2{
+    font-family:var(--font-display); font-weight:700; font-size:1.15rem;
+    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:16px;
+  }
+  .about h3{
+    font-family:var(--font-display); font-weight:700; font-size:0.9rem;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:34px 0 12px; color:var(--text);
+  }
+  .about h4{
+    font-size:0.88rem; font-weight:400; color:var(--text);
+    margin:20px 0 6px;
+  }
+  .about p, .about li{color:var(--muted); font-size:0.88rem;}
+  .about p{margin-bottom:14px;}
+  .about ul, .about ol{padding-left:22px; margin-bottom:14px;}
+  .about li{margin-bottom:7px;}
+  .about a{color:var(--cyan); border-bottom:1px solid transparent;}
+  .about a:hover{border-bottom-color:var(--cyan);}
 </style>
 </head>
 <body>
@@ -232,6 +275,10 @@
 
   <div class="results" id="results">
     <div class="results-summary" id="resultsSummary"></div>
+    <div class="export-row" id="exportRow">
+      <button class="generate secondary" id="exportBtn">Export to Excel</button>
+      <span class="export-note" id="exportNote">Subscribers only</span>
+    </div>
     <div class="table-scroll">
       <table class="results-table" id="resultsTable">
         <thead>
@@ -242,6 +289,88 @@
     </div>
     <div class="no-issues" id="noIssues" style="display:none;">No issues found — this sheet looks clean.</div>
   </div>
+
+
+  <section class="about">
+    <h2>Find the errors in a spreadsheet before they cost you</h2>
+    <p>Most bad data is not really bad. It is a trailing space that breaks a lookup, a
+      date written the American way in a British column, one duplicated ID, a price
+      with an extra zero. This tool reads a sheet and reports what looks wrong, row by
+      row, so you can fix it before it reaches a mail merge, an import, or a board pack.</p>
+
+    <h3>What it checks</h3>
+    <ul>
+      <li><strong>Duplicate rows</strong> &mdash; both exact repeats and near-duplicates
+        that differ only in spacing or capitalisation</li>
+      <li><strong>Formatting slips</strong> &mdash; leading and trailing whitespace,
+        double spaces, unusual characters, inconsistent capitalisation, and dates
+        written in a different format from the rest of their column</li>
+      <li><strong>Missing values</strong> &mdash; empty cells in a column that is
+        otherwise almost always filled in, which usually means something was skipped
+        rather than genuinely blank</li>
+      <li><strong>Unexpected types</strong> &mdash; text sitting in a column that is
+        otherwise numeric, or a number in a column that is otherwise text</li>
+      <li><strong>Outliers</strong> &mdash; numeric values far outside the normal range
+        for their own column, found using the interquartile range rather than a fixed
+        threshold</li>
+      <li><strong>Repeated identifiers</strong> &mdash; the same value twice in a column
+        that looks like it should be unique, such as an ID, email, SKU or username</li>
+    </ul>
+
+    <h3>Every column is judged against itself</h3>
+    <p>The thresholds are deliberately conservative. Each check compares values against
+      the rest of their own column rather than against a universal rule, so a column
+      that is legitimately full of symbols, or entirely lowercase, is not flagged
+      simply for being that way. Only the minority that breaks its column's own
+      pattern gets reported. The result is a short list worth reading rather than
+      hundreds of findings you learn to ignore.</p>
+
+    <h3>How it works</h3>
+    <ol>
+      <li><strong>Upload a .xlsx or .xlsm file</strong> and choose a sheet.</li>
+      <li><strong>Run the check.</strong> Results appear on screen as a table: the row
+        number as you would see it in Excel, the column, what kind of issue it is, and
+        a plain-English explanation of why it was flagged.</li>
+    </ol>
+    <p>Your file is never modified. This tool only reads and reports, so nothing is
+      changed or corrected behind your back &mdash; you decide what is a real problem
+      and fix it in Excel.</p>
+
+    <h3>What people use it for</h3>
+    <ul>
+      <li>Checking a mailing list before a merge, so nobody gets two letters</li>
+      <li>Cleaning a survey or form export before analysis</li>
+      <li>Sanity-checking a finance or stock sheet before it is circulated</li>
+      <li>Reviewing data inherited from someone else before trusting it</li>
+      <li>Catching import errors before they reach a CRM or database</li>
+    </ul>
+
+    <h3>Common questions</h3>
+
+    <h4>Does it change or fix my file?</h4>
+    <p>No. It is read-only. You get a list of what looks wrong; the corrections are
+      yours to make.</p>
+
+    <h4>Why was something flagged that is actually fine?</h4>
+    <p>Because it differs from the rest of its column. A genuinely one-off value, an
+      unusual but correct name, a deliberate outlier &mdash; all can be flagged. The
+      tool reports what stands out; judging what matters is your call.</p>
+
+    <h4>Why was something not flagged?</h4>
+    <p>Checks need enough data to establish a pattern. A very short sheet, or a column
+      where the unusual values are more common than the usual ones, will produce fewer
+      findings by design.</p>
+
+    <h4>Can I download the results?</h4>
+    <p>Results are shown on screen for everyone. If you need an exportable file you
+      need to subscribe &mdash; the export gives you the whole list as an .xlsx: a
+      summary sheet with the counts by issue type, and one row per issue with its
+      row number, column, type and detail.</p>
+
+    <h4>What are the limits?</h4>
+    <p>.xlsx and .xlsm, up to 10 MB, one sheet at a time. Three checks a month without
+      an account. Your file is deleted within the hour.</p>
+  </section>
 
   <footer>Files are processed for this session only and not stored beyond the check.</footer>
 </div>
@@ -274,6 +403,8 @@ const resultsSummary = document.getElementById('resultsSummary');
 const resultsTable = document.getElementById('resultsTable');
 const resultsBody = document.getElementById('resultsBody');
 const noIssues = document.getElementById('noIssues');
+const exportBtn = document.getElementById('exportBtn');
+const exportNote = document.getElementById('exportNote');
 const usageNote = document.getElementById('usageNote');
 const signinModal = document.getElementById('signinModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -297,9 +428,13 @@ async function loadProviders() {
   } catch (err) { /* sign-in options just won't show */ }
 }
 
-function showSigninModal() {
-  modalTitle.textContent = 'Free limit reached';
-  modalMessage.textContent = "You've used your 3 free reports this month. Sign in to keep going.";
+// Both modals take optional copy: the same paywall is reached two different
+// ways now — running out of free checks, and clicking the subscriber-only
+// export — and telling someone they've "used their free reports" when they
+// haven't is just confusing.
+function showSigninModal(title, message) {
+  modalTitle.textContent = title || 'Free limit reached';
+  modalMessage.textContent = message || "You've used your 3 free reports this month. Sign in to keep going.";
   providerButtons.innerHTML = '';
   availableProviders.forEach(p => {
     const a = document.createElement('a');
@@ -318,9 +453,9 @@ function showSigninModal() {
   signinModal.classList.add('show');
 }
 
-function showSubscribeModal() {
-  modalTitle.textContent = 'Subscribe to continue';
-  modalMessage.textContent = "You're signed in — subscribe to a plan to keep generating reports.";
+function showSubscribeModal(title, message) {
+  modalTitle.textContent = title || 'Subscribe to continue';
+  modalMessage.textContent = message || "You're signed in — subscribe to a plan to keep generating reports.";
   providerButtons.innerHTML = '';
   Object.keys(PLAN_LABELS).forEach(plan => {
     const a = document.createElement('a');
@@ -440,8 +575,62 @@ detectBtn.addEventListener('click', async () => {
   }
 });
 
+// The export is a paid extra, so say so up front rather than letting someone
+// click it and get a paywall. /usage already tells us whether they're subscribed.
+async function refreshExportNote() {
+  try {
+    const res = await fetch(`${API_BASE}/usage?tool=anomaly`);
+    const data = await res.json();
+    exportNote.textContent = data.subscribed ? '' : 'Subscribers only';
+  } catch (err) { /* leave the note as it is */ }
+}
+
+exportBtn.addEventListener('click', async () => {
+  setStatus('Building spreadsheet…', '');
+  exportBtn.disabled = true;
+  try {
+    const form = new FormData();
+    form.append('file_id', fileId);
+    form.append('sheet', selectedSheet);
+
+    const res = await fetch(`${API_BASE}/anomaly/export`, { method: 'POST', body: form });
+    if (res.status === 402) {
+      setStatus('', '');
+      const data = await res.json();
+      const reason = data.detail && data.detail.reason;
+      if (reason === 'subscription_required') {
+        showSubscribeModal('Subscribe to export',
+          'Exporting to Excel is part of a subscription. Your results stay on screen either way.');
+      } else {
+        showSigninModal('Subscribe to export',
+          'Exporting to Excel is part of a subscription. Sign in to subscribe — your results stay on screen either way.');
+      }
+      return;
+    }
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.detail || 'Export failed');
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'anomaly_report.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    setStatus('Spreadsheet downloaded.', 'ok');
+  } catch (err) {
+    setStatus(err.message, 'error');
+  } finally {
+    exportBtn.disabled = false;
+  }
+});
+
 function renderResults(data) {
   results.classList.add('show');
+  refreshExportNote();
   const issueCount = data.issues.length;
   const summaryParts = Object.entries(data.summary)
     .map(([type, count]) => `<span class="summary-pill">${count} × ${type}</span>`)
