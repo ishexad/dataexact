@@ -207,6 +207,15 @@
   .about li{margin-bottom:7px;}
   .about a{color:var(--cyan); border-bottom:1px solid transparent;}
   .about a:hover{border-bottom-color:var(--cyan);}
+
+  /* Try-it-with-a-sample line, under the dropzone. */
+  .sample-line{margin-top:12px; font-size:0.9375rem; color:var(--muted);}
+  .sample-link{
+    font-family:inherit; font-size:inherit; background:none; border:none;
+    padding:0; color:var(--cyan); text-decoration:underline; cursor:pointer;
+  }
+  .sample-link:hover:not(:disabled){color:var(--amber);}
+  .sample-link:disabled{color:var(--muted); cursor:default; text-decoration:none;}
 </style>
 </head>
 <body>
@@ -241,6 +250,9 @@
           <div class="filename" id="filenameB"></div>
         </div>
       </div>
+    </div>
+    <div class="sample-line">Nothing to compare yet?
+      <button type="button" class="sample-link" id="sampleBtn">Try it with two versions of a price list</button>
     </div>
   </div>
 
@@ -392,6 +404,7 @@ const stepGenerate = document.getElementById('step-generate');
 const generateBtn = document.getElementById('generateBtn');
 const statusEl = document.getElementById('status');
 const usageNote = document.getElementById('usageNote');
+const sampleBtn = document.getElementById('sampleBtn');
 const signinModal = document.getElementById('signinModal');
 const modalTitle = document.getElementById('modalTitle');
 const modalMessage = document.getElementById('modalMessage');
@@ -615,6 +628,34 @@ function setStatus(msg, cls) {
   statusEl.textContent = msg;
   statusEl.className = 'status' + (cls ? ' ' + cls : '');
 }
+
+// Fetch a bundled sample and hand it to the normal upload path, so trying the
+// tool exercises exactly the same code a real file would.
+async function fetchSample(path, name) {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error('Could not load the sample file');
+  const blob = await res.blob();
+  return new File([blob], name, { type: blob.type });
+}
+
+sampleBtn.addEventListener('click', async () => {
+  sampleBtn.disabled = true;
+  setStatus('Loading the samples…', '');
+  try {
+    // Both halves at once — this tool needs a pair before it can do anything.
+    const [a, b] = await Promise.all([
+      fetchSample('/samples/price-list-january.xlsx', 'price-list-january.xlsx'),
+      fetchSample('/samples/price-list-february.xlsx', 'price-list-february.xlsx'),
+    ]);
+    fileA = a; fnA.textContent = a.name;
+    fileB = b; fnB.textContent = b.name;
+    tryUpload();
+  } catch (err) {
+    setStatus(err.message, 'error');
+  } finally {
+    sampleBtn.disabled = false;
+  }
+});
 </script>
 </body>
 </html>

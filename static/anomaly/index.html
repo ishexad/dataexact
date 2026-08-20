@@ -244,6 +244,15 @@
   .about li{margin-bottom:7px;}
   .about a{color:var(--cyan); border-bottom:1px solid transparent;}
   .about a:hover{border-bottom-color:var(--cyan);}
+
+  /* Try-it-with-a-sample line, under the dropzone. */
+  .sample-line{margin-top:12px; font-size:0.9375rem; color:var(--muted);}
+  .sample-link{
+    font-family:inherit; font-size:inherit; background:none; border:none;
+    padding:0; color:var(--cyan); text-decoration:underline; cursor:pointer;
+  }
+  .sample-link:hover:not(:disabled){color:var(--amber);}
+  .sample-link:disabled{color:var(--muted); cursor:default; text-decoration:none;}
 </style>
 </head>
 <body>
@@ -265,6 +274,9 @@
       <input type="file" id="fileInput" accept=".xlsx,.xlsm">
       <div class="cta-text"><strong>Click to choose a file</strong> or drag it here</div>
       <div class="filename" id="filename"></div>
+    </div>
+    <div class="sample-line">Nothing to check right now?
+      <button type="button" class="sample-link" id="sampleBtn">Try it with a sample member list</button>
     </div>
   </div>
 
@@ -411,6 +423,7 @@ const resultsBody = document.getElementById('resultsBody');
 const noIssues = document.getElementById('noIssues');
 const exportBtn = document.getElementById('exportBtn');
 const usageNote = document.getElementById('usageNote');
+const sampleBtn = document.getElementById('sampleBtn');
 const signinModal = document.getElementById('signinModal');
 const modalTitle = document.getElementById('modalTitle');
 const modalMessage = document.getElementById('modalMessage');
@@ -670,6 +683,27 @@ function setStatus(msg, cls) {
   statusEl.textContent = msg;
   statusEl.className = 'status' + (cls ? ' ' + cls : '');
 }
+
+// Fetch a bundled sample and hand it to the normal upload path, so trying the
+// tool exercises exactly the same code a real file would.
+async function fetchSample(path, name) {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error('Could not load the sample file');
+  const blob = await res.blob();
+  return new File([blob], name, { type: blob.type });
+}
+
+sampleBtn.addEventListener('click', async () => {
+  sampleBtn.disabled = true;
+  setStatus('Loading the sample…', '');
+  try {
+    handleFile(await fetchSample('/samples/member-list.xlsx', 'member-list.xlsx'));
+  } catch (err) {
+    setStatus(err.message, 'error');
+  } finally {
+    sampleBtn.disabled = false;
+  }
+});
 </script>
 </body>
 </html>
