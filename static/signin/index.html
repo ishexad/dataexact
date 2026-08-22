@@ -17,25 +17,51 @@
 <title>Sign in — DataExact</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:        #F7F5EE;
-    --panel:     #FFFFFF;
-    --panel-2:   #EFEDE3;
-    --line:      #DDD9CB;
-    --amber:     #C97A19;
-    --cyan:      #1F8F94;
-    --red:       #D14B3D;
-    --text:      #22261F;
-    --muted:     #767469;
-    --font-display: 'Orbitron', sans-serif;
-    --font-mono: 'Share Tech Mono', monospace;
+    /* The template palette — one source of truth across the site. Each accent
+       carries a bright value for decoration and a darker -ink twin for
+       anything carrying text: every bright sits under 3.2:1 on white, so a
+       label, a link or a button face uses the twin instead. */
+    --bg:#FFFFFF;
+    --ink:#101828;
+    --ink-soft:#475467;
+    --ink-faint:#667085;
+    --grid:#E4E7EC;
+    --grid-soft:#F2F4F7;
+    --hairline:#98A2B3;
+
+    --emerald:#12B76A;   --emerald-ink:#027A48;  --emerald-bg:#ECFDF3;
+    --amber-lit:#F79009; --amber-ink:#B54708;    --amber-bg:#FFFAEB;
+    --coral:#F04438;     --coral-ink:#B42318;    --coral-bg:#FEF3F2;
+    --azure:#2E90FA;     --azure-ink:#175CD3;    --azure-bg:#EFF8FF;
+    --violet:#7A5AF8;    --violet-ink:#5925DC;   --violet-bg:#F4F3FF;
+    --radius:14px;
+
+    /* The names this page's markup already uses, pointed at the palette. */
+    --panel:#FFFFFF;
+    --panel-2:var(--grid-soft);
+    --line:var(--grid);
+    --text:var(--ink);
+    --muted:var(--ink-soft);
+    --cyan:var(--azure-ink);
+    --amber:var(--amber-ink);
+    --amber-dim:#FEDF89;
+    --red:var(--coral-ink);
+
+    --font-display:'Space Grotesk','Segoe UI',sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+    /* Prose and interface text. Monospace is built to align code, not to be
+       read in paragraphs: every letter takes the same width, which strips out
+       the word shapes people actually read by. Mono is kept for labels and
+       for values out of the user's own spreadsheet. */
+    --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{background:var(--bg);}
   body{
-    background:var(--bg); color:var(--text); font-family:var(--font-mono);
+    background:var(--bg); color:var(--text); font-family:var(--font-body);
     line-height:1.6; min-height:100vh;
     display:flex; align-items:center; justify-content:center; padding:24px;
   }
@@ -44,23 +70,31 @@
   .card{
     background:var(--panel); border:1px solid var(--line);
     width:100%; max-width:420px; padding:36px 32px;
+    /* Lifted the way the template lifts its hero panel — a lone card on a
+       white page needs the shadow to read as a surface. */
+    box-shadow:0 1px 2px rgba(16,24,40,0.04), 0 12px 32px -12px rgba(16,24,40,0.12);
   }
   .logo{
-    font-family:var(--font-display); font-weight:800; font-size:1rem;
-    letter-spacing:0.08em; text-transform:uppercase; text-align:center;
-    display:block; margin-bottom:26px;
+    font-family:var(--font-display); font-weight:600; font-size:1.1rem;
+    letter-spacing:-0.01em; margin-bottom:26px;
+    display:flex; align-items:center; justify-content:center; gap:10px;
   }
-  .logo .bracket{color:var(--amber);}
+  .logo-grid{display:grid; grid-template-columns:repeat(2,7px); grid-template-rows:repeat(2,7px); gap:2px;}
+  .logo-grid span{border-radius:2px;}
+  .logo-grid span:nth-child(1){background:#12B76A;}
+  .logo-grid span:nth-child(2){background:#F79009;}
+  .logo-grid span:nth-child(3){background:#2E90FA;}
+  .logo-grid span:nth-child(4){background:#F04438;}
   h1{
-    font-family:var(--font-display); font-weight:700; font-size:1.05rem;
-    text-transform:uppercase; letter-spacing:0.03em; margin-bottom:10px;
+    font-family:var(--font-display); font-weight:600; font-size:1.05rem;
+    letter-spacing:-0.02em; margin-bottom:10px;
   }
   .lede{color:var(--muted); font-size:0.85rem; margin-bottom:24px;}
 
   .provider-btn{
     display:flex; align-items:center; justify-content:center;
-    width:100%; padding:12px 16px; margin-bottom:10px;
-    font-family:var(--font-mono); font-size:0.85rem; letter-spacing:0.02em;
+    width:100%; min-height:44px; padding:12px 16px; margin-bottom:10px;
+    font-family:var(--font-body); font-size:0.9375rem; font-weight:500;
     background:var(--bg); border:1px solid var(--line); color:var(--text);
     cursor:pointer; text-decoration:none;
   }
@@ -68,46 +102,101 @@
 
   .divider{
     display:flex; align-items:center; gap:12px;
-    color:var(--muted); font-size:0.72rem; text-transform:uppercase;
-    letter-spacing:0.1em; margin:20px 0;
+    font-family:var(--font-mono); color:var(--muted); font-size:12.5px;
+    text-transform:uppercase; letter-spacing:0.08em; margin:20px 0;
   }
   .divider::before, .divider::after{content:""; flex:1; height:1px; background:var(--line);}
 
   label{
-    display:block; font-size:0.72rem; text-transform:uppercase;
-    letter-spacing:0.08em; color:var(--muted); margin-bottom:8px;
+    display:block; font-size:13px; font-weight:600;
+    color:var(--text); margin-bottom:6px;
   }
   input[type=email]{
-    width:100%; padding:12px 14px; font-family:var(--font-mono); font-size:0.9rem;
+    width:100%; min-height:44px; padding:12px 14px; font-family:var(--font-body); font-size:0.9375rem;
     background:var(--bg); border:1px solid var(--line); color:var(--text);
   }
   input[type=email]:focus{outline:none; border-color:var(--cyan);}
   button.primary{
-    width:100%; margin-top:12px; padding:12px 16px;
-    font-family:var(--font-mono); font-size:0.85rem; letter-spacing:0.04em;
-    text-transform:uppercase; background:var(--amber); color:#fff;
-    border:1px solid var(--amber); cursor:pointer;
+    width:100%; min-height:44px; margin-top:12px; padding:12px 16px;
+    background:var(--cyan); color:#fff;
+    border:1px solid var(--cyan); cursor:pointer;
   }
-  button.primary:hover{background:#B36A14;}
+  button.primary:hover{background:#144EA8;}
   button.primary:disabled{opacity:0.55; cursor:default;}
 
-  .note{font-size:0.78rem; color:var(--muted); margin-top:16px; text-align:center;}
+  .note{font-size:13px; color:var(--muted); margin-top:16px; text-align:center;}
   .msg{
     font-size:0.82rem; padding:12px 14px; margin-bottom:20px;
     border:1px solid var(--line); background:var(--panel-2);
   }
-  .msg.error{border-color:var(--red); color:var(--red); background:#FBEDEB;}
-  .msg.ok{border-color:var(--cyan); color:var(--cyan); background:#E9F4F4;}
+  .msg.error{border-color:var(--red); color:var(--red); background:#FEF3F2;}
+  .msg.ok{border-color:var(--cyan); color:var(--cyan); background:#EFF8FF;}
   .hidden{display:none;}
-  .back{display:block; text-align:center; margin-top:22px; font-size:0.78rem; color:var(--muted);}
-  .back:hover{color:var(--amber);}
+  .back{display:block; text-align:center; margin-top:22px; font-size:0.8125rem; color:var(--muted); min-height:44px; padding:12px 0;}
+  .back:hover{color:var(--cyan);}
   .devlink{word-break:break-all; font-size:0.72rem; margin-top:10px; display:block; color:var(--cyan);}
+
+  /* ---------- Shared shape language with the home page ----------
+     The tokens above carry the palette and the type; these carry the shape.
+     Square corners and hard edges were the old look — a tool page and the
+     landing page should read as one site, so the radius, the focus ring, and
+     the primary button match what the front page uses. */
+  .card, .modal-card, .arrange-grid, .usage-note, .dropzone,
+  .structure-list, .provider-btn, .pill, .chip, .msg{border-radius:10px;}
+  .card, .modal-card{border-radius:14px;}
+  .card{margin-bottom:12px;}
+  select, input[type=text], input[type=email], textarea{border-radius:9px;}
+  button.generate, button.primary{
+    border-radius:9px; letter-spacing:0.02em; text-transform:none;
+    font-family:var(--font-body); font-weight:600; font-size:0.9375rem;
+  }
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+  select:focus, input[type=text]:focus, input[type=email]:focus, textarea:focus{
+    outline:none; border-color:var(--cyan); box-shadow:0 0 0 3px #EFF8FF;
+  }
+
+
+  /* ---------- Template typography ----------
+     Same three faces the front page uses, in the same roles: Space Grotesk
+     for headings at 600 with tight tracking, Inter for everything you read,
+     and JetBrains Mono kept for labels and for values out of the user's own
+     spreadsheet. */
+  body{font-size:16px; line-height:1.5;}
+  h1{font-size:21px; line-height:1.2;}
+  .lede{font-size:14.5px;}
+  .card h2{font-size:17.5px;}
+  .card h2 .num{font-family:var(--font-mono); font-weight:500; font-size:12.5px; letter-spacing:0;}
+  .eyebrow, .col-label{
+    font-family:var(--font-mono); font-weight:500; font-size:12.5px;
+    letter-spacing:0.08em; text-transform:uppercase;
+  }
+  a.back{
+    font-family:var(--font-body); font-size:14.5px; font-weight:500;
+    letter-spacing:0; text-transform:none;
+  }
+  table.results-table th, table.data-table th{
+    font-family:var(--font-mono); font-weight:500; font-size:12.5px;
+    letter-spacing:0.04em;
+  }
+  .about h2{font-size:clamp(24px,3vw,30px); line-height:1.2;}
+  .about h3{font-size:17.5px;}
+  .about h4{font-family:var(--font-display); font-weight:600; font-size:15.5px; letter-spacing:-0.02em;}
+  .about p, .about li{font-size:15.5px;}
+
+  /* Template surfaces: white page, white cards held by a hairline border and
+     the template's radius, with the pale grey kept for filled areas. */
+  .dropzone{background:var(--grid-soft); border-color:var(--hairline);}
+  .dropzone:hover, .dropzone.drag-over{background:var(--azure-bg); border-color:var(--azure);}
+  select, input[type=text], input[type=email], textarea{border-radius:8px;}
+  .status.ok{color:var(--emerald-ink);}
+  .status.error{color:var(--coral-ink);}
+  .free-badge, .svc-free{color:var(--emerald-ink); background:var(--emerald-bg);}
 </style>
 </head>
 <body>
 
 <div class="card">
-  <a class="logo" href="/"><span class="bracket">[</span> DataExact <span class="bracket">]</span></a>
+  <a class="logo" href="/"><span class="logo-grid"><span></span><span></span><span></span><span></span></span>DATAEXACT</a>
 
   <div id="banner" class="msg hidden"></div>
 
@@ -132,7 +221,7 @@
     <p class="lede">We've sent a sign-in link to <strong id="sentTo"></strong>.
       It works once and expires in <span id="expiryMins">15</span> minutes.</p>
     <p class="note">Nothing arrived? Check spam, or
-      <a href="#" id="tryAgain" style="color:var(--amber)">try a different address</a>.</p>
+      <a href="#" id="tryAgain" style="color:var(--cyan)">try a different address</a>.</p>
     <a class="devlink hidden" id="devLink"></a>
   </div>
 

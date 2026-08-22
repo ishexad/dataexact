@@ -28,26 +28,46 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:        #F7F5EE;
-    --panel:     #FFFFFF;
-    --panel-2:   #EFEDE3;
-    --line:      #DDD9CB;
-    --amber:     #A15F10;
-    --amber-dim: #F0D4A8;
-    --cyan:      #146E72;
-    --red:       #B23A2C;
-    --text:      #22261F;
-    --muted:     #5E5C52;
-    --font-display: 'Orbitron', sans-serif;
-    --font-mono: 'Share Tech Mono', monospace;
+    /* The template palette — one source of truth across the site. Each accent
+       carries a bright value for decoration and a darker -ink twin for
+       anything carrying text: every bright sits under 3.2:1 on white, so a
+       label, a link or a button face uses the twin instead. */
+    --bg:#FFFFFF;
+    --ink:#101828;
+    --ink-soft:#475467;
+    --ink-faint:#667085;
+    --grid:#E4E7EC;
+    --grid-soft:#F2F4F7;
+    --hairline:#98A2B3;
+
+    --emerald:#12B76A;   --emerald-ink:#027A48;  --emerald-bg:#ECFDF3;
+    --amber-lit:#F79009; --amber-ink:#B54708;    --amber-bg:#FFFAEB;
+    --coral:#F04438;     --coral-ink:#B42318;    --coral-bg:#FEF3F2;
+    --azure:#2E90FA;     --azure-ink:#175CD3;    --azure-bg:#EFF8FF;
+    --violet:#7A5AF8;    --violet-ink:#5925DC;   --violet-bg:#F4F3FF;
+    --radius:14px;
+
+    /* The names this page's markup already uses, pointed at the palette. */
+    --panel:#FFFFFF;
+    --panel-2:var(--grid-soft);
+    --line:var(--grid);
+    --text:var(--ink);
+    --muted:var(--ink-soft);
+    --cyan:var(--azure-ink);
+    --amber:var(--amber-ink);
+    --amber-dim:#FEDF89;
+    --red:var(--coral-ink);
+
+    --font-display:'Space Grotesk','Segoe UI',sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
     /* Prose and interface text. Monospace is built to align code, not to be
        read in paragraphs: every letter takes the same width, which strips out
-       the word shapes people actually read by. Mono is kept for the one thing
-       it genuinely suits — values out of the user's own spreadsheet. */
-    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+       the word shapes people actually read by. Mono is kept for labels and
+       for values out of the user's own spreadsheet. */
+    --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth; background:var(--bg);}
@@ -76,7 +96,7 @@
   .eyebrow::before{content:''; width:24px; height:1px; background:var(--cyan);}
 
   h1{
-    font-family:var(--font-display); font-weight:800;
+    font-family:var(--font-display); font-weight:600;
     font-size:clamp(1.7rem, 3.4vw, 2.5rem); letter-spacing:-0.01em;
     margin-bottom:14px;
   }
@@ -100,7 +120,7 @@
   .card.disabled{opacity:0.4; pointer-events:none;}
 
   .card h2{
-    font-family:var(--font-display); font-weight:700; font-size:1.05rem; letter-spacing:0;
+    font-family:var(--font-display); font-weight:600; font-size:1.05rem; letter-spacing:-0.02em;
     display:flex; align-items:center; gap:12px;
     margin-bottom:6px;
   }
@@ -135,9 +155,8 @@
   .pill.selected{background:var(--text); color:var(--bg); border-color:var(--text);}
 
   button.generate{
-    font-family:var(--font-display); font-weight:700;
-    font-size:0.875rem; letter-spacing:0.08em; text-transform:uppercase;
-    background:var(--amber);
+    font-family:var(--font-display); font-weight:600;
+    font-size:0.875rem; letter-spacing:-0.02em; background:var(--cyan);
     color:#FFFFFF;
     border:none;
     padding:14px 26px;
@@ -145,7 +164,7 @@
     margin-top:4px;
   }
   button.generate:disabled{background:var(--line); color:var(--muted); cursor:not-allowed;}
-  button.generate:hover:not(:disabled){background:#874E0B;}
+  button.generate:hover:not(:disabled){background:#144EA8;}
   button.generate.secondary{background:none; color:var(--text); border:1px solid var(--line);}
   button.generate.secondary:hover:not(:disabled){background:var(--panel-2); border-color:var(--cyan); color:var(--cyan);}
   button.generate.secondary:disabled{background:none; color:var(--muted); border-color:var(--line);}
@@ -172,7 +191,7 @@
   table.results-table{width:100%; border-collapse:collapse; font-size:0.875rem;}
   table.results-table th{
     text-align:left; font-family:var(--font-display); font-size:0.875rem;
-    letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);
+    letter-spacing:-0.02em; color:var(--muted);
     padding:10px 12px; border-bottom:1px solid var(--line);
   }
   table.results-table td{
@@ -192,7 +211,7 @@
   footer{text-align:center; color:var(--muted); font-size:0.875rem; letter-spacing:0.01em; margin-top:36px;}
 
   .modal-overlay{
-    display:none; position:fixed; inset:0; background:rgba(34,38,31,0.55);
+    display:none; position:fixed; inset:0; background:rgba(16,24,40,0.55);
     align-items:center; justify-content:center; padding:20px; z-index:100;
   }
   .modal-overlay.show{display:flex;}
@@ -201,7 +220,7 @@
     max-width:400px; width:100%; padding:32px 28px; text-align:center;
   }
   .modal-card h3{
-    font-family:var(--font-display); font-weight:700; font-size:1rem; letter-spacing:0; margin-bottom:12px;
+    font-family:var(--font-display); font-weight:600; font-size:1rem; letter-spacing:-0.02em; margin-bottom:12px;
   }
   .modal-card p{color:var(--muted); font-size:0.9375rem; margin-bottom:22px;}
   .provider-btn{
@@ -228,10 +247,10 @@
     max-width:72ch;
   }
   .about h2{
-    font-family:var(--font-display); font-weight:700; font-size:1.3rem; letter-spacing:-0.005em; margin-bottom:16px;
+    font-family:var(--font-display); font-weight:600; font-size:1.3rem; letter-spacing:-0.005em; margin-bottom:16px;
   }
   .about h3{
-    font-family:var(--font-display); font-weight:700; font-size:0.9375rem; letter-spacing:0;
+    font-family:var(--font-display); font-weight:600; font-size:0.9375rem; letter-spacing:-0.02em;
     margin:34px 0 12px; color:var(--text);
   }
   .about h4{
@@ -271,6 +290,61 @@
     display:inline-flex; align-items:center; justify-content:center;
     margin-top:-10px; margin-bottom:-10px;
   }
+
+  /* ---------- Shared shape language with the home page ----------
+     The tokens above carry the palette and the type; these carry the shape.
+     Square corners and hard edges were the old look — a tool page and the
+     landing page should read as one site, so the radius, the focus ring, and
+     the primary button match what the front page uses. */
+  .card, .modal-card, .arrange-grid, .usage-note, .dropzone,
+  .structure-list, .provider-btn, .pill, .chip, .msg{border-radius:10px;}
+  .card, .modal-card{border-radius:14px;}
+  .card{margin-bottom:12px;}
+  select, input[type=text], input[type=email], textarea{border-radius:9px;}
+  button.generate, button.primary{
+    border-radius:9px; letter-spacing:0.02em; text-transform:none;
+    font-family:var(--font-body); font-weight:600; font-size:0.9375rem;
+  }
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+  select:focus, input[type=text]:focus, input[type=email]:focus, textarea:focus{
+    outline:none; border-color:var(--cyan); box-shadow:0 0 0 3px #EFF8FF;
+  }
+
+
+  /* ---------- Template typography ----------
+     Same three faces the front page uses, in the same roles: Space Grotesk
+     for headings at 600 with tight tracking, Inter for everything you read,
+     and JetBrains Mono kept for labels and for values out of the user's own
+     spreadsheet. */
+  body{font-size:16px; line-height:1.5;}
+  h1{font-size:clamp(30px,4vw,42px); line-height:1.1;}
+  .card h2{font-size:17.5px;}
+  .card h2 .num{font-family:var(--font-mono); font-weight:500; font-size:12.5px; letter-spacing:0;}
+  .eyebrow, .col-label{
+    font-family:var(--font-mono); font-weight:500; font-size:12.5px;
+    letter-spacing:0.08em; text-transform:uppercase;
+  }
+  a.back{
+    font-family:var(--font-body); font-size:14.5px; font-weight:500;
+    letter-spacing:0; text-transform:none;
+  }
+  table.results-table th, table.data-table th{
+    font-family:var(--font-mono); font-weight:500; font-size:12.5px;
+    letter-spacing:0.04em;
+  }
+  .about h2{font-size:clamp(24px,3vw,30px); line-height:1.2;}
+  .about h3{font-size:17.5px;}
+  .about h4{font-family:var(--font-display); font-weight:600; font-size:15.5px; letter-spacing:-0.02em;}
+  .about p, .about li{font-size:15.5px;}
+
+  /* Template surfaces: white page, white cards held by a hairline border and
+     the template's radius, with the pale grey kept for filled areas. */
+  .dropzone{background:var(--grid-soft); border-color:var(--hairline);}
+  .dropzone:hover, .dropzone.drag-over{background:var(--azure-bg); border-color:var(--azure);}
+  select, input[type=text], input[type=email], textarea{border-radius:8px;}
+  .status.ok{color:var(--emerald-ink);}
+  .status.error{color:var(--coral-ink);}
+  .free-badge, .svc-free{color:var(--emerald-ink); background:var(--emerald-bg);}
 </style>
 </head>
 <body>

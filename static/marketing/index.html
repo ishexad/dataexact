@@ -28,654 +28,312 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:        #F7F5EE;
-    --panel:     #FFFFFF;
-    --panel-2:   #EFEDE3;
-    --line:      #DDD9CB;
-    --amber:     #A15F10;
-    --amber-dim: #F0D4A8;
-    --cyan:      #146E72;
-    --red:       #B23A2C;
-    --text:      #22261F;
-    --muted:     #5E5C52;
-    --font-display: 'Orbitron', sans-serif;
-    --font-mono: 'Share Tech Mono', monospace;
-    /* Prose and interface text. Monospace is built to align code, not to be
-       read in paragraphs: every letter takes the same width, which strips out
-       the word shapes people actually read by. Mono is kept for the one thing
-       it genuinely suits — values out of the user's own spreadsheet. */
-    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --bg:#FFFFFF;
+    --ink:#101828;
+    --ink-soft:#475467;
+    --ink-faint:#667085;   /* text grey: 4.6:1 on white. #98A2B3 was 2.5:1 */
+    --hairline:#98A2B3;    /* the old pale grey, kept for rules and dots */
+    --grid:#E4E7EC;
+    --grid-soft:#F2F4F7;
+    --emerald:#12B76A;
+    --emerald-ink:#027A48;
+    --emerald-bg:#ECFDF3;
+    --amber:#F79009;
+    --amber-ink:#B54708;
+    --amber-bg:#FFFAEB;
+    --coral:#F04438;
+    --coral-ink:#B42318;
+    --coral-bg:#FEF3F2;
+    --azure:#2E90FA;
+    --azure-ink:#175CD3;
+    --azure-bg:#EFF8FF;
+    --violet:#7A5AF8;
+    --violet-ink:#5925DC;
+    --violet-bg:#F4F3FF;
+    --radius:14px;
   }
-
-  *{box-sizing:border-box; margin:0; padding:0;}
-
-  html{scroll-behavior:smooth; background:var(--bg);}
-
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
   body{
+    margin:0;
     background:var(--bg);
-    color:var(--text);
-    font-family:var(--font-body);
-    font-size:17px;
-    line-height:1.65;
-    overflow-x:hidden;
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
   }
-
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+    margin:0;
   }
+  .mono{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:500;
+    letter-spacing:0;
+  }
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+  section{padding:96px 0;}
+  @media (max-width:720px){ section{padding:56px 0;} .wrap{padding:0 20px;} }
 
-  a{color:inherit; text-decoration:none;}
-
-  .wrap{max-width:1180px; margin:0 auto; padding:0 28px;}
-
-  /* ---------- NAV ---------- */
+  /* ---------- header ---------- */
   header{
-    position:sticky; top:0; z-index:100;
-    background:rgba(247,245,238,0.88);
-    backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,0.9);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--grid);
   }
-  nav.wrap{
-    display:flex; align-items:center; justify-content:space-between;
-    height:76px;
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 32px;max-width:1180px;margin:0 auto;
   }
-  .logo{
-    font-family:var(--font-display);
-    font-weight:800;
-    font-size:1.15rem;
-    letter-spacing:0.06em;
-    display:flex; align-items:center; gap:10px;
+  .logo{display:flex;align-items:center;gap:10px;font-family:'Space Grotesk';font-weight:700;font-size:19px;}
+  .logo-grid{display:grid;grid-template-columns:repeat(2,7px);grid-template-rows:repeat(2,7px);gap:2px;}
+  .logo-grid span{border-radius:2px;}
+  .logo-grid span:nth-child(1){background:var(--emerald);}
+  .logo-grid span:nth-child(2){background:var(--amber);}
+  .logo-grid span:nth-child(3){background:var(--azure);}
+  .logo-grid span:nth-child(4){background:var(--coral);}
+  .nav-links{display:flex;gap:34px;align-items:center;font-size:14.5px;font-weight:500;color:var(--ink-soft);}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-cta{
+    background:var(--ink);color:#fff;padding:9px 18px;border-radius:8px;
+    font-size:14px;font-weight:600;
   }
-  .logo .bracket{color:var(--amber);}
-  .logo .blip{
-    width:8px; height:8px; background:var(--cyan);
-    display:inline-block; border-radius:1px;
-    animation:blip 1.6s steps(2,jump-none) infinite;
-  }
-  @keyframes blip{50%{opacity:0.15;}}
+  .nav-right{display:flex;align-items:center;gap:14px;}
+  .nav-mobile-hide{display:flex;gap:34px;}
+  @media (max-width:860px){ .nav-mobile-hide{display:none;} }
 
-  .navlinks{display:flex; align-items:center; gap:4px;}
-
-  .navitem{position:relative;}
-  .navitem > button{
-    font-family:var(--font-body);
-    background:none; border:none; color:var(--text);
-    font-size:0.9375rem; letter-spacing:0.08em; text-transform:uppercase;
-    padding:10px 16px; cursor:pointer;
-    display:flex; align-items:center; gap:6px;
-    border:1px solid transparent;
-    transition:border-color .15s, color .15s;
+  /* ---------- hero ---------- */
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono';font-size:12.5px;font-weight:500;
+    color:var(--emerald-ink);background:var(--emerald-bg);
+    padding:6px 12px;border-radius:20px;margin-bottom:24px;
   }
-  .navitem > button:hover, .navitem > button:focus-visible{
-    color:var(--amber);
-    border-color:var(--line);
-    outline:none;
+  .eyebrow::before{content:'●';font-size:8px;}
+  .hero{padding-top:72px;padding-bottom:40px;}
+  .hero-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:56px;align-items:center;}
+  @media (max-width:900px){ .hero-grid{grid-template-columns:1fr;} }
+  .hero h1{font-size:clamp(34px,4.6vw,54px);line-height:1.06;}
+  .hero h1 .hl{position:relative;white-space:nowrap;}
+  .hero p{color:var(--ink-soft);font-size:17px;max-width:480px;margin:22px 0 32px;}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:13px 22px;border-radius:9px;font-weight:600;font-size:14.5px;
+    border:1.5px solid transparent;cursor:pointer;transition:transform .15s ease;
   }
-  .navitem .caret{font-size:0.875rem; transition:transform .18s;}
-  .navitem.open .caret{transform:rotate(180deg);}
+  .btn:hover{transform:translateY(-1px);}
+  .btn-primary{background:var(--azure-ink);color:#fff;}
+  .btn-ghost{border-color:var(--grid);color:var(--ink);background:#fff;}
+  .btn-ghost:hover{border-color:var(--ink-faint);}
 
-  .dropdown{
-    position:absolute; top:calc(100% + 8px); left:0;
-    min-width:260px;
-    background:var(--panel);
-    border:1px solid var(--line);
-    box-shadow:0 12px 32px rgba(34,38,31,0.14);
-    opacity:0; visibility:hidden; transform:translateY(-6px);
-    transition:opacity .15s, transform .15s, visibility .15s;
-    padding:6px;
+  /* signature visual — same panel, real tools instead of a mock sheet */
+  .sheet{
+    border:1px solid var(--grid);border-radius:var(--radius);overflow:hidden;
+    box-shadow:0 1px 2px rgba(16,24,40,0.04), 0 12px 32px -12px rgba(16,24,40,0.12);
   }
-  .navitem.open .dropdown{opacity:1; visibility:visible; transform:translateY(0);}
-
-  .dropdown a{
-    display:flex; flex-direction:column; gap:2px;
-    padding:12px 14px;
-    border-left:2px solid transparent;
-    transition:border-color .15s, background .15s;
+  .sheet-bar{
+    display:flex;align-items:center;gap:8px;padding:10px 14px;
+    border-bottom:1px solid var(--grid);background:var(--grid-soft);
   }
-  .dropdown a:hover{border-left-color:var(--amber); background:var(--panel-2);}
-  .dropdown a .d-title{font-family:var(--font-display); font-size:0.875rem; letter-spacing:0.04em; color:var(--text);}
-  .dropdown a .d-sub{font-size:0.875rem; color:var(--muted);}
-
-  .navcontact{
-    font-size:0.875rem; letter-spacing:0.08em; text-transform:uppercase;
-    padding:9px 18px;
-    border:1px solid var(--amber);
-    color:var(--amber);
-    transition:background .15s, color .15s;
-  }
-  .navcontact:hover{background:var(--amber); color:#FFFFFF;}
-
-  .navplain{
-    font-family:var(--font-body); font-size:0.9375rem; letter-spacing:0.08em; text-transform:uppercase;
-    padding:10px 16px; border:1px solid transparent; transition:border-color .15s, color .15s;
-  }
-  .navplain:hover{color:var(--amber); border-color:var(--line);}
-
-  .navtoggle{display:none; background:none; border:1px solid var(--line); color:var(--text); padding:8px 10px; font-family:var(--font-body); cursor:pointer;}
-
-  /* ---------- HERO ---------- */
-  .hero{
-    position:relative;
-    padding:110px 0 90px;
-    border-bottom:1px solid var(--line);
-    overflow:hidden;
-  }
-  .hero-grid-canvas{
-    position:absolute; inset:0; z-index:0;
-    opacity:0.9;
-  }
-  .hero .wrap{position:relative; z-index:1;}
-
-  .hero-inner{display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:stretch;}
-  @media (max-width:900px){.hero-inner{grid-template-columns:1fr; gap:40px;}}
-
-  .hero-copy{display:flex; flex-direction:column; justify-content:center;}
-
-  /* ---------- HERO QUICK-ACCESS TOOL TILES ---------- */
-  /* The cover used to hold a cut-down Excel→Word widget. It now opens straight
-     into the three full Excel tools instead, one tile each. */
-  .hero-tools{
-    background:var(--panel);
-    border:1px solid var(--line);
-    box-shadow:0 20px 50px rgba(34,38,31,0.10);
-    display:flex;
-    flex-direction:column;
-    /* Sized by its own content rather than stretched to match the copy column —
-       stretching made each tile ~200px tall for two lines of text. */
-    align-self:center;
-  }
-  .hero-tools .tools-top{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:20px 24px;
-    border-bottom:1px solid var(--line);
-  }
-  .hero-tools .tools-label{font-family:var(--font-display); font-size:0.875rem; letter-spacing:0.06em; text-transform:uppercase;}
-  .hero-tools .tools-badge{font-size:0.875rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--cyan); border:1px solid var(--cyan); padding:3px 8px; white-space:nowrap;}
+  .sheet-dot{width:8px;height:8px;border-radius:50%;background:var(--hairline);}
+  .sheet-name{font-family:'JetBrains Mono';font-size:12px;color:var(--ink-soft);margin-left:6px;}
 
   .tool-tile{
-    display:flex; align-items:flex-start; gap:16px;
-    padding:20px 24px;
-    border-top:1px solid var(--line);
-    transition:background .15s, border-left-color .15s;
-    border-left:3px solid transparent;
+    display:flex;align-items:flex-start;gap:14px;
+    padding:16px;border-bottom:1px solid var(--grid);
+    position:relative;transition:background .15s ease;
   }
-  .tool-tile:first-of-type{border-top:none;}
-  .tool-tile:hover, .tool-tile:focus-visible{background:var(--panel-2); border-left-color:var(--amber); outline:none;}
-
-  .tool-tile .tile-icon{
-    flex:none; width:38px; height:38px;
-    border:1px solid var(--line); background:var(--bg);
-    display:flex; align-items:center; justify-content:center;
+  .tool-tile::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:var(--tile);opacity:0;transition:opacity .15s ease;
   }
-  .tool-tile:hover .tile-icon{border-color:var(--cyan);}
-  .tool-tile .tile-icon svg{width:22px; height:22px;}
-
-  .tool-tile .tile-body{flex:1; min-width:0;}
-  .tool-tile .tile-name{
-    font-family:var(--font-display); font-weight:700; font-size:0.9375rem; letter-spacing:0;
-    display:flex; align-items:center; gap:8px;
+  .tool-tile:hover{background:var(--grid-soft);}
+  .tool-tile:hover::before{opacity:1;}
+  .tile-icon{
+    width:38px;height:38px;flex-shrink:0;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono';font-weight:600;font-size:13px;
+    background:var(--tile-bg);color:var(--tile);
   }
-  .tool-tile .tile-desc{font-size:0.875rem; color:var(--muted); line-height:1.45; margin-top:5px;}
-  .tool-tile .tile-go{
-    flex:none; color:var(--amber); font-size:1rem; padding-top:8px;
-    transition:transform .15s;
-  }
+  .tile-name{display:block;font-family:'Space Grotesk';font-weight:600;font-size:15.5px;}
+  .tile-desc{display:block;font-size:13.5px;color:var(--ink-soft);margin-top:3px;}
+  .tile-go{margin-left:auto;align-self:center;color:var(--tile);font-size:15px;transition:transform .15s ease;}
   .tool-tile:hover .tile-go{transform:translateX(3px);}
+  .sheet-foot{padding:14px 16px;font-size:13.5px;color:var(--ink-soft);}
+  .sheet-foot a{color:var(--azure-ink);font-weight:600;}
 
-  .hero-tools .tools-foot{
-    padding:14px 24px; border-top:1px solid var(--line);
-    font-size:0.875rem; color:var(--muted); line-height:1.5;
-    background:var(--panel-2);
-  }
-  .hero-tools .tools-foot a{color:var(--amber);}
-  .hero-tools .tools-foot a:hover{border-bottom:1px solid var(--amber);}
+  /* ---------- tools ---------- */
+  .section-head{max-width:560px;margin-bottom:48px;}
+  .section-label{font-family:'JetBrains Mono';font-size:12.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+  .section-head h2{font-size:clamp(26px,3vw,34px);}
+  .section-head p{color:var(--ink-soft);margin-top:12px;font-size:15.5px;}
 
-  /* On narrow screens the icon, gaps and arrow squeeze the description into a
-     very tall column — claw some width back. */
-  @media (max-width:520px){
-    .hero-tools .tools-top{padding:16px 18px;}
-    .tool-tile{padding:16px 18px; gap:12px;}
-    .hero-tools .tools-foot{padding:13px 18px;}
+  .tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  @media (max-width:900px){ .tool-grid{grid-template-columns:1fr;} }
+  .tool-card{
+    border:1px solid var(--grid);border-radius:var(--radius);padding:26px 24px 24px;
+    position:relative;overflow:hidden;background:#fff;
+    transition:border-color .2s ease, transform .2s ease;
   }
+  .tool-card:hover{transform:translateY(-3px);border-color:var(--ink-faint);}
+  .tool-tab{position:absolute;top:0;left:0;right:0;height:4px;}
+  .tab-emerald{background:var(--emerald);}
+  .tab-amber{background:var(--amber);}
+  .tab-azure{background:var(--azure);}
+  .tab-violet{background:var(--violet);}
+  .tool-icon{
+    width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-family:'JetBrains Mono';font-weight:600;font-size:13px;margin-bottom:16px;
+  }
+  .tool-card h3{font-size:17.5px;margin-bottom:8px;}
+  .tool-card p{color:var(--ink-soft);font-size:14px;margin:0 0 18px;}
+  .tool-link{font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
 
-  /* ---------- COMPACT SECONDARY TOOLS ROW ---------- */
-  /* Two across — the Excel tools live on the hero tiles, so this row holds
-     only the two document tools, side by side. */
-  .tool-row{display:grid; grid-template-columns:repeat(2, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
-  @media (max-width:860px){.tool-row{grid-template-columns:1fr;}}
-  .tool-row .tcard{background:var(--panel); padding:28px 26px;}
-  .tool-row .tcard h3{
-    font-family:var(--font-display); font-weight:700; font-size:0.98rem; letter-spacing:0; margin-bottom:10px;
+  .more-row{
+    display:flex;justify-content:space-between;align-items:center;gap:20px;
+    border:1px solid var(--grid);border-radius:var(--radius);padding:24px;margin-top:16px;
+    flex-wrap:wrap;
   }
-  .tool-row .tcard p{color:var(--muted); font-size:0.9375rem; margin-bottom:16px;}
+  .more-row .t{font-size:15px;font-weight:600;}
+  .more-row .d{color:var(--ink-soft);font-size:13.5px;margin-top:3px;}
 
-  .hero-tag{
-    display:inline-flex; align-items:center; gap:8px;
-    font-size:0.875rem; letter-spacing:0.14em; text-transform:uppercase;
-    color:var(--cyan);
-    border:1px solid var(--line);
-    background:rgba(255,255,255,0.65);
-    padding:6px 12px;
-    margin-bottom:28px;
+  /* ---------- pricing ---------- */
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  @media (max-width:900px){ .price-grid{grid-template-columns:1fr;} }
+  .price-card{border:1px solid var(--grid);border-radius:var(--radius);padding:30px 26px;background:#fff;}
+  .price-card.popular{border:2px solid var(--azure);position:relative;box-shadow:0 8px 24px -8px rgba(46,144,250,0.25);}
+  .popular-badge{
+    position:absolute;top:-12px;left:26px;background:var(--azure-ink);color:#fff;
+    font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px;
+    font-family:'JetBrains Mono';
   }
-  .hero-tag::before{content:''; width:6px; height:6px; background:var(--cyan); border-radius:50%; animation:blip 1.4s infinite;}
+  .price-tier{font-size:14.5px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;}
+  .price-amt{font-family:'Space Grotesk';font-size:36px;font-weight:700;}
+  .price-amt span{font-size:14px;color:var(--ink-soft);font-weight:500;font-family:'Inter';}
+  .price-sub{color:var(--ink-faint);font-size:13px;margin:4px 0 22px;}
+  .price-feat{list-style:none;padding:0;margin:0 0 26px;font-size:14px;color:var(--ink-soft);}
+  .price-feat li{padding:8px 0;border-top:1px solid var(--grid-soft);display:flex;gap:10px;}
+  .price-feat li:first-child{border-top:none;}
+  .check{color:var(--emerald-ink);font-weight:700;}
+  .price-card .btn{width:100%;justify-content:center;}
 
-  .hero h1{
-    font-family:var(--font-display);
-    font-weight:900;
-    font-size:clamp(2.4rem, 6vw, 4.6rem);
-    line-height:1.02;
-    letter-spacing:-0.015em;
-    max-width:11ch;
-    background:rgba(255,255,255,0.5);
+  /* ---------- services ---------- */
+  .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media (max-width:900px){ .svc-grid{grid-template-columns:1fr;} }
+  .svc-card{border:1px solid var(--grid);border-radius:var(--radius);padding:30px;}
+  .svc-free{
+    display:inline-block;font-family:'JetBrains Mono';font-size:11px;font-weight:600;
+    color:var(--emerald-ink);background:var(--emerald-bg);padding:3px 9px;border-radius:6px;margin-bottom:14px;
   }
-  .hero h1 .accent{color:var(--amber);}
+  .svc-card h3{font-size:19px;margin-bottom:10px;}
+  .svc-card p{color:var(--ink-soft);font-size:14.5px;margin-bottom:18px;}
+  .svc-feat{list-style:none;padding:0;margin:0 0 22px;font-size:13.5px;color:var(--ink-soft);}
+  .svc-feat li{padding:6px 0;display:flex;gap:8px;}
 
-  .hero p.lede{
-    margin-top:26px;
-    max-width:520px;
-    color:var(--muted);
-    font-size:1.02rem;
-    background:rgba(255,255,255,0.5);
+  /* ---------- contact ---------- */
+  .contact-grid{display:grid;grid-template-columns:0.9fr 1.1fr;gap:56px;}
+  @media (max-width:900px){ .contact-grid{grid-template-columns:1fr;} }
+  .meta-row{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--grid);font-size:14px;}
+  .meta-row:first-of-type{border-top:none;}
+  .meta-label{color:var(--ink-faint);width:100px;flex-shrink:0;font-family:'JetBrains Mono';font-size:12px;padding-top:2px;}
+  .form-card{border:1px solid var(--grid);border-radius:var(--radius);padding:28px;background:var(--grid-soft);}
+  .form-title{font-family:'JetBrains Mono';font-size:12.5px;color:var(--ink-faint);margin-bottom:18px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .field input,.field select,.field textarea{
+    width:100%;padding:11px 13px;border:1px solid var(--grid);border-radius:8px;
+    font-family:'Inter';font-size:14px;background:#fff;color:var(--ink);
   }
+  .field textarea{resize:vertical;min-height:90px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:560px){ .field-row{grid-template-columns:1fr;} }
+  .form-msg{font-family:'JetBrains Mono';font-size:12.5px;color:var(--emerald-ink);display:block;margin-top:12px;}
 
-  .hero-cta{margin-top:38px; display:flex; gap:16px; flex-wrap:wrap;}
-  .btn{
-    font-family:var(--font-body);
-    font-size:0.9375rem; letter-spacing:0.08em; text-transform:uppercase;
-    padding:14px 26px;
-    cursor:pointer;
-    border:1px solid var(--line);
-    transition:border-color .15s, background .15s, color .15s, transform .1s;
-    display:inline-flex; align-items:center; gap:10px;
-  }
-  .btn-primary{background:var(--amber); color:#FFFFFF; border-color:var(--amber); font-weight:700;}
-  .btn-primary:hover{transform:translateY(-2px);}
-  .btn-ghost{background:rgba(255,255,255,0.6); color:var(--text);}
-  .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan);}
+  footer{border-top:1px solid var(--grid);padding:40px 0;}
+  .foot-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  .foot-links{display:flex;gap:26px;font-size:13.5px;color:var(--ink-soft);}
+  .foot-copy{font-size:13px;color:var(--ink-faint);font-family:'JetBrains Mono';}
 
-  .hero-cta{margin-bottom:40px;}
-
-  /* ---------- SECTION SHARED ---------- */
-  section{padding:100px 0;}
-  .section-head{margin-bottom:56px; max-width:640px;}
-  .eyebrow{
-    font-size:0.875rem; letter-spacing:0.16em; text-transform:uppercase;
-    color:var(--cyan); margin-bottom:14px; display:flex; align-items:center; gap:10px;
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
   }
-  .eyebrow::before{content:''; width:24px; height:1px; background:var(--cyan);}
-  .section-head h2{
-    font-family:var(--font-display); font-weight:800;
-    font-size:clamp(1.7rem, 3.4vw, 2.5rem); letter-spacing:-0.01em;
-  }
-  .section-head p{color:var(--muted); margin-top:16px; font-size:0.98rem;}
-
-  #products{border-bottom:1px solid var(--line); background:var(--panel);}
-  #services{border-bottom:1px solid var(--line);}
-
-  .card-grid{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line);}
-  .card{
-    background:var(--bg);
-    padding:38px 34px;
-    position:relative;
-    transition:background .18s;
-  }
-  #products .card{background:var(--panel);}
-  .card:hover{background:var(--panel-2);}
-  .card h3{
-    font-family:var(--font-display); font-weight:700; font-size:1.25rem; margin:16px 0 14px;
-    letter-spacing:0;
-    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  }
-  .card p{color:var(--muted); font-size:0.9375rem; margin-bottom:22px;}
-  .card .tags{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;}
-  .tag{
-    font-size:0.875rem; letter-spacing:0.06em; text-transform:uppercase;
-    border:1px solid var(--line); color:var(--cyan);
-    padding:4px 9px;
-  }
-  .card .cta{
-    font-size:0.875rem; letter-spacing:0.06em; text-transform:uppercase;
-    color:var(--amber); display:inline-flex; align-items:center; gap:8px;
-    border-bottom:1px solid transparent;
-  }
-  .card .cta:hover{border-bottom-color:var(--amber);}
-  .card .cta.soon{color:var(--muted); cursor:default;}
-  .card .cta.soon:hover{border-bottom-color:transparent;}
-  .soon-badge{
-    font-family:var(--font-display); font-size:0.875rem; letter-spacing:0.08em;
-    color:var(--muted); border:1px solid var(--line); padding:2px 8px;
-    display:inline-block; margin-bottom:10px;
-  }
-  .free-badge{
-    font-family:var(--font-display); font-size:0.875rem; letter-spacing:0.08em;
-    color:var(--cyan); border:1px solid var(--cyan); padding:3px 8px;
-    display:inline-block;
-  }
-
-  .service-checklist{list-style:none; margin-bottom:24px;}
-  .service-checklist li{
-    font-size:0.9375rem; color:var(--text); padding:9px 0 9px 26px;
-    border-top:1px solid var(--line); position:relative;
-  }
-  .service-checklist li:first-child{border-top:none;}
-  .service-checklist li::before{
-    content:'✓'; position:absolute; left:0; top:9px;
-    color:var(--cyan); font-weight:700;
-  }
-
-  /* static icon visual per service card */
-  .service-viz{
-    height:64px; margin-bottom:22px;
-    border:1px solid var(--line);
-    background:var(--panel-2);
-    display:flex; align-items:center; justify-content:center;
-    padding:6px;
-  }
-  .service-viz svg{height:100%; width:auto; max-width:100%;}
-
-  /* ---------- PRICING ---------- */
-  #pricing{border-bottom:1px solid var(--line); background:var(--panel);}
-  .pricing-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
-  @media (max-width:860px){.pricing-grid{grid-template-columns:1fr;}}
-
-  .pcard{background:var(--bg); padding:38px 34px; display:flex; flex-direction:column; position:relative;}
-  .pcard.featured{background:var(--panel-2);}
-  .pcard-badge{
-    position:absolute; top:0; right:0;
-    font-family:var(--font-display); font-size:0.875rem; letter-spacing:0.08em; text-transform:uppercase;
-    background:var(--amber); color:#FFFFFF; padding:5px 12px;
-  }
-  .pcard-name{
-    font-family:var(--font-display); font-weight:700; font-size:0.9375rem;
-    text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); margin-bottom:14px;
-  }
-  .pcard-price{font-family:var(--font-display); font-weight:800; font-size:2.4rem; letter-spacing:0.01em;}
-  .pcard-price span{font-family:var(--font-body); font-weight:400; font-size:0.95rem; color:var(--muted);}
-  .pcard-sub{font-size:0.875rem; color:var(--muted); margin:6px 0 24px;}
-  .pcard-features{list-style:none; margin-bottom:28px; flex:1;}
-  .pcard-features li{
-    font-size:0.9375rem; padding:9px 0; border-top:1px solid var(--line);
-    display:flex; align-items:center; gap:10px;
-  }
-  .pcard-features li:first-child{border-top:none;}
-  .pcard-features li::before{content:'—'; color:var(--cyan);}
-  .pcard-cta{justify-content:center; width:100%; text-align:center;}
-  .pcard-note{font-size:0.875rem; color:var(--muted); margin-top:12px; text-align:center;}
-
-  /* ---------- CONTACT ---------- */
-  #contact{background:var(--panel);}
-  .contact-wrap{display:grid; grid-template-columns:1fr 1.2fr; gap:60px;}
-  .contact-info h2{
-    font-family:var(--font-display); font-weight:800;
-    font-size:clamp(1.7rem,3.4vw,2.3rem); margin-bottom:18px; letter-spacing:-0.01em;}
-  .contact-info p{color:var(--muted); margin-bottom:28px; max-width:38ch;}
-  .contact-line{display:flex; gap:12px; font-size:0.9375rem; margin-bottom:12px; color:var(--text);}
-  .contact-line .k{color:var(--muted); min-width:90px; text-transform:uppercase; font-size:0.875rem; letter-spacing:0.08em; padding-top:2px;}
-
-  .terminal{
-    border:1px solid var(--line);
-    background:var(--bg);
-  }
-  .terminal-bar{
-    display:flex; align-items:center; gap:8px;
-    padding:10px 14px; border-bottom:1px solid var(--line);
-    font-size:0.875rem; letter-spacing:0.1em; color:var(--muted); text-transform:uppercase;
-  }
-  .terminal-bar .dot{width:8px; height:8px; border-radius:50%;}
-  .dot.r{background:var(--red);} .dot.a{background:var(--amber);} .dot.c{background:var(--cyan);}
-  .terminal-body{padding:30px;}
-
-  .field{margin-bottom:22px;}
-  .field label{
-    display:block; font-size:0.875rem; letter-spacing:0.1em; text-transform:uppercase;
-    color:var(--cyan); margin-bottom:8px;
-  }
-  .field label::before{content:'> ';}
-  .field input, .field select, .field textarea{
-    width:100%;
-    background:var(--panel);
-    border:1px solid var(--line);
-    color:var(--text);
-    font-family:var(--font-body);
-    font-size:0.9375rem;
-    padding:12px 14px;
-    transition:border-color .15s;
-  }
-  .field input:focus, .field select:focus, .field textarea:focus{
-    outline:none; border-color:var(--amber);
-  }
-  .field textarea{resize:vertical; min-height:110px;}
-  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
-
-  .submit-row{display:flex; align-items:center; gap:18px; margin-top:6px; flex-wrap:wrap;}
-  .form-msg{font-size:0.875rem; color:var(--cyan);}
-
-  /* ---------- FOOTER ---------- */
-  footer{padding:44px 0; border-top:1px solid var(--line);}
-  .foot-wrap{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:18px;}
-  .foot-wrap .logo{font-size:1rem;}
-  .foot-links{display:flex; gap:24px; font-size:0.875rem; color:var(--muted); flex-wrap:wrap;}
-  .foot-links a:hover{color:var(--amber);}
-  .foot-copy{font-size:0.875rem; color:var(--muted); margin-top:18px;}
-
-  /* ---------- RESPONSIVE ---------- */
-  @media (max-width:860px){
-    .navlinks{
-      position:fixed; top:76px; left:0; right:0;
-      background:var(--bg); border-bottom:1px solid var(--line);
-      flex-direction:column; align-items:stretch;
-      padding:10px; gap:2px;
-      transform:translateY(-8px); opacity:0; visibility:hidden;
-      transition:opacity .18s, transform .18s, visibility .18s;
-    }
-    .navlinks.open{transform:translateY(0); opacity:1; visibility:visible;}
-    .navitem, .navitem > button{width:100%; justify-content:space-between;}
-    .dropdown{position:static; opacity:1; visibility:visible; transform:none; display:none; border:none; border-top:1px solid var(--line);}
-    .navitem.open .dropdown{display:block;}
-    .navtoggle{display:block;}
-    .navcontact{width:100%; text-align:center;}
-    .card-grid{grid-template-columns:1fr;}
-    .contact-wrap{grid-template-columns:1fr;}
-    .field-row{grid-template-columns:1fr;}
-  }
-
-  /* ---- Touch targets ----
-     44px minimum on anything you tap — about the width of a fingertip, and
-     what Apple and Google both ask for. Inline links inside a sentence are
-     exempt on purpose: WCAG allows it and padding them out would break the
-     line they sit in. .navtoggle gets height only, never display: the mobile
-     media query owns whether it is shown at all. */
-  .navplain, .navcontact, .auth-btn, .btn, .cta, .foot-links a{
-    min-height:44px; display:inline-flex; align-items:center; justify-content:center;
-  }
-  .cta, .foot-links a{justify-content:flex-start;}
-  .navtoggle{min-height:44px;}
-  .navitem > button{min-height:44px;}
-  .dropdown a{min-height:44px; justify-content:center;}
-  .field input, .field select, .field textarea{min-height:44px;}
 </style>
 </head>
 <body>
 
 <header>
-  <nav class="wrap">
-    <div class="logo"><span class="bracket">[</span>DATAEXACT<span class="bracket">]</span><span class="blip"></span></div>
-
-    <button class="navtoggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">MENU</button>
-
-    <div class="navlinks" id="navLinks">
-      <div class="navitem" id="productsNav">
-        <button aria-haspopup="true" aria-expanded="false">Products <span class="caret">▾</span></button>
-        <div class="dropdown">
-          <a href="/app">
-            <span class="d-title">Excel to Word</span>
-            <span class="d-sub">Turn spreadsheets into formatted documents</span>
-          </a>
-          <a href="/anomaly">
-            <span class="d-title">Detect Anomalies in Excel</span>
-            <span class="d-sub">Flag outliers in Excel automatically</span>
-          </a>
-          <a href="/compare">
-            <span class="d-title">Compare Excel Files</span>
-            <span class="d-sub">Highlight differences between two versions</span>
-          </a>
-          <a href="/format">
-            <span class="d-title">Format Report</span>
-            <span class="d-sub">Brand a plain Word document in one click</span>
-          </a>
-          <a href="/codebook">
-            <span class="d-title">Qualitative Coding</span>
-            <span class="d-sub">Code a corpus of PDFs and Word docs at once</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="navitem" id="servicesNav">
-        <button aria-haspopup="true" aria-expanded="false">Services <span class="caret">▾</span></button>
-        <div class="dropdown">
-          <a href="#services-audit">
-            <span class="d-title">Data Audit</span>
-            <span class="d-sub">A full review of your data's integrity</span>
-          </a>
-          <a href="#services-dashboard">
-            <span class="d-title">Dashboarding</span>
-            <span class="d-sub">Live dashboards built around your metrics</span>
-          </a>
-        </div>
-      </div>
-
-      <a class="navplain" href="#pricing">Pricing</a>
-      <a class="navcontact" href="#contact">Contact</a>
-
-      <div class="navitem" id="authArea">
-        <!-- Filled in by JS below: a "Sign in" button through to /signin,
-             or "Signed in as X · Logout" once they're back. -->
-      </div>
+  <nav class="nav">
+    <a class="logo" href="/"><div class="logo-grid"><span></span><span></span><span></span><span></span></div>DATAEXACT</a>
+    <div class="nav-mobile-hide nav-links">
+      <a href="#products">Products</a>
+      <a href="#services">Services</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-right">
+      <span id="authArea"></span>
+      <a href="#products" class="nav-cta">Open a tool →</a>
     </div>
   </nav>
 </header>
 
-<style>
-  #authArea{display:flex; align-items:center; gap:10px;}
-  .auth-btn{
-    font-family:var(--font-body); font-size:0.875rem; letter-spacing:0.06em; text-transform:uppercase;
-    color:var(--text); border:1px solid var(--line); background:var(--panel);
-    padding:7px 12px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
-  }
-  .auth-btn:hover{border-color:var(--cyan); color:var(--cyan);}
-  .auth-status{font-size:0.875rem; letter-spacing:0.04em; color:var(--muted); display:flex; align-items:center; gap:10px;}
-  .auth-status .name{color:var(--text);}
-  .auth-status a{color:var(--amber); text-decoration:none;}
-  .auth-status a:hover{border-bottom:1px solid var(--amber);}
-  @media (max-width:860px){ #authArea{margin-top:14px;} }
-</style>
-
-<script>
-(async function(){
-  const authArea = document.getElementById('authArea');
-  try {
-    const data = await (await fetch('/me')).json();
-
-    if (data.user) {
-      authArea.innerHTML = `
-        <div class="auth-status">
-          <span>Signed in as <span class="name"></span></span>
-          <a href="/auth/logout">Logout</a>
-        </div>`;
-      // Set as text, not interpolated markup — a display name comes from the
-      // OAuth provider and shouldn't be able to inject anything into the nav.
-      authArea.querySelector('.name').textContent = data.user.name || data.user.email || 'there';
-      return;
-    }
-
-    // Signed out: a single button through to /signin, which is where every
-    // way in lives (Google, Facebook, emailed link). The nav deliberately
-    // doesn't enumerate providers itself — one page to change, not two.
-    const a = document.createElement('a');
-    a.className = 'auth-btn';
-    a.href = `/signin/?next=${encodeURIComponent(location.pathname + location.hash)}`;
-    a.textContent = 'Sign in';
-    authArea.appendChild(a);
-  } catch (e) {
-    // Auth backend not reachable — fail quietly, nav still works without it.
-  }
-})();
-</script>
-
 <section class="hero">
-  <canvas class="hero-grid-canvas" id="heroCanvas"></canvas>
-  <div class="wrap">
-    <div class="hero-inner">
-      <div class="hero-copy">
-        <div class="hero-tag">Live tools — no signup to start</div>
-        <h1>Your Excel files,<br><span class="accent">sorted in one drop.</span></h1>
-        <p class="lede">Three tools for the spreadsheet work that eats your day: turn one into a formatted Word report, catch the values that break the pattern, or see exactly what changed between two versions. Pick one and go — every tool is free for your first 3 files a month.</p>
-        <div class="hero-cta">
-          <a href="/app" class="btn btn-primary">Open Excel to Word →</a>
-          <a href="#products" class="btn btn-ghost">See every tool</a>
-        </div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Live tools — no signup to start</span>
+      <h1>Your Excel files,<br><span class="hl">sorted in one drop.</span></h1>
+      <p>Three tools for the spreadsheet work that eats your day: turn one into a formatted Word report, catch the values that break the pattern, or see exactly what changed between two versions.</p>
+      <div class="hero-ctas">
+        <a href="/app" class="btn btn-primary">Open Excel to Word →</a>
+        <a href="#products" class="btn btn-ghost">See every tool</a>
+      </div>
+    </div>
+
+    <!-- The template's sheet panel, carrying the real tools instead of a
+         mock Q3 table: every row here opens the tool it names. -->
+    <div class="sheet">
+      <div class="sheet-bar">
+        <div class="sheet-dot"></div><div class="sheet-dot"></div><div class="sheet-dot"></div>
+        <span class="sheet-name">excel_tools — open one</span>
       </div>
 
-      <div class="hero-tools" id="heroTools">
-        <div class="tools-top">
-          <span class="tools-label">Excel tools — open one</span>
-          <span class="tools-badge">Full version</span>
-        </div>
+      <a class="tool-tile" href="/app" style="--tile:var(--emerald-ink);--tile-bg:var(--emerald-bg);">
+        <span class="tile-icon">.docx</span>
+        <span>
+          <span class="tile-name">Excel to Word</span>
+          <span class="tile-desc">Pick your heading column and column order, then get a formatted .docx — one section per row.</span>
+        </span>
+        <span class="tile-go">→</span>
+      </a>
 
-        <a class="tool-tile" href="/app" aria-label="Open Excel to Word">
-          <span class="tile-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2.5" y="3.5" width="8" height="17" stroke="var(--cyan)" stroke-width="1.6"/>
-              <path d="M2.5 8.5H10.5M2.5 13.5H10.5" stroke="var(--cyan)" stroke-width="1.1" opacity="0.6"/>
-              <rect x="13.5" y="3.5" width="8" height="17" stroke="var(--amber)" stroke-width="1.6"/>
-              <path d="M15.5 8.5H19.5M15.5 12H19.5M15.5 15.5H18" stroke="var(--amber)" stroke-width="1.1" opacity="0.7"/>
-            </svg>
-          </span>
-          <span class="tile-body">
-            <span class="tile-name">Excel to Word</span>
-            <span class="tile-desc">Pick your heading column and column order, then get a formatted .docx — one section per row.</span>
-          </span>
-          <span class="tile-go" aria-hidden="true">→</span>
-        </a>
+      <a class="tool-tile" href="/anomaly" style="--tile:var(--amber-ink);--tile-bg:var(--amber-bg);">
+        <span class="tile-icon">!</span>
+        <span>
+          <span class="tile-name">Detect Anomalies</span>
+          <span class="tile-desc">Scan every row and column for duplicates, stray characters, blanks, wrong types, and outliers.</span>
+        </span>
+        <span class="tile-go">→</span>
+      </a>
 
-        <a class="tool-tile" href="/anomaly" aria-label="Open Detect Anomalies in Excel">
-          <span class="tile-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2.5" y="4.5" width="19" height="15" stroke="var(--cyan)" stroke-width="1.6"/>
-              <path d="M2.5 9.5H21.5M2.5 14.5H21.5M9 4.5V19.5M15 4.5V19.5" stroke="var(--cyan)" stroke-width="1.1" opacity="0.55"/>
-              <rect x="9" y="9.5" width="6" height="5" fill="var(--red)" opacity="0.85"/>
-            </svg>
-          </span>
-          <span class="tile-body">
-            <span class="tile-name">Detect Anomalies</span>
-            <span class="tile-desc">Scan every row and column for duplicates, stray characters, blanks, wrong types, and outliers.</span>
-          </span>
-          <span class="tile-go" aria-hidden="true">→</span>
-        </a>
+      <a class="tool-tile" href="/compare" style="--tile:var(--azure-ink);--tile-bg:var(--azure-bg);">
+        <span class="tile-icon">⇄</span>
+        <span>
+          <span class="tile-name">Compare Excel Files</span>
+          <span class="tile-desc">Match two versions by key and get every changed, added, and removed value in one report.</span>
+        </span>
+        <span class="tile-go">→</span>
+      </a>
 
-        <a class="tool-tile" href="/compare" aria-label="Open Compare Excel Files">
-          <span class="tile-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2.5" y="3.5" width="8" height="17" stroke="var(--cyan)" stroke-width="1.6"/>
-              <rect x="13.5" y="3.5" width="8" height="17" stroke="var(--cyan)" stroke-width="1.6"/>
-              <path d="M4.5 8H8.5M4.5 12H8.5M4.5 16H7" stroke="var(--cyan)" stroke-width="1.1" opacity="0.6"/>
-              <path d="M15.5 8H19.5M15.5 16H18" stroke="var(--cyan)" stroke-width="1.1" opacity="0.6"/>
-              <path d="M15.5 12H19.5" stroke="var(--amber)" stroke-width="2"/>
-            </svg>
-          </span>
-          <span class="tile-body">
-            <span class="tile-name">Compare Excel Files</span>
-            <span class="tile-desc">Match two versions by key and get every changed, added, and removed value in one report.</span>
-          </span>
-          <span class="tile-go" aria-hidden="true">→</span>
-        </a>
-
-        <div class="tools-foot">Also here: <a href="/format">Format Report</a> for Word documents and <a href="/codebook">Qualitative Coding</a> for PDF and Word corpora.</div>
-      </div>
+      <div class="sheet-foot">Also here: <a href="/format">Format Report</a> for Word documents and <a href="/codebook">Qualitative Coding</a> for PDF and Word corpora.</div>
     </div>
   </div>
 </section>
@@ -683,86 +341,211 @@
 <section id="products">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow">More tools</div>
-      <h2>Also from DataExact</h2>
-      <p>The three Excel tools are up top — open any of them in one click. These two work on documents rather than spreadsheets. Same problem either way: getting your data into shape, whether it starts in a spreadsheet or buried in a stack of documents.</p>
+      <div class="section-label">Excel tools · open one</div>
+      <h2>Full version, free to start</h2>
+      <p>Pick a tool and go — every one is free for your first 3 files a month, no account required.</p>
+    </div>
+    <div class="tool-grid">
+      <div class="tool-card">
+        <div class="tool-tab tab-emerald"></div>
+        <div class="tool-icon" style="background:var(--emerald-bg);color:var(--emerald-ink);">.docx</div>
+        <h3>Excel to Word</h3>
+        <p>Pick your heading column and column order, then get a formatted .docx — one section per row.</p>
+        <a href="/app" class="tool-link" style="color:var(--emerald-ink);">Open tool →</a>
+      </div>
+      <div class="tool-card">
+        <div class="tool-tab tab-amber"></div>
+        <div class="tool-icon" style="background:var(--amber-bg);color:var(--amber-ink);">!</div>
+        <h3>Detect Anomalies</h3>
+        <p>Scan every row and column for duplicates, stray characters, blanks, wrong types, and outliers.</p>
+        <a href="/anomaly" class="tool-link" style="color:var(--amber-ink);">Open tool →</a>
+      </div>
+      <div class="tool-card">
+        <div class="tool-tab tab-azure"></div>
+        <div class="tool-icon" style="background:var(--azure-bg);color:var(--azure-ink);">⇄</div>
+        <h3>Compare Excel Files</h3>
+        <p>Match two versions by key and get every changed, added, and removed value in one report.</p>
+        <a href="/compare" class="tool-link" style="color:var(--azure-ink);">Open tool →</a>
+      </div>
     </div>
 
-    <div class="tool-row">
-      <div class="tcard" id="products-codebook">
-        <h3>Qualitative Coding</h3>
-        <p>Upload a whole corpus of PDFs and Word documents, tag them, and build a code tree of main codes and sub-codes. Every matching passage comes back as an excerpt with its source and location — counted per code, per document, and exportable to Excel.</p>
-        <a class="cta" href="/codebook">Try it now →</a>
+    <div class="more-row">
+      <div>
+        <div class="t">Qualitative Coding</div>
+        <div class="d">Upload a corpus of PDFs and Word docs, build a code tree, get counted excerpts back — exportable to Excel.</div>
       </div>
-
-      <div class="tcard" id="products-format">
-        <h3>Format Report</h3>
-        <p>Upload a plain Word document and apply a brand theme — cover page, styled headings, branded header/footer, and a page border — in one click, ready to share.</p>
-        <a class="cta" href="/format">Try it now →</a>
+      <a href="/codebook" class="btn btn-ghost">Try it now →</a>
+    </div>
+    <div class="more-row">
+      <div>
+        <div class="t">Format Report</div>
+        <div class="d">Upload a plain Word document and apply a brand theme — cover page, headings, header/footer, border.</div>
       </div>
+      <a href="/format" class="btn btn-ghost">Try it now →</a>
     </div>
   </div>
 </section>
 
-<section id="pricing">
+<section id="pricing" style="background:var(--grid-soft);border-top:1px solid var(--grid);border-bottom:1px solid var(--grid);">
   <div class="wrap">
     <div class="section-head">
-      <div class="eyebrow">Pricing</div>
+      <div class="section-label">Pricing</div>
       <h2>Start free. Upgrade when you need more.</h2>
-      <p>Every visitor gets 3 free files a month on <em>each</em> tool — Excel to Word, Compare Excel Files, Format Report, Detect Anomalies, and Qualitative Coding — no signup required. On Qualitative Coding that's three full coding runs, each across your whole corpus. Need more than that on any of them? Sign in and subscribe once for unlimited access to every tool.</p>
+      <p>Every visitor gets 3 free files a month on each tool. Need more on any of them? Subscribe once for unlimited access to every tool.</p>
     </div>
-
-    <div class="pricing-grid">
-      <div class="pcard" id="pcard-free">
-        <div class="pcard-name">Free</div>
-        <div class="pcard-price">$0</div>
-        <div class="pcard-sub">no card required</div>
-        <ul class="pcard-features">
-          <li>3 free files per tool, per month</li>
-          <li>Files up to 10&nbsp;MB</li>
-          <li>No signup to start</li>
+    <div class="price-grid">
+      <div class="price-card" id="pcard-free">
+        <div class="price-tier">Free</div>
+        <div class="price-amt">$0</div>
+        <div class="price-sub">no card required</div>
+        <ul class="price-feat">
+          <li><span class="check">✓</span>3 free files per tool, per month</li>
+          <li><span class="check">✓</span>Files up to 10 MB</li>
+          <li><span class="check">✓</span>No signup to start</li>
         </ul>
-        <a href="/app" class="btn btn-ghost pcard-cta">Start converting →</a>
+        <a href="/app" class="btn btn-ghost">Start converting →</a>
       </div>
-
-      <div class="pcard featured" id="pcard-pro">
-        <div class="pcard-badge">Most popular</div>
-        <div class="pcard-name">Pro</div>
-        <div class="pcard-price">$9<span>/mo</span></div>
-        <div class="pcard-sub">for regular use</div>
-        <ul class="pcard-features">
-          <li>Unlimited use of every tool</li>
-          <li>Files up to 25&nbsp;MB</li>
-          <li>Priority processing</li>
+      <div class="price-card popular" id="pcard-pro">
+        <div class="popular-badge">MOST POPULAR</div>
+        <div class="price-tier">Pro</div>
+        <div class="price-amt">$9<span>/mo</span></div>
+        <div class="price-sub">for regular use</div>
+        <ul class="price-feat">
+          <li><span class="check">✓</span>Unlimited use of every tool</li>
+          <li><span class="check">✓</span>Files up to 25 MB</li>
+          <li><span class="check">✓</span>Priority processing</li>
         </ul>
-        <a href="/billing/checkout/pro" class="btn btn-primary pcard-cta" id="proCta" data-plan="pro">Subscribe to Pro →</a>
+        <a href="/billing/checkout/pro" class="btn btn-primary" id="proCta" data-plan="pro">Subscribe to Pro →</a>
       </div>
-
-      <div class="pcard" id="pcard-business">
-        <div class="pcard-name">Business</div>
-        <div class="pcard-price">$29<span>/mo</span></div>
-        <div class="pcard-sub">for teams</div>
-        <ul class="pcard-features">
-          <li>Everything in Pro</li>
-          <li>Multiple team seats</li>
-          <li>API access</li>
-          <li>Priority support</li>
+      <div class="price-card" id="pcard-business">
+        <div class="price-tier">Business</div>
+        <div class="price-amt">$29<span>/mo</span></div>
+        <div class="price-sub">for teams</div>
+        <ul class="price-feat">
+          <li><span class="check">✓</span>Everything in Pro</li>
+          <li><span class="check">✓</span>Multiple team seats</li>
+          <li><span class="check">✓</span>API access</li>
+          <li><span class="check">✓</span>Priority support</li>
         </ul>
-        <a href="/billing/checkout/business" class="btn btn-ghost pcard-cta" id="businessCta" data-plan="business">Subscribe to Business →</a>
+        <a href="/billing/checkout/business" class="btn btn-ghost" id="businessCta" data-plan="business">Subscribe to Business →</a>
       </div>
     </div>
   </div>
 </section>
 
+<section id="services">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-label">Services</div>
+      <h2>When you need a team on it</h2>
+      <p>For deeper problems than a tool can solve alone — a free audit of how your organization works with data, or a dashboard built around the metrics that matter to you.</p>
+    </div>
+    <div class="svc-grid">
+      <div class="svc-card" id="services-audit">
+        <span class="svc-free">FREE</span>
+        <h3>Data Audit</h3>
+        <p>A free, no-obligation audit of how your whole organization works with data — quality, tools, and where the biggest wins are.</p>
+        <ul class="svc-feat">
+          <li>· Review of data sources, tools, and systems in use</li>
+          <li>· Data quality assessment across key datasets</li>
+          <li>· Infrastructure gap analysis</li>
+          <li>· Recommendations on infrastructure worth deploying next</li>
+          <li>· Written findings report with a prioritized roadmap</li>
+          <li>· A call to walk through what we found and what to tackle first</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost">Book your free audit →</a>
+      </div>
+      <div class="svc-card" id="services-dashboard">
+        <span class="svc-free" style="color:var(--violet-ink);background:var(--violet-bg);">SCOPED CALL</span>
+        <h3>Dashboarding</h3>
+        <p>A live dashboard built around the metrics that matter, connected directly to your data — no more digging through spreadsheets.</p>
+        <ul class="svc-feat">
+          <li>· Discovery call to identify key questions</li>
+          <li>· Custom dashboard connected to your data source</li>
+          <li>· Live, always-current numbers</li>
+          <li>· Access for your whole team, not just one person</li>
+          <li>· Handoff walkthrough plus light support</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost">Start a project →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" style="background:var(--grid-soft);border-top:1px solid var(--grid);">
+  <div class="wrap contact-grid">
+    <div>
+      <div class="section-label">Contact</div>
+      <h2 style="font-size:28px;margin-bottom:14px;">Tell us what you're working with</h2>
+      <p style="color:var(--ink-soft);font-size:15px;margin-bottom:8px;">Whether it's a product question or a service you want scoped, send it over — a real person on the DataExact team will reply.</p>
+      <div class="meta-row"><div class="meta-label">EMAIL</div><div>hello@dataexact.io</div></div>
+      <div class="meta-row"><div class="meta-label">RESPONSE</div><div>Within 1 business day</div></div>
+      <div class="meta-row"><div class="meta-label">HOURS</div><div>Mon–Fri, 09:00–18:00</div></div>
+    </div>
+    <div class="form-card">
+      <div class="form-title">contact_form.exe</div>
+      <form id="contactForm" action="https://formspree.io/f/xljrdzej" method="POST">
+        <div class="field-row">
+          <div class="field"><label for="name">Name</label><input type="text" id="name" name="name" placeholder="Jane Smith" required autocomplete="name"></div>
+          <div class="field"><label for="email">Email</label><input type="email" id="email" name="email" placeholder="jane@company.com" required autocomplete="email"></div>
+        </div>
+        <div class="field">
+          <label for="interest">I'm interested in</label>
+          <select id="interest" name="interest">
+            <option>Excel to Word</option>
+            <option>Format Report</option>
+            <option>Detect Anomalies in Excel</option>
+            <option>Qualitative Coding</option>
+            <option>Data Audit</option>
+            <option>Dashboarding</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <div class="field"><label for="message">Message</label><textarea id="message" name="message" placeholder="What are you working with?" required></textarea></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Send message →</button>
+        <span class="form-msg" id="formMsg"></span>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <div class="logo" style="font-size:16px;"><div class="logo-grid"><span></span><span></span><span></span><span></span></div>DATAEXACT</div>
+    <div class="foot-links">
+      <a href="#products">Products</a><a href="#pricing">Pricing</a><a href="#services">Services</a><a href="#contact">Contact</a>
+    </div>
+    <div class="foot-copy">© 2026 DataExact. All rows accounted for.</div>
+  </div>
+</footer>
+
 <script>
+// Sign-in state in the nav.
 (async function(){
-  let providers = [];
-  let billingStatus = { logged_in: false, subscribed: false };
+  const authArea = document.getElementById('authArea');
   try {
-    const [provRes, statusRes] = await Promise.all([fetch('/auth/providers'), fetch('/billing/status')]);
-    providers = (await provRes.json()).providers || [];
-    billingStatus = await statusRes.json();
-  } catch (e) { /* pricing cards still work as plain links */ }
+    const data = await (await fetch('/me')).json();
+    if (data.user) {
+      authArea.innerHTML = '<span style="font-size:14px;color:var(--ink-soft);">Signed in as <b class="name"></b> · <a href="/auth/logout" style="color:var(--azure-ink);font-weight:600;">Logout</a></span>';
+      // Set as text, not markup — a display name comes from the OAuth provider
+      // and shouldn't be able to inject anything into the nav.
+      authArea.querySelector('.name').textContent = data.user.name || data.user.email || 'there';
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = '/signin/?next=' + encodeURIComponent(location.pathname + location.hash);
+    a.style.cssText = 'font-size:14px;font-weight:600;color:var(--ink-soft);';
+    a.textContent = 'Sign in';
+    authArea.appendChild(a);
+  } catch (e) { /* auth backend not reachable — nav still works */ }
+})();
+
+// Paid plans: straight to checkout when signed in, via sign-in when not.
+(async function(){
+  let billingStatus = { logged_in:false, subscribed:false };
+  try {
+    billingStatus = await (await fetch('/billing/status')).json();
+  } catch (e) { /* cards still work as plain links */ }
 
   const proCta = document.getElementById('proCta');
   const businessCta = document.getElementById('businessCta');
@@ -773,304 +556,42 @@
       btn.textContent = 'Manage subscription →';
     });
     const current = billingStatus.plan === 'business' ? 'pcard-business' : 'pcard-pro';
-    document.getElementById(current)?.insertAdjacentHTML('afterbegin', '<div class="pcard-badge" style="background:var(--cyan);">Current plan</div>');
+    document.getElementById(current)?.insertAdjacentHTML('afterbegin',
+      '<div class="popular-badge" style="background:var(--emerald-ink);">CURRENT PLAN</div>');
     return;
   }
 
-  // Not subscribed yet: paid CTAs go straight to checkout if already signed in,
-  // otherwise route through sign-in first, coming right back to checkout after.
-  // Via /signin rather than a provider directly, so someone paying with an
-  // emailed-link account isn't pushed into an OAuth flow they can't complete.
   [proCta, businessCta].forEach(btn => {
     btn.addEventListener('click', (e) => {
-      if (billingStatus.logged_in) return; // href already points at /billing/checkout/{plan}
+      if (billingStatus.logged_in) return;
       e.preventDefault();
-      const next = encodeURIComponent('/billing/checkout/' + btn.dataset.plan);
-      window.location.href = `/signin/?next=${next}`;
+      window.location.href = '/signin/?next=' + encodeURIComponent('/billing/checkout/' + btn.dataset.plan);
     });
   });
 })();
-</script>
 
-<section id="services">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="eyebrow">Services</div>
-      <h2>When you need a team on it</h2>
-      <p>For deeper problems than a tool can solve alone — a free audit of how your organization works with data, or a dashboard built around the metrics that actually matter to you. Here's exactly what's included in each.</p>
-    </div>
-
-    <div class="card-grid">
-      <div class="card" id="services-audit">
-        <div class="service-viz" aria-hidden="true">
-          <svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">
-            <g stroke="var(--amber)" stroke-width="1.5" opacity="0.65">
-              <line x1="60" y1="4" x2="60" y2="0"/>
-              <line x1="60" y1="60" x2="60" y2="64"/>
-              <line x1="30" y1="32" x2="24" y2="32"/>
-              <line x1="90" y1="32" x2="96" y2="32"/>
-              <line x1="39" y1="12" x2="35" y2="8"/>
-              <line x1="81" y1="12" x2="85" y2="8"/>
-              <line x1="39" y1="52" x2="35" y2="56"/>
-              <line x1="81" y1="52" x2="85" y2="56"/>
-            </g>
-            <polygon points="60,6 80,17 80,39 60,58 40,39 40,17" fill="var(--bg)" stroke="var(--cyan)" stroke-width="2.5"/>
-            <polygon points="60,13 74,21 74,35 60,50 46,35 46,21" fill="none" stroke="var(--cyan)" stroke-width="1" opacity="0.5"/>
-            <path d="M49 31 L57 40 L73 20" fill="none" stroke="var(--cyan)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <h3>Data Audit <span class="free-badge">FREE</span></h3>
-        <p>A free, no-obligation audit of how your whole organization works with data — not just one file. We look at your data quality, the tools and infrastructure you're using (or missing), and where the biggest wins are, then hand back a clear roadmap.</p>
-        <ul class="service-checklist">
-          <li>Review of the data sources, tools, and systems currently in use across your team(s)</li>
-          <li>Data quality assessment — accuracy, consistency, and structure across your key datasets</li>
-          <li>Infrastructure gap analysis — what's missing, duplicated, or held together manually</li>
-          <li>Recommendations on infrastructure worth deploying next — storage, pipelines, reporting, and more</li>
-          <li>A written findings report with a prioritized improvement roadmap</li>
-          <li>A call to walk through what we found and what to tackle first</li>
-        </ul>
-        <a class="cta" href="#contact">Book your free audit →</a>
-      </div>
-
-      <div class="card" id="services-dashboard">
-        <div class="service-viz" aria-hidden="true">
-          <svg viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">
-            <rect x="6" y="6" width="108" height="52" fill="none" stroke="var(--line)" stroke-width="1.5"/>
-            <path d="M6 15 L6 6 L15 6" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-            <path d="M105 6 L114 6 L114 15" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-            <path d="M114 49 L114 58 L105 58" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-            <path d="M15 58 L6 58 L6 49" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
-
-            <rect x="16" y="16" width="56" height="7" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
-            <rect x="16" y="16" width="44" height="7" fill="var(--cyan)"/>
-            <rect x="16" y="28" width="56" height="7" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
-            <rect x="16" y="28" width="28" height="7" fill="var(--amber)"/>
-            <rect x="16" y="40" width="56" height="7" fill="var(--panel)" stroke="var(--line)" stroke-width="1"/>
-            <rect x="16" y="40" width="50" height="7" fill="var(--cyan)"/>
-
-            <polygon points="97,14 108,20 108,34 97,40 86,34 86,20" fill="var(--bg)" stroke="var(--amber)" stroke-width="2"/>
-            <path d="M90 31 L97 24 L104 31" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M90 25 L97 18 L104 25" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-          </svg>
-        </div>
-        <h3>Dashboarding</h3>
-        <p>We build a live dashboard around the metrics that actually matter to you, connected directly to your data — no more digging through spreadsheets for an answer. Scoped to your data during a free discovery call, priced after that based on what you need.</p>
-        <ul class="service-checklist">
-          <li>A discovery call to identify the metrics and questions your dashboard needs to answer</li>
-          <li>A custom-built dashboard connected to your actual data source</li>
-          <li>Live, always-current numbers — no manual refreshing or copy-pasting</li>
-          <li>Access for your whole team, not just one person</li>
-          <li>A handoff walkthrough once it's built, plus light support after launch</li>
-        </ul>
-        <a class="cta" href="#contact">Start a project →</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="contact">
-  <div class="wrap">
-    <div class="contact-wrap">
-      <div class="contact-info">
-        <div class="eyebrow">Contact</div>
-        <h2>Tell us what you're working with</h2>
-        <p>Whether it's a product question or a service you want scoped, send it over — a real person on the DataExact team will reply.</p>
-        <div class="contact-line"><span class="k">Email</span><span>hello@dataexact.io</span></div>
-        <div class="contact-line"><span class="k">Response</span><span>Within 1 business day</span></div>
-        <div class="contact-line"><span class="k">Hours</span><span>Mon–Fri, 09:00–18:00</span></div>
-      </div>
-
-      <div class="terminal">
-        <div class="terminal-bar">
-          <span class="dot r"></span><span class="dot a"></span><span class="dot c"></span>
-          <span>contact_form.exe</span>
-        </div>
-        <div class="terminal-body">
-          <form id="contactForm" action="https://formspree.io/f/xljrdzej" method="POST">
-            <div class="field-row">
-              <div class="field">
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" required autocomplete="name">
-              </div>
-              <div class="field">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required autocomplete="email">
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="interest">I'm interested in</label>
-              <select id="interest" name="interest">
-                <option>Excel to Word</option>
-                <option>Format Report</option>
-                <option>Detect Anomalies in Excel</option>
-                <option>Qualitative Coding</option>
-                <option>Data Audit</option>
-                <option>Dashboarding</option>
-                <option>Something else</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="message">Message</label>
-              <textarea id="message" name="message" required placeholder="Tell us about your data and what you need..."></textarea>
-            </div>
-
-            <div class="submit-row">
-              <button type="submit" class="btn btn-primary">Send message →</button>
-              <span class="form-msg" id="formMsg"></span>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap foot-wrap">
-    <div class="logo"><span class="bracket">[</span>DATAEXACT<span class="bracket">]</span></div>
-    <div class="foot-links">
-      <a href="#products">Products</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#services">Services</a>
-      <a href="#contact">Contact</a>
-    </div>
-  </div>
-  <div class="wrap foot-copy">© 2026 DataExact. All rows accounted for.</div>
-</footer>
-
-<script>
-  // Mobile nav toggle
-  const navToggle = document.getElementById('navToggle');
-  const navLinks = document.getElementById('navLinks');
-  navToggle.addEventListener('click', () => {
-    const isOpen = navLinks.classList.toggle('open');
-    navToggle.setAttribute('aria-expanded', isOpen);
-  });
-
-  // Dropdown menus (click to toggle, close on outside click)
-  // Note: not every .navitem has a <button> inside it (e.g. #authArea is a
-  // plain container for login state), so these all guard with `?.` —
-  // without it, one missing button throws and silently kills the whole
-  // click handler before the menu ever opens.
-  document.querySelectorAll('.navitem').forEach(item => {
-    const btn = item.querySelector('button');
-    if (!btn) return;
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const willOpen = !item.classList.contains('open');
-      document.querySelectorAll('.navitem').forEach(i => {
-        i.classList.remove('open');
-        i.querySelector('button')?.setAttribute('aria-expanded', 'false');
-      });
-      if (willOpen) {
-        item.classList.add('open');
-        btn.setAttribute('aria-expanded', 'true');
-      }
+// Contact form -> Formspree
+const form = document.getElementById('contactForm');
+const formMsg = document.getElementById('formMsg');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  formMsg.textContent = '> sending...';
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' },
     });
-  });
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.navitem').forEach(i => {
-      i.classList.remove('open');
-      i.querySelector('button')?.setAttribute('aria-expanded', 'false');
-    });
-  });
-  document.querySelectorAll('.dropdown a').forEach(a => {
-    a.addEventListener('click', () => {
-      document.querySelectorAll('.navitem').forEach(i => i.classList.remove('open'));
-      navLinks.classList.remove('open');
-    });
-  });
-
-  // Contact form -> Formspree
-  const form = document.getElementById('contactForm');
-  const formMsg = document.getElementById('formMsg');
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    formMsg.textContent = '> sending...';
-    try {
-      const res = await fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' },
-      });
-      if (res.ok) {
-        formMsg.textContent = '> message received — we\'ll reply within 1 business day.';
-        form.reset();
-      } else {
-        formMsg.textContent = '> something went wrong — please email hello@dataexact.io directly.';
-      }
-    } catch (err) {
+    if (res.ok) {
+      formMsg.textContent = '> message received — we\'ll reply within 1 business day.';
+      form.reset();
+    } else {
       formMsg.textContent = '> something went wrong — please email hello@dataexact.io directly.';
     }
-  });
-
-  // Hero background grid — lights up in a pixelated pattern under the cursor (signature element)
-  const canvas = document.getElementById('heroCanvas');
-  const ctx = canvas.getContext('2d');
-  const heroSection = canvas.closest('.hero');
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let w, h, cols, rows, cellSize = 34;
-  let cells = [];
-
-  function resize() {
-    const hero = canvas.parentElement;
-    w = canvas.width = hero.offsetWidth;
-    h = canvas.height = hero.offsetHeight;
-    cols = Math.ceil(w / cellSize);
-    rows = Math.ceil(h / cellSize);
-    cells = [];
-    for (let x = 0; x < cols; x++) {
-      cells.push([]);
-      for (let y = 0; y < rows; y++) {
-        cells[x].push({ anomaly: false, life: 0 });
-      }
-    }
+  } catch (err) {
+    formMsg.textContent = '> something went wrong — please email hello@dataexact.io directly.';
   }
-  window.addEventListener('resize', resize);
-  resize();
-
-  if (!prefersReduced) {
-    heroSection.addEventListener('mousemove', e => {
-      const rect = canvas.getBoundingClientRect();
-      const cx = Math.floor((e.clientX - rect.left) / cellSize);
-      const cy = Math.floor((e.clientY - rect.top) / cellSize);
-      const radius = 2;
-      for (let dx = -radius; dx <= radius; dx++) {
-        for (let dy = -radius; dy <= radius; dy++) {
-          const x = cx + dx, y = cy + dy;
-          if (!cells[x] || !cells[x][y]) continue;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > radius) continue;
-          if (Math.random() < 0.35 / (dist + 1)) {
-            cells[x][y].anomaly = Math.random() < 0.12;
-            cells[x][y].life = 40;
-          }
-        }
-      }
-    });
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, w, h);
-    for (let x = 0; x < cols; x++) {
-      for (let y = 0; y < rows; y++) {
-        const c = cells[x][y];
-        if (c.life > 0) {
-          const alpha = Math.min(1, c.life / 40) * 0.55;
-          ctx.fillStyle = c.anomaly
-            ? `rgba(209, 75, 61, ${alpha})`
-            : `rgba(31, 143, 148, ${alpha * 0.6})`;
-          ctx.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
-          c.life -= 1;
-        }
-      }
-    }
-    if (!prefersReduced) requestAnimationFrame(draw);
-  }
-  if (!prefersReduced) requestAnimationFrame(draw);
-
+});
 </script>
 
 </body>
